@@ -374,7 +374,7 @@
 
             if (acct && acct.email && acct.password) {
                 // ---- Server path: everything matches real billing ----
-                var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime';
+                var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
                 ImperaAuth.provisionWithPassword(acct.email, acct.name, acct.password);
 
                 var data = {
@@ -382,7 +382,7 @@
                     bot: acct.bot || botKey,
                     botName: acct.product || BOT_NAMES[botKey] || BOT_NAMES.scalping,
                     licenceKey: isMentorshipOrder ? null : (acct.licenceKey || generateKey()),
-                    plan: botKey === 'mentor-monthly' ? 'monthly' : botKey === 'mentor-lifetime' ? 'lifetime' : null,
+                    plan: isMentorshipOrder ? (botKey === 'mentor-lifetime' ? 'lifetime' : 'monthly') : null,
                     email: acct.email,
                     amount: acct.amount || null,
                     date: new Date().toISOString()
@@ -405,7 +405,7 @@
             }
 
             // ---- Local fallback (no server configured) ----
-            var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime';
+            var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
             var licenceKey = generateKey();
             var name = isMentorshipOrder
                 ? 'IMPERA Mentorship — ' + (botKey === 'mentor-lifetime' ? 'Lifetime' : 'Monthly')
@@ -463,7 +463,7 @@
                 accCard.style.display = "none";
             }
 
-            var isMentorship = data.bot === 'mentor-monthly' || data.bot === 'mentor-lifetime';
+            var isMentorship = data.bot === 'mentor-monthly' || data.bot === 'mentor-lifetime' || data.bot === 'basic-membership';
 
             if (isMentorship) {
                 document.getElementById('licenceCard').style.display = 'none';

@@ -112,20 +112,37 @@ const transporter = nodemailer.createTransport({
 
 const smtpConfigured = () => !!(process.env.SMTP_USER && process.env.SMTP_PASS);
 
-// HTTP email API (works on Render free tier, which blocks SMTP ports)
+// HTTP email APIs (work on Render free tier, which blocks SMTP ports)
 async function sendViaApi({ to, subject, html }) {
-    const key = process.env.RESEND_API_KEY;
-    const from = process.env.MAIL_FROM || 'IMPERA <onboarding@resend.dev>';
     if (typeof fetch !== 'function') throw new Error('fetch unavailable');
-    const r = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to: [to], subject, html })
-    });
-    if (!r.ok) {
-        const body = await r.text().catch(() => '');
-        throw new Error('Email API error ' + r.status + ': ' + body.slice(0, 140));
+    if (process.env.BREVO_API_KEY) {
+        const r = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json', accept: 'application/json' },
+            body: JSON.stringify({
+                sender: { name: 'IMPERA', email: process.env.SMTP_USER || 'imperafrx@gmail.com' },
+                to: [{ email: to }],
+                subject,
+                htmlContent: html
+            })
+        });
+        if (!r.ok) throw new Error('Brevo error ' + r.status + ': ' + (await r.text().catch(() => '')).slice(0, 140));
+        return;
     }
+    if (process.env.RESEND_API_KEY) {
+        const from = process.env.MAIL_FROM || 'IMPERA <onboarding@resend.dev>';
+        const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from, to: [to], subject, html })
+        });
+        if (!r.ok) {
+            const body = await r.text().catch(() => '');
+            throw new Error('Email API error ' + r.status + ': ' + body.slice(0, 140));
+        }
+        return;
+    }
+    throw new Error('No email API key configured');
 }
 
 async function sendHtml(to, subject, html) {
@@ -313,7 +330,9 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
             if (isMentorship) {
                 // ---- Mentorship purchase: welcome + instant slot-picking instructions ----
-                const planName = /life/i.test(type) ? 'IMPERA Mentorship — Lifetime' : 'IMPERA Mentorship — Monthly';
+                const planName = /life/i.test(type) ? 'IMPERA Mentorship — Lifetime'
+                    : /basic/i.test(type) ? (productName || 'IMPERA Basic Membership')
+                    : 'IMPERA Mentorship — Monthly';
                 html = loadTemplate('mentorship-welcome.html', {
                     ...commonVars,
                     plan_name: planName,

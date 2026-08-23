@@ -474,7 +474,7 @@
         let html = `<p style="font-weight:700;margin-bottom:14px">${date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>`;
         html += ImperaAuth.SLOTS.map(t => {
             const isTaken = taken.includes(t);
-            return `<button type="button" data-slot="${t}" disabled="${isTaken}" style="
+            return `<button type="button" data-slot="${t}"${isTaken ? ' disabled' : ''} style="
                     width:100%;padding:11px;margin-bottom:8px;border-radius:10px;cursor:${isTaken ? 'not-allowed' : 'pointer'};
                     border:1px solid ${isTaken ? 'rgba(255,255,255,0.08)' : 'rgba(0,194,255,0.35)'};
                     background:${isTaken ? 'rgba(255,255,255,0.03)' : 'rgba(0,194,255,0.06)'};
@@ -484,7 +484,7 @@
         }).join('');
         panel.innerHTML = html;
 
-        panel.querySelectorAll('[data-slot]:not([disabled="true"])').forEach(btn => {
+        panel.querySelectorAll('[data-slot]:not([disabled])').forEach(btn => {
             btn.addEventListener('click', () => confirmBooking(ymd(date), btn.dataset.slot));
         });
     }

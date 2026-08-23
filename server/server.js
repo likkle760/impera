@@ -157,6 +157,21 @@ async function sendViaApi({ to, subject, html }) {
     throw new Error('No email API key configured');
 }
 
+// Send using a template designed in the Resend dashboard (must be PUBLISHED there)
+async function sendResendTemplate({ to, templateId, subject, variables }) {
+    const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            from: process.env.MAIL_FROM || 'IMPERA <onboarding@resend.dev>',
+            to: [to],
+            subject,
+            template: { id: templateId, variables: variables || {} }
+        })
+    });
+    if (!r.ok) throw new Error('Resend template error ' + r.status + ': ' + (await r.text().catch(() => '')).slice(0, 140));
+}
+
 async function sendHtml(to, subject, html) {
     if (apiMailConfigured()) return sendViaApi({ to, subject, html });
     if (!smtpConfigured()) {
@@ -305,9 +320,31 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
         support_email: SUPPORT_EMAIL
     };
 
-    let subject, html;
+    let subject, html = null;
+    let tplId = null, tplVars = null;
 
-    if (isMentorship) {
+    if (process.env.RESEND_API_KEY && (isMentorship ? process.env.RESEND_TPL_MENTORSHIP : process.env.RESEND_TPL_ORDER)) {
+        // ---- Use the merchant's own template designed in the Resend dashboard ----
+        tplId = isMentorship ? process.env.RESEND_TPL_MENTORSHIP : process.env.RESEND_TPL_ORDER;
+        tplVars = {
+            CUSTOMER_NAME: commonVars.customer_name,
+            ORDER_NUMBER: commonVars.order_number,
+            DATE: commonVars.date,
+            PRODUCT_NAME: productName,
+            AMOUNT: amountFormatted,
+            LICENCE_KEY: rec.licenceKey || '',
+            TEMP_PASSWORD: rec.password || '',
+            LOGIN_EMAIL: email,
+            DASHBOARD_URL: DASHBOARD_URL,
+            DOWNLOAD_URL: SITE_URL.replace(/\/$/, '') + '/assets/IMPERA_' +
+                (/gold/i.test(type) ? 'Gold_Bot' : /global/i.test(type) ? 'Global_Bot' : 'Scalping_Bot') + '.mq5',
+            SUPPORT_EMAIL: SUPPORT_EMAIL,
+            TELEGRAM_URL: TELEGRAM_URL,
+            PLAN_NAME: /life/i.test(type) ? 'Lifetime' : (/basic|membership/i.test(type) ? 'Basic Membership' : 'Monthly')
+        };
+        subject = isMentorship ? 'Welcome to IMPERA Mentorship — pick your first session'
+                               : `IMPERA — Order Confirmed (${productName})`;
+    } else if (isMentorship) {
         const planName = /life/i.test(type) ? 'IMPERA Mentorship — Lifetime'
             : /basic|membership/i.test(type) ? (productName || 'IMPERA Basic Membership')
             : 'IMPERA Mentorship — Monthly';
@@ -337,7 +374,8 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
 
     // ---- Customer email: never let mail problems break order processing ----
     try {
-        await sendHtml(email, subject, html);
+        if (tplId) await sendResendTemplate({ to: email, templateId: tplId, subject, variables: tplVars });
+        else await sendHtml(email, subject, html);
         rec.emailed = true;
     } catch (mailErr) {
         console.error('[fulfil] customer email failed:', mailErr.message);
@@ -437,19 +475,36 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
             if (!email) return res.json({ received: true });
 
-            const html = loadTemplate('order-declined.html', {
-                customer_name: (pi.charges?.data?.[0]?.billing_details?.name || '').split(' ')[0] || 'there',
-                bot_name: 'your IMPERA order',
-                amount: pi.amount != null ? `£${(pi.amount / 100).toFixed(2)}` : '',
-                order_number: '#' + pi.id.slice(-8).toUpperCase(),
-                date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-                decline_reason: reasons[reasonCode] || reasons.generic,
-                retry_url: SITE_URL.replace(/\/$/, '') + '/index.html#store',
-                support_email: SUPPORT_EMAIL,
-                telegram_url: TELEGRAM_URL
-            });
+            const declineVars = {
+                CUSTOMER_NAME: (pi.charges?.data?.[0]?.billing_details?.name || '').split(' ')[0] || 'there',
+                ORDER_NUMBER: '#' + pi.id.slice(-8).toUpperCase(),
+                DATE: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                AMOUNT: pi.amount != null ? `£${(pi.amount / 100).toFixed(2)}` : '',
+                DECLINE_REASON: reasons[reasonCode] || reasons.generic,
+                RETRY_URL: SITE_URL.replace(/\/$/, '') + '/index.html#store',
+                SUPPORT_EMAIL: SUPPORT_EMAIL,
+                TELEGRAM_URL: TELEGRAM_URL
+            };
 
-            await sendHtml(email, 'IMPERA — Action needed regarding your order', html);
+            try {
+                if (process.env.RESEND_API_KEY && process.env.RESEND_TPL_DECLINED) {
+                    await sendResendTemplate({ to: email, templateId: process.env.RESEND_TPL_DECLINED, subject: 'IMPERA — Action needed regarding your order', variables: declineVars });
+                } else {
+                    await sendHtml(email, 'IMPERA — Action needed regarding your order', loadTemplate('order-declined.html', {
+                        customer_name: declineVars.CUSTOMER_NAME,
+                        bot_name: 'your IMPERA order',
+                        amount: declineVars.AMOUNT,
+                        order_number: declineVars.ORDER_NUMBER,
+                        date: declineVars.DATE,
+                        decline_reason: declineVars.DECLINE_REASON,
+                        retry_url: declineVars.RETRY_URL,
+                        support_email: SUPPORT_EMAIL,
+                        telegram_url: TELEGRAM_URL
+                    }));
+                }
+            } catch (mailErr) {
+                console.error('[webhook] declined email failed:', mailErr.message);
+            }
             notifyAdmin(
                 `⚠️ Failed payment — ${email}`,
                 [

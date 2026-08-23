@@ -357,7 +357,7 @@
         // and the server-generated password so it matches the email.
         // Otherwise fall back to local provisioning.
         // =========================================================
-        var IMPERA_API = ''; // e.g. 'https://impera-api.up.railway.app' after deploying server/
+        var IMPERA_API = 'https://impera-5b6l.onrender.com'; // live IMPERA webhook server
         if (IMPERA_API) { try { localStorage.setItem('impera_api_url', IMPERA_API); } catch (e) {} }
 
         async function fetchServerAccount(sid) {

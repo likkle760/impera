@@ -247,7 +247,14 @@
 
             try {
                 const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-                const origin = window.location.origin;
+                let origin = window.location.origin;
+                if (!origin || origin.indexOf('http') !== 0) {
+                    errEl.textContent = 'Please open this page through a web address (your live site URL), not by double-clicking the file.';
+                    errEl.classList.add('show');
+                    btn.classList.remove('processing');
+                    btn.disabled = false;
+                    return;
+                }
                 const { error } = await stripe.redirectToCheckout({
                     lineItems: [{ price: bot.priceId, quantity: 1 }],
                     mode: bot.mode || 'payment',

@@ -165,7 +165,8 @@
         const member = purchases.some(p => A.isMentorship(p.bot));
 
         const set = (id, v) => { const el = $('#' + id); if (el) el.textContent = v; };
-        set('ovBots', bots.length);
+        const licenceBots = session.licence ? 1 : 0;
+        set('ovBots', bots.length + licenceBots);
         set('ovPlan', member ? (purchases.some(p => p.bot === 'mentor-lifetime') ? 'Lifetime' : 'Monthly') : '\u2014');
 
         const upcoming = A ? A.getBookings()

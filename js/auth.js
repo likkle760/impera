@@ -99,7 +99,7 @@
         }
     }
 
-    const isMentorship = (botKey) => botKey === 'mentor-monthly' || botKey === 'mentor-lifetime';
+    const isMentorship = (botKey) => botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
 
     function userProducts(email) {
         const u = findUser(email);

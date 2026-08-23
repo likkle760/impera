@@ -40,13 +40,23 @@ const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@impera.com';
 // Map Stripe Price IDs -> product info.
 // Built-in defaults below; optionally override/extend via PRICE_MAP env (JSON).
 const DEFAULT_PRICE_MAP = {
-    'price_1U7cTzRiTJNYtmMnrJ9pfDWl': { key: 'scalping', name: 'IMPERA Scalping Bot', type: 'bot' },
-    'price_1U7cTIRiTJNYtmMnOxHBGfmn': { key: 'gold', name: 'IMPERA Gold Bot', type: 'bot' },
-    'price_1U7cSQRiTJNYtmMnzPNcyDRf': { key: 'global', name: 'IMPERA Global Bot', type: 'bot' },
-    'price_1U7ccARiTJNYtmMnbYF6Rlqx': { key: 'mentor-monthly', name: 'IMPERA Mentorship — Monthly', type: 'mentorship' },
-    'price_1U7cPJRiTJNYtmMnX13LOQKm': { key: 'mentor-lifetime', name: 'IMPERA Mentorship — Lifetime', type: 'mentorship' },
-    'price_1U7dbxRiTJNYtmMnONXnmiVk': { key: 'impera-bot', name: 'IMPERA Bot', type: 'bot' },
-    'price_1U7dcLRiTJNYtmMnqPYwKCA5': { key: 'basic-membership', name: 'IMPERA Basic Membership', type: 'mentorship', recurring: true }
+    'price_1U7cTzRiTJNYtmMnrJ9pfDWl': { key: 'scalping', name: 'IMPERA Scalping Bot', type: 'bot', amount: 49 },
+    'price_1U7cTIRiTJNYtmMnOxHBGfmn': { key: 'gold', name: 'IMPERA Gold Bot', type: 'bot', amount: 125 },
+    'price_1U7cSQRiTJNYtmMnzPNcyDRf': { key: 'global', name: 'IMPERA Global Bot', type: 'bot', amount: 245 },
+    'price_1U7ccARiTJNYtmMnbYF6Rlqx': { key: 'mentor-monthly', name: 'IMPERA Mentorship — Monthly', type: 'mentorship', recurring: true, amount: 50 },
+    'price_1U7cPJRiTJNYtmMnX13LOQKm': { key: 'mentor-lifetime', name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 },
+    'price_1U7dbxRiTJNYtmMnONXnmiVk': { key: 'impera-bot', name: 'IMPERA Bot', type: 'bot', amount: 0 },
+    'price_1U7dcLRiTJNYtmMnqPYwKCA5': { key: 'basic-membership', name: 'IMPERA Basic Membership', type: 'mentorship', recurring: true, amount: 0 }
+};
+
+// SumUp catalog (key -> product) — one-time card payments via Hosted Checkout.
+// Subscriptions (mentor-monthly / basic-membership) are not offered through SumUp.
+const SUMUP_CATALOG = {
+    scalping:       { name: 'IMPERA Scalping Bot',        type: 'bot', amount: 49 },
+    gold:           { name: 'IMPERA Gold Bot',            type: 'bot', amount: 125 },
+    global:         { name: 'IMPERA Global Bot',          type: 'bot', amount: 245 },
+    'impera-bot':   { name: 'IMPERA Bot',                 type: 'bot', amount: 0 },
+    'mentor-lifetime': { name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 }
 };
 
 function priceMap() {
@@ -271,6 +281,91 @@ function hookLog(entry) {
     } catch { /* ignore */ }
 }
 
+// ---------- Shared order fulfilment (Stripe webhook + SumUp both use this) ----------
+async function deliverProduct({ sessionId, type, productName, priceId, amountFormatted, amountValue, customerName, email, receiptUrl }) {
+    const map = priceMap()[priceId] || {};
+    const isMentorship = map.type === 'mentorship' || /mentor|membership/i.test(type);
+
+    const rec = provision({ sessionId, type, productName, priceId, amountFormatted });
+    rec.customerName = customerName || '';
+    rec.amountValue = amountValue != null ? amountValue : null;
+    rec.customerEmail = email;
+
+    const now = new Date();
+    const commonVars = {
+        customer_name: (customerName || 'there').split(' ')[0],
+        order_number: '#' + sessionId.slice(-8).toUpperCase(),
+        date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' +
+              now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        dashboard_url: DASHBOARD_URL,
+        login_email: email,
+        temp_password: rec.password,
+        telegram_url: TELEGRAM_URL,
+        support_email: SUPPORT_EMAIL
+    };
+
+    let subject, html;
+
+    if (isMentorship) {
+        const planName = /life/i.test(type) ? 'IMPERA Mentorship — Lifetime'
+            : /basic|membership/i.test(type) ? (productName || 'IMPERA Basic Membership')
+            : 'IMPERA Mentorship — Monthly';
+        html = loadTemplate('mentorship-welcome.html', {
+            ...commonVars,
+            plan_name: planName,
+            amount: amountFormatted,
+            bot_name: planName,
+            __stripBotOnly: true
+        });
+        subject = `Welcome to IMPERA Mentorship — pick your first session`;
+    } else {
+        html = loadTemplate('order-approved.html', {
+            ...commonVars,
+            bot_name: productName,
+            amount: amountFormatted,
+            licence_key: rec.licenceKey || 'Included with your membership',
+            download_url: SITE_URL.replace(/\/$/, '') + '/assets/IMPERA_' +
+                (/gold/i.test(type) ? 'Gold_Bot' : /global/i.test(type) ? 'Global_Bot' : 'Scalping_Bot') + '.mq5',
+            receipt_url: receiptUrl || `https://dashboard.impera.app/receipts/${sessionId}`
+        });
+        subject = `IMPERA — Order Confirmed (${productName})`;
+    }
+
+    saveUser(rec, customerName, email);
+    rec.emailed = false;
+
+    // ---- Customer email: never let mail problems break order processing ----
+    try {
+        await sendHtml(email, subject, html);
+        rec.emailed = true;
+    } catch (mailErr) {
+        console.error('[fulfil] customer email failed:', mailErr.message);
+    }
+
+    // ---- Owner alert: new sale ----
+    notifyAdmin(
+        `💰 New IMPERA sale — ${productName} ${amountFormatted}`,
+        [
+            `<strong style="color:#C9A962;">${productName}</strong> — ${amountFormatted}`,
+            `Customer: <strong>${customerName || '—'}</strong> &lt;${email}&gt;`,
+            `Order: #${sessionId.slice(-8).toUpperCase()} · ${isMentorship ? 'Mentorship' : 'Bot licence'}`
+        ]
+    );
+
+    rec.emailed = rec.emailed === true;
+    const accs = db.read('accounts.json');
+    const ai = accs.findIndex(a => a.sessionId === sessionId);
+    if (ai >= 0) {
+        accs[ai].customerName = customerName || '';
+        accs[ai].customerEmail = email;
+        accs[ai].amountValue = amountValue != null ? amountValue : null;
+        accs[ai].amountFormatted = amountFormatted;
+        accs[ai].emailed = rec.emailed;
+    }
+    db.write('accounts.json', accs);
+    return rec;
+}
+
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
@@ -306,91 +401,22 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
             const map = priceMap()[priceId] || {};
             const type = map.key || 'scalping';
             const productName = map.name || line?.description || 'IMPERA Product';
-            const isMentorship = map.type === 'mentorship';
 
-            const rec = provision({ sessionId: session.id, type, productName, priceId, amountFormatted });
-            rec.customerName = billingName;
-            rec.amountValue = unit / 100;
-            rec.customerEmail = email;
             // First session is chosen by the client on the confirmation screen
             // (every day + every hour available). No server-side auto-scheduling.
-
-            const now = new Date();
-            const commonVars = {
-                customer_name: billingName.split(' ')[0] || 'there',
-                order_number: '#' + session.id.slice(-8).toUpperCase(),
-                date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' +
-                      now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                dashboard_url: DASHBOARD_URL,
-                login_email: email,
-                temp_password: rec.password,
-                telegram_url: TELEGRAM_URL,
-                support_email: SUPPORT_EMAIL
-            };
-
-            let subject, html;
-
-            if (isMentorship) {
-                // ---- Mentorship purchase: welcome + instant slot-picking instructions ----
-                const planName = /life/i.test(type) ? 'IMPERA Mentorship — Lifetime'
-                    : /basic/i.test(type) ? (productName || 'IMPERA Basic Membership')
-                    : 'IMPERA Mentorship — Monthly';
-                html = loadTemplate('mentorship-welcome.html', {
-                    ...commonVars,
-                    plan_name: planName,
-                    amount: amountFormatted,
-                    bot_name: planName,
-                    __stripBotOnly: true
-                });
-                subject = `Welcome to IMPERA Mentorship — pick your first session`;
-            } else {
-                // ---- Bot purchase: licence + download email ----
-                html = loadTemplate('order-approved.html', {
-                    ...commonVars,
-                    bot_name: productName,
-                    amount: amountFormatted,
-                    licence_key: rec.licenceKey || 'Included with your membership',
-                    download_url: SITE_URL.replace(/\/$/, '') + '/assets/IMPERA_' +
-                        (type === 'gold' ? 'Gold_Bot' : type === 'global' ? 'Global_Bot' : 'Scalping_Bot') + '.mq5',
-                    receipt_url: session.payment_intent?.latest_charge?.receipt_url ||
-                                 session.invoice?.hosted_invoice_url ||
-                                 `https://dashboard.stripe.com/receipts/${session.id}`
-                });
-                subject = `IMPERA — Order Confirmed (${productName})`;
-            }
-
-            saveUser(rec, billingName, email);
-            rec.emailed = false;
-
-            // ---- Customer email: never let mail problems break order processing ----
-            try {
-                await sendHtml(email, subject, html);
-                rec.emailed = true;
-            } catch (mailErr) {
-                console.error('[webhook] customer email failed:', mailErr.message);
-            }
-
-            // ---- Owner alert: new sale ----
-            notifyAdmin(
-                `💰 New IMPERA sale — ${productName} ${amountFormatted}`,
-                [
-                    `<strong style="color:#C9A962;">${productName}</strong> — ${amountFormatted}`,
-                    `Customer: <strong>${billingName || '—'}</strong> &lt;${email}&gt;`,
-                    `Order: #${session.id.slice(-8).toUpperCase()} · ${isMentorship ? 'Mentorship' : 'Bot licence'}`
-                ]
-            );
-
-            rec.emailed = rec.emailed === true;
-            const accs = db.read('accounts.json');
-            const ai = accs.findIndex(a => a.sessionId === session.id);
-            if (ai >= 0) {
-                accs[ai].customerName = billingName;
-                accs[ai].customerEmail = email;
-                accs[ai].amountValue = unit / 100;
-                accs[ai].amountFormatted = amountFormatted;
-                accs[ai].emailed = rec.emailed;
-            }
-            db.write('accounts.json', accs);
+            await deliverProduct({
+                sessionId: session.id,
+                type,
+                productName,
+                priceId,
+                amountFormatted,
+                amountValue: unit / 100,
+                customerName: billingName,
+                email,
+                receiptUrl: session.payment_intent?.latest_charge?.receipt_url ||
+                            session.invoice?.hosted_invoice_url ||
+                            `https://dashboard.stripe.com/receipts/${session.id}`
+            });
             return res.json({ received: true });
         }
 
@@ -482,6 +508,143 @@ app.post('/api/create-checkout-session', express.json(), async (req, res) => {
             db.write('checkoutlog.json', log.slice(-20));
         } catch (e2) {}
         res.status(500).json({ error: 'Could not start checkout. Please try again.', detail: err.message });
+    }
+});
+
+// ---------- SumUp Hosted Checkout ----------
+const PAYMENT_PROVIDER = (process.env.PAYMENT_PROVIDER || 'stripe').toLowerCase();
+const sumupOk = () => !!process.env.SUMUP_API_KEY;
+let _merchantCodeCache = null;
+async function sumupMerchantCode() {
+    if (_merchantCodeCache) return _merchantCodeCache;
+    if (process.env.SUMUP_MERCHANT_CODE) { _merchantCodeCache = process.env.SUMUP_MERCHANT_CODE; return _merchantCodeCache; }
+    const r = await fetch('https://api.sumup.com/v0.1/me', { headers: { Authorization: 'Bearer ' + process.env.SUMUP_API_KEY } });
+    if (!r.ok) throw new Error('Cannot read SumUp merchant profile (HTTP ' + r.status + ')');
+    const me = await r.json();
+    _merchantCodeCache = (me.merchant_profile && me.merchant_profile.merchant_code) || me.merchant_code || null;
+    if (!_merchantCodeCache) throw new Error('No merchant_code found on SumUp profile');
+    return _merchantCodeCache;
+}
+
+app.get('/api/config', (req, res) => {
+    res.json({
+        provider: PAYMENT_PROVIDER,
+        sumupReady: PAYMENT_PROVIDER === 'sumup' ? sumupOk() : undefined,
+        unavailableOnSumup: ['mentor-monthly', 'basic-membership']
+    });
+});
+
+app.post('/api/create-sumup-checkout', express.json(), async (req, res) => {
+    try {
+        if (!sumupOk()) return res.status(500).json({ error: 'SumUp is not configured yet. Please contact support.' });
+        const { key, email } = req.body || {};
+        const info = SUMUP_CATALOG[key];
+        if (!info) return res.status(400).json({ error: 'Unknown product.' });
+        if (!email || !/.+@.+\..+/.test(email)) return res.status(400).json({ error: 'A valid email address is required.' });
+
+        const ref = 'imp' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        const orders = db.read('sumuporders.json');
+        orders.push({ ref, key, email, name: info.name, type: info.type, amount: info.amount, status: 'pending', createdAt: new Date().toISOString() });
+        db.write('sumuporders.json', orders);
+
+        const mc = await sumupMerchantCode();
+        const origin = siteOrigin(req);
+        const r = await fetch('https://api.sumup.com/v0.1/checkouts', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + process.env.SUMUP_API_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: info.amount,
+                currency: 'GBP',
+                checkout_reference: ref,
+                description: info.name + ' — ' + email,
+                merchant_code: mc,
+                redirect_url: origin + '/success.html?sumup_ref=' + encodeURIComponent(ref) +
+                              '&bot=' + encodeURIComponent(key) + '&email=' + encodeURIComponent(email),
+                hosted_checkout: { enabled: true }
+            })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok || !data.hosted_checkout_url) {
+            const msg = (data && (data.message || data.detail)) || ('HTTP ' + r.status);
+            throw new Error(msg);
+        }
+        const orders2 = db.read('sumuporders.json');
+        const o = orders2.find(x => x.ref === ref);
+        if (o) { o.checkoutId = data.id; db.write('sumuporders.json', orders2); }
+        res.json({ url: data.hosted_checkout_url });
+    } catch (err) {
+        console.error('[sumup] create failed:', err.message);
+        res.status(500).json({ error: 'Could not start checkout. Please try again.', detail: err.message });
+    }
+});
+
+function acctPayload(sessionId) {
+    const rec = db.read('accounts.json').find(a => a.sessionId === sessionId);
+    if (!rec) return null;
+    return {
+        sessionId: rec.sessionId,
+        bot: rec.type,
+        product: rec.productName,
+        amount: rec.amountFormatted,
+        password: rec.password,
+        licenceKey: rec.licenceKey,
+        name: rec.customerName || '',
+        nextSession: rec.nextSession || null
+    };
+}
+
+app.get('/api/sumup/verify/:ref', async (req, res) => {
+    try {
+        if (!sumupOk()) return res.status(500).json({ error: 'SumUp is not configured.' });
+        const ref = String(req.params.ref || '');
+        const orders = db.read('sumuporders.json');
+        const order = orders.find(o => o.ref === ref);
+        if (!order) return res.status(404).json({ error: 'Order not found.' });
+
+        if (order.status === 'paid') {
+            const p = acctPayload(order.sessionId);
+            if (p) return res.json(p);
+        }
+
+        // Ask SumUp for the latest state of this checkout reference
+        const q = await fetch('https://api.sumup.com/v0.1/checkouts?checkout_reference=' + encodeURIComponent(ref) + '&limit=1', {
+            headers: { Authorization: 'Bearer ' + process.env.SUMUP_API_KEY }
+        });
+        if (!q.ok) return res.status(502).json({ pending: true });
+        const list = await q.json().catch(() => []);
+        const co = Array.isArray(list) && list[0];
+        if (!co) return res.json({ pending: true });
+
+        const paid = co.status === 'PAID' ||
+            (Array.isArray(co.transactions) && co.transactions.some(t => t.status === 'SUCCESSFUL'));
+
+        if (!paid) return res.json({ pending: co.status !== 'FAILED', status: co.status || null });
+
+        // Paid! Fulfil exactly once.
+        order.status = 'paid';
+        order.checkoutId = order.checkoutId || co.id;
+        order.sessionId = order.sessionId || ('sumup_' + co.id);
+        order.paidAt = new Date().toISOString();
+        db.write('sumuporders.json', orders);
+
+        const tx = (co.transactions || []).find(t => t.status === 'SUCCESSFUL') || {};
+        await deliverProduct({
+            sessionId: order.sessionId,
+            type: order.key,
+            productName: order.name,
+            priceId: 'sumup:' + order.key,
+            amountFormatted: '£' + Number(order.amount).toFixed(2),
+            amountValue: order.amount,
+            customerName: tx.payer_email ? '' : order.email.split('@')[0],
+            email: order.email,
+            receiptUrl: tx.transaction_id ? ('https://me.sumup.com/transactions/' + tx.transaction_id) : null
+        });
+        const p = acctPayload(order.sessionId);
+        if (!p) return res.status(500).json({ error: 'Fulfilment failed.' });
+        res.json(p);
+    } catch (err) {
+        console.error('[sumup] verify failed:', err.message);
+        res.status(500).json({ error: 'Verification failed.', detail: err.message });
     }
 });
 
@@ -653,18 +816,9 @@ app.get('/api/mailcheck', async (req, res) => {
 // ---------- Account lookup for success page ----------
 app.get('/api/account/:sessionId', async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
-    const rec = db.read('accounts.json').find(a => a.sessionId === req.params.sessionId);
-    if (!rec) return res.status(404).json({ error: 'not found' });
-    res.json({
-        sessionId: rec.sessionId,
-        bot: rec.type,
-        product: rec.productName,
-        amount: rec.amountFormatted,
-        password: rec.password,
-        licenceKey: rec.licenceKey,
-        name: rec.customerName || '',
-        nextSession: rec.nextSession || null
-    });
+    const payload = acctPayload(req.params.sessionId);
+    if (!payload) return res.status(404).json({ error: 'not found' });
+    res.json(payload);
 });
 
 // ---------- Products by buyer email (drives dashboard across devices) ----------

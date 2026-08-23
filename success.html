@@ -297,6 +297,7 @@
         const sessionId = params.get('session_id');
         const botKey = params.get('bot') || 'scalping';
         const emailParam = params.get('email') ? decodeURIComponent(params.get('email')) : null;
+        const sumupRef = params.get('sumup_ref');
 
         const loadingEl = document.getElementById('loadingState');
         const deniedEl = document.getElementById('deniedState');
@@ -326,7 +327,7 @@
             return 'IMPERA-' + seg;
         }
 
-        if (!sessionId) {
+        if (!sessionId && !sumupRef) {
             loadingEl.style.display = 'none';
             deniedEl.style.display = 'block';
             deniedEl.querySelector('h1').textContent = 'No Payment Found';
@@ -337,9 +338,9 @@
 
         // Check if this session was already processed
         var purchaseKey = 'impera_purchase_' + sessionId;
-        var existing = localStorage.getItem(purchaseKey);
+        var existing = sessionId ? localStorage.getItem(purchaseKey) : null;
 
-        setTimeout(function() {
+        if (!sumupRef) setTimeout(function() {
             loadingEl.style.display = 'none';
 
             if (existing) {
@@ -350,6 +351,38 @@
                 processNewSession();
             }
         }, 1500);
+
+        // ---- SumUp return: poll the server until payment is confirmed ----
+        var IMPERA_API_SU = 'https://impera-5b6l.onrender.com';
+        if (sumupRef) {
+            (function pollSumup() {
+                var tries = 0;
+                var timer = setInterval(async function () {
+                    tries++;
+                    try {
+                        const r = await fetch(IMPERA_API_SU + '/api/sumup/verify/' + encodeURIComponent(sumupRef));
+                        const j = await r.json();
+                        if (j && j.email && j.password) {
+                            clearInterval(timer);
+                            loadingEl.style.display = 'none';
+                            processNewSession(j, true);
+                        } else if (j && j.status === 'FAILED') {
+                            clearInterval(timer);
+                            loadingEl.style.display = 'none';
+                            deniedEl.style.display = 'block';
+                            deniedEl.querySelector('h1').textContent = 'Payment Not Completed';
+                            document.getElementById('deniedSubtitle').textContent = 'The card payment did not go through.';
+                            document.getElementById('deniedReason').innerHTML = 'You have <strong>not been charged</strong> for a failed payment. Please try again from the checkout page.';
+                        }
+                    } catch (e) {}
+                    if (tries >= 20 && !timer._done) { /* keep last state */ }
+                    if (tries >= 25) {
+                        clearInterval(timer);
+                        loadingEl.innerHTML = '<p style="color:#ccc">Still confirming your payment… This usually takes under a minute. You can refresh this page in a moment.</p>';
+                    }
+                }, 3000);
+            })();
+        }
 
         // =========================================================
         // New payment. If the IMPERA webhook server is deployed,
@@ -369,8 +402,9 @@
             } catch (e) { return null; }
         }
 
-        async function processNewSession() {
-            var acct = await fetchServerAccount(sessionId);
+        async function processNewSession(acctOverride) {
+            var acct = acctOverride || await fetchServerAccount(sessionId);
+            var sid = (acct && acct.sessionId) || sessionId;
 
             if (acct && acct.email && acct.password) {
                 // ---- Server path: everything matches real billing ----
@@ -378,7 +412,7 @@
                 ImperaAuth.provisionWithPassword(acct.email, acct.name, acct.password);
 
                 var data = {
-                    sessionId: sessionId,
+                    sessionId: sid,
                     bot: acct.bot || botKey,
                     botName: acct.product || BOT_NAMES[botKey] || BOT_NAMES.scalping,
                     licenceKey: isMentorshipOrder ? null : (acct.licenceKey || generateKey()),
@@ -388,7 +422,7 @@
                     date: new Date().toISOString()
                 };
                 ImperaAuth.addPurchase(data);
-                localStorage.setItem('impera_purchase_' + sessionId, JSON.stringify(data));
+                localStorage.setItem('impera_purchase_' + sid, JSON.stringify(data));
 
                 if (!isMentorshipOrder) {
                     var session = { name: acct.name || 'Trader', email: acct.email, role: 'client', licence: null, tier: null, purchasedBots: [] };
@@ -505,11 +539,12 @@
             var card = document.getElementById('sessionPicker');
             var buyerEmail = data.email || (window.ImperaAuth && ImperaAuth.session() && ImperaAuth.session().email) || '';
             if (!buyerEmail) { card.style.display = 'none'; return; }
-            if (localStorage.getItem('impera_sessionbooked_' + sessionId)) { renderSpDone(buyerEmail); return; }
+            var bookedFlagKey = 'impera_sessionbooked_' + (data.sessionId || sessionId);
+            if (localStorage.getItem(bookedFlagKey)) { renderSpDone(buyerEmail, bookedFlagKey); return; }
             card.style.display = 'block';
             document.getElementById('spPrev').addEventListener('click', function () { spDate.setMonth(spDate.getMonth() - 1); buildSpCal(); });
             document.getElementById('spNext').addEventListener('click', function () { spDate.setMonth(spDate.getMonth() + 1); buildSpCal(); });
-            document.getElementById('spConfirm').addEventListener('click', function () { confirmSpBooking(buyerEmail); });
+            document.getElementById('spConfirm').addEventListener('click', function () { confirmSpBooking(buyerEmail, bookedFlagKey); });
             buildSpCal();
         }
 
@@ -581,13 +616,13 @@
             });
         }
 
-        function confirmSpBooking(email) {
+        function confirmSpBooking(email, bookedFlagKey) {
             if (!spSel.date || !spSel.time) return;
             var sessN = window.ImperaAuth ? ImperaAuth.session() : null;
             var name = (sessN && sessN.name && sessN.name !== 'Trader' && sessN.name) || email.split('@')[0];
             var res = ImperaAuth.addBooking(email, name, spSel.date, spSel.time, 'IMPERA Mentorship — First Session');
             if (res.error) { alert(res.error); return; }
-            localStorage.setItem('impera_sessionbooked_' + sessionId, spSel.date + 'T' + spSel.time);
+            localStorage.setItem(bookedFlagKey || ('impera_sessionbooked_' + sessionId), spSel.date + 'T' + spSel.time);
             try {
                 var base = localStorage.getItem('impera_api_url');
                 if (base) fetch(base.replace(/\/$/, '') + '/api/bookings', {
@@ -599,8 +634,8 @@
             renderSpDone(email);
         }
 
-        function renderSpDone(email) {
-            var saved = localStorage.getItem('impera_sessionbooked_' + sessionId) || '';
+        function renderSpDone(email, bookedFlagKey) {
+            var saved = localStorage.getItem(bookedFlagKey || ('impera_sessionbooked_' + sessionId)) || '';
             var parts = saved.split('T');
             var nice = '';
             if (parts.length === 2) {

@@ -224,6 +224,23 @@
         const botKey = params.get('bot') || 'scalping';
         const bot = BOTS[botKey] || BOTS.scalping;
 
+        // Which payment provider is live? (server decides — Stripe or SumUp)
+        let PROVIDER = 'stripe';
+        try {
+            fetch(IMPERA_SERVER + '/api/config').then(r => r.json()).then(c => {
+                PROVIDER = (c && c.provider) || 'stripe';
+                if (PROVIDER === 'sumup') {
+                    document.getElementById('btnPay').querySelector('.btn-text').textContent = 'Pay \u00A3' + bot.price + ' \u2014 Card Payment';
+                }
+                if (PROVIDER === 'sumup' && c.unavailableOnSumup && c.unavailableOnSumup.indexOf(botKey) >= 0) {
+                    document.getElementById('btnPay').disabled = true;
+                    const errEl = document.getElementById('errorMsg');
+                    errEl.textContent = 'This subscription plan is temporarily unavailable for card payment. Please choose a one-time product or contact support.';
+                    errEl.classList.add('show');
+                }
+            }).catch(function () {});
+        } catch (e) {}
+
         document.getElementById('orderItemName').textContent = bot.name;
         document.getElementById('orderItemSub').textContent = bot.sub;
         document.getElementById('orderItemPrice').textContent = '\u00A3' + bot.price;
@@ -274,6 +291,16 @@
                     btn.classList.remove('processing');
                     btn.disabled = false;
                     return;
+                }
+                if (PROVIDER === 'sumup') {
+                    const resp = await fetch(IMPERA_SERVER + '/api/create-sumup-checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: botKey, email: email })
+                    });
+                    const data = await resp.json();
+                    if (data && data.url) { window.location.href = data.url; return; }
+                    throw new Error((data && data.error) || 'Could not start checkout.');
                 }
                 const resp = await fetch(IMPERA_SERVER + '/api/create-checkout-session', {
                     method: 'POST',

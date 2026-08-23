@@ -106,7 +106,13 @@ const transporter = nodemailer.createTransport({
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
 });
 
+const smtpConfigured = () => !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+
 async function sendHtml(to, subject, html) {
+    if (!smtpConfigured()) {
+        console.log('[mail] SKIPPED "' + subject + '" -> ' + to + ' (SMTP_USER/SMTP_PASS not set)');
+        throw new Error('SMTP not configured');
+    }
     await transporter.sendMail({
         from: process.env.MAIL_FROM || 'IMPERA <support@impera.com>',
         to, subject, html
@@ -117,7 +123,10 @@ async function sendHtml(to, subject, html) {
 // Internal alert -> owner inbox (ADMIN_NOTIFY_EMAIL). Never blocks the main flow.
 async function notifyAdmin(subject, lines) {
     const to = process.env.ADMIN_NOTIFY_EMAIL;
-    if (!to) return;
+    if (!to || !smtpConfigured()) {
+        console.log('[mail] admin alert SKIPPED "' + subject + '" (no ADMIN_NOTIFY_EMAIL or SMTP config)');
+        return;
+    }
     try {
         await transporter.sendMail({
             from: process.env.MAIL_FROM || 'IMPERA <support@impera.com>',
@@ -533,6 +542,26 @@ app.get('/api/admin/overview', (req, res) => {
         return res.status(401).json({ error: 'unauthorized' });
     }
     res.json(buildOverview());
+});
+
+// Diagnose email delivery: sends a test email to ADMIN_NOTIFY_EMAIL
+app.get('/api/mailcheck', async (req, res) => {
+    if (req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    if (!smtpConfigured()) return res.json({ ok: false, error: 'SMTP_USER / SMTP_PASS are not set in Render environment variables.' });
+    if (!process.env.ADMIN_NOTIFY_EMAIL) return res.json({ ok: false, error: 'ADMIN_NOTIFY_EMAIL is not set.' });
+    try {
+        await transporter.sendMail({
+            from: process.env.MAIL_FROM || 'IMPERA <' + process.env.SMTP_USER + '>',
+            to: process.env.ADMIN_NOTIFY_EMAIL,
+            subject: 'IMPERA — mail test',
+            text: 'If you receive this, order & booking emails are working.'
+        });
+        res.json({ ok: true });
+    } catch (err) {
+        res.json({ ok: false, error: err.message });
+    }
 });
 
 // ---------- Account lookup for success page ----------

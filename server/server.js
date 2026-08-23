@@ -348,17 +348,27 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
         const planName = /life/i.test(type) ? 'IMPERA Mentorship — Lifetime'
             : /basic|membership/i.test(type) ? (productName || 'IMPERA Basic Membership')
             : 'IMPERA Mentorship — Monthly';
-        html = loadTemplate('mentorship-welcome.html', {
+        const tpl = /life/i.test(type) ? 'mentorship-lifetime.html'
+            : /basic|membership/i.test(type) ? 'mentorship-monthly.html'
+            : 'mentorship-monthly.html';
+        html = loadTemplate(tpl, {
             ...commonVars,
+            product_name: planName,
             plan_name: planName,
-            amount: amountFormatted,
             bot_name: planName,
-            __stripBotOnly: true
+            amount: amountFormatted,
+            licence_key: '',
+            download_url: '',
+            receipt_url: receiptUrl || `https://dashboard.impera.app/receipts/${sessionId}`
         });
         subject = `Welcome to IMPERA Mentorship — pick your first session`;
     } else {
-        html = loadTemplate('order-approved.html', {
+        const tpl = /gold/i.test(type) ? 'order-gold.html'
+            : /global/i.test(type) ? 'order-global.html'
+            : 'order-scalping.html';
+        html = loadTemplate(tpl, {
             ...commonVars,
+            product_name: productName,
             bot_name: productName,
             amount: amountFormatted,
             licence_key: rec.licenceKey || 'Included with your membership',

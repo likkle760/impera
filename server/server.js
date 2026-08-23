@@ -476,7 +476,12 @@ app.post('/api/create-checkout-session', express.json(), async (req, res) => {
         res.json({ url: session.url });
     } catch (err) {
         console.error('[checkout] create session failed:', err.message);
-        res.status(500).json({ error: 'Could not start checkout. Please try again.' });
+        try {
+            const log = db.read('checkoutlog.json');
+            log.push({ ts: new Date().toISOString(), msg: err.message, code: err.code || err.type || '', priceId: (req.body || {}).priceId });
+            db.write('checkoutlog.json', log.slice(-20));
+        } catch (e2) {}
+        res.status(500).json({ error: 'Could not start checkout. Please try again.', detail: err.message });
     }
 });
 

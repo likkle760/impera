@@ -1053,7 +1053,13 @@ app.post('/api/admin/login', express.json(), (req, res) => {
         } catch { ok = false; }
     }
 
-    if (!ok) { f.n++; f.ts = now; return res.status(401).json({ error: 'Invalid admin credentials.' }); }
+    if (!ok) {
+        f.n++; f.ts = now;
+        return res.status(401).json({
+            error: 'Invalid admin credentials.',
+            configured: !!(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD)
+        });
+    }
     f.n = 0;
     if (!process.env.ADMIN_TOKEN) return res.status(500).json({ error: 'Server missing ADMIN_TOKEN env var.' });
     res.json({ ok: true, token: process.env.ADMIN_TOKEN });

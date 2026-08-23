@@ -67,17 +67,63 @@
     const sess = A.session();
     if (sess && sess.role === 'admin') openPortal();
 
-    $('#gateForm').addEventListener('submit', function (e) {
+    $('#gateForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         $('#gateHint').style.display = 'none';
         $('#gateError').style.display = 'none';
-        const res = A.login($('#gEmail').value.trim(), $('#gPass').value);
+        const email = $('#gEmail').value.trim();
+        const pass = $('#gPass').value;
+        if (!email || !pass) return gateFail('Enter your email and password.');
+
+        /* ---- 1) Try LIVE server credentials first (Render ADMIN_EMAIL / ADMIN_PASSWORD).
+              Works on any device, even when this browser has never seen the owner account. ---- */
+        try {
+            const r = await fetch(DEFAULT_API + '/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: pass })
+            });
+            if (r.ok) {
+                const j = await r.json();
+                localStorage.setItem('impera_admin_token', j.token);
+                try { sessionStorage.setItem('impera_admin_pass', pass); } catch (er) {}
+                ensureLocalAdmin(email, pass);   // mirror session locally for dashboard features
+                openPortal();
+                return;
+            }
+            if (r.status === 401) {
+                const j = await r.json().catch(() => ({}));
+                if (j.configured) {
+                    return gateFail((j.error || 'Invalid credentials.') +
+                        ' These are checked against the server (ADMIN_EMAIL / ADMIN_PASSWORD in Render).');
+                }
+                // server reachable but admin login not configured → fall back to local
+            }
+            // 429 / 5xx → fall through to local check so a server hiccup never locks you out
+        } catch (err) { /* server unreachable → local login */ }
+
+        /* ---- 2) Local fallback (browser-stored owner account) ---- */
+        const res = A.login(email, pass);
         if (res.error === 'No account found with this email.') return gateFail(res.error + ' Click "Reset owner access" below.');
-        if (res.error) return gateFail(res.error + ' (passwords are case-sensitive)');
+        if (res.error) return gateFail(res.error + ' — click "Reset owner access" below to restore the default owner password.');
         if (res.session.role !== 'admin') { A.clearSession(); return gateFail('This account does not have admin access.'); }
-        try { sessionStorage.setItem('impera_admin_pass', $('#gPass').value); } catch (e) { /* private mode */ }
+        try { sessionStorage.setItem('impera_admin_pass', pass); } catch (er) {}
         openPortal();
     });
+
+    function ensureLocalAdmin(email, pass) {
+        const users = A.getUsers();
+        let u = users.find(x => String(x.email).toLowerCase() === email.toLowerCase());
+        if (!u) {
+            u = { id: 'srv-' + Date.now().toString(36), name: 'Owner', email: email, role: 'admin',
+                  createdAt: new Date().toISOString(), products: [] };
+            users.push(u);
+        }
+        u.role = 'admin';
+        u.pass = btoa(unescape(encodeURIComponent('impera:' + pass)));
+        localStorage.setItem(A.K.users, JSON.stringify(users));
+        A.login(email, pass);
+    }
     function gateFail(msg) { const el = $('#gateError'); el.textContent = msg; el.style.display = 'block'; }
 
     function openPortal() {

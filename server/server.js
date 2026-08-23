@@ -216,15 +216,25 @@ app.use('/api', (req, res, next) => {
 });
 
 // ---------- Webhook ----------
+function hookLog(entry) {
+    try {
+        const log = db.read('webhooklog.json');
+        log.push(Object.assign({ ts: new Date().toISOString() }, entry));
+        db.write('webhooklog.json', log.slice(-30));
+    } catch { /* ignore */ }
+}
+
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
     try {
         event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
+        hookLog({ step: 'signature-failed', msg: err.message });
         console.error('[webhook] signature verification failed:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
+    hookLog({ step: 'received', type: event.type, id: event.data?.object?.id });
 
     try {
         if (event.type === 'checkout.session.completed') {
@@ -234,7 +244,11 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
             const email = session.customer_details?.email || session.customer_email || null;
             const billingName = session.customer_details?.name || '';
-            if (!email) { console.error('[webhook] no customer email on session'); return res.json({ received: true }); }
+            if (!email) {
+                hookLog({ step: 'no-email', id: session.id, customer_details: !!session.customer_details, customer_email: session.customer_email || null });
+                console.error('[webhook] no customer email on session');
+                return res.json({ received: true });
+            }
 
             const line = session.line_items?.data?.[0];
             const priceId = line?.price?.id || '';
@@ -363,9 +377,18 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
         res.json({ received: true });
     } catch (err) {
+        hookLog({ step: 'handler-error', type: event.type, id: event.data?.object?.id, msg: err.message });
         console.error('[webhook] handler error:', err);
         res.status(500).send('Handler error');
     }
+});
+
+// Webhook diagnostics (admin only)
+app.get('/api/admin/webhooklog', (req, res) => {
+    if (req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    res.json({ log: db.read('webhooklog.json').slice(-30), accounts: db.read('accounts.json').length, users: db.read('users.json').length });
 });
 
 // ---------- Visitor tracking (called from every public page) ----------

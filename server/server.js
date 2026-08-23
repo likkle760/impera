@@ -345,10 +345,10 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 // ---------- Visitor tracking (called from every public page) ----------
 // ---------- Create Checkout Session (server-side) ----------
 function siteOrigin(req) {
-    const envUrl = (process.env.SITE_URL || '').trim();
-    if (/^https?:\/\//i.test(envUrl)) return envUrl.replace(/\/+$/, '');
-    const o = req.get('origin');
+    const o = req.get && req.get('origin');
     if (o && /^https?:\/\//i.test(o)) return o.replace(/\/+$/, '');
+    const envUrl = (process.env.SITE_URL || '').trim();
+    if (/^https?:\/\//i.test(envUrl) && !/your-site\.com|example\.com|localhost/i.test(envUrl)) return envUrl.replace(/\/+$/, '');
     return 'https://impera1.onrender.com';
 }
 

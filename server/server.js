@@ -714,6 +714,37 @@ app.post('/api/create-sumup-checkout', express.json(), async (req, res) => {
     }
 });
 
+// ---------- Dev/test order creation (no payment) ----------
+app.post('/api/dev/order', express.json(), async (req, res) => {
+    if (req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    try {
+        const { key, email } = req.body || {};
+        if (!email || !/.+@.+\..+/.test(email)) return res.status(400).json({ error: 'valid email required' });
+        const catalog = Object.assign({}, SUMUP_CATALOG, {
+            'basic-membership': { name: 'IMPERA Basic Membership', type: 'mentorship', amount: 0 },
+            'mentor-monthly': { name: 'IMPERA Mentorship — Monthly', type: 'mentorship', amount: 0 }
+        });
+        const info = catalog[key];
+        if (!info) return res.status(400).json({ error: 'unknown key' });
+        const sessionId = 'dev_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        const rec = await deliverProduct({
+            sessionId,
+            type: key,
+            productName: info.name,
+            priceId: 'dev:' + key,
+            amountFormatted: '£' + Number(info.amount).toFixed(2),
+            amountValue: info.amount,
+            customerName: '',
+            email
+        });
+        res.json(acctPayload(rec.sessionId));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 function acctPayload(sessionId) {
     const rec = db.read('accounts.json').find(a => a.sessionId === sessionId);
     if (!rec) return null;

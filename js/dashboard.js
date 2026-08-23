@@ -296,7 +296,7 @@
                 const r = await fetch(base.replace(/\/$/, '') + '/api/licence/activate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key })
+                    body: JSON.stringify({ key, email: session.email })
                 });
                 res = await r.json().catch(() => ({ ok: false }));
             } catch (err) {

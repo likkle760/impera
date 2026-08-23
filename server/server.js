@@ -306,6 +306,11 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
     rec.customerName = customerName || '';
     rec.amountValue = amountValue != null ? amountValue : null;
     rec.customerEmail = email;
+    // Licence keys are locked to the buying account from the moment of purchase
+    if (rec.licenceKey) {
+        rec.activatedBy = String(email).toLowerCase();
+        rec.activatedAt = new Date().toISOString();
+    }
 
     const now = new Date();
     const commonVars = {
@@ -1109,16 +1114,42 @@ app.get('/api/products/:email', (req, res) => {
 // ---------- Licence activation (validates against real orders only) ----------
 app.post('/api/licence/activate', express.json(), (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
-    const key = String((req.body || {}).key || '').trim().toUpperCase();
+    const body = req.body || {};
+    const key = String(body.key || '').trim().toUpperCase();
+    const email = String(body.email || '').trim().toLowerCase();
+    if (!email) {
+        return res.status(400).json({ ok: false, error: 'Log in to your IMPERA account first — licence keys activate against your login.' });
+    }
     if (!/^IMPERA-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(key)) {
         return res.status(400).json({ ok: false, error: 'Invalid key format.' });
     }
-    const rec = db.read('accounts.json').find(a => a.licenceKey === key);
+    const accounts = db.read('accounts.json');
+    const rec = accounts.find(a => a.licenceKey === key);
     if (!rec) return res.status(404).json({ ok: false, error: 'This licence key was not recognised. Keys are issued by email after purchase.' });
     const botKey = TIER_BY_KEY[rec.type] ? rec.type : null;
     if (!botKey) return res.status(400).json({ ok: false, error: 'This key belongs to a mentorship plan and unlocks sessions, not a bot download.' });
-    res.json({ ok: true, tier: TIER_BY_KEY[botKey], botKey, productName: rec.productName || 'IMPERA Bot', orderEmail: rec.customerEmail || null });
+
+    // ---- One key, one account ----
+    const boundTo = rec.activatedBy || rec.customerEmail?.toLowerCase() || null;
+    if (boundTo && boundTo !== email) {
+        return res.status(409).json({
+            ok: false,
+            error: `This licence key is locked to another IMPERA account (${maskEmail(boundTo)}). Each key works on one account only.`
+        });
+    }
+    if (!rec.activatedBy) {
+        rec.activatedBy = email;
+        rec.activatedAt = new Date().toISOString();
+        db.write('accounts.json', accounts);
+    }
+
+    res.json({ ok: true, tier: TIER_BY_KEY[botKey], botKey, productName: rec.productName || 'IMPERA Bot' });
 });
+
+function maskEmail(e) {
+    const [u, d] = String(e || '').split('@');
+    return (u ? u[0] : '') + '\u2022\u2022\u2022@' + (d || '');
+}
 
 // ---------- Meeting reminder (admin-triggered) ----------
 // POST /api/remind  { sessionId }   Header: x-admin-token: <ADMIN_TOKEN>

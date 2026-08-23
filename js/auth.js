@@ -122,6 +122,23 @@
             data = await r.json();
         } catch (e) { return 0; }
         if (!data || !Array.isArray(data.products)) return 0;
+        const emailLc = String(email).toLowerCase();
+        const serverIds = new Set(data.products.map(p => p.sessionId));
+        // Records created by the IMPERA server (orders/dev tests) must exist
+        // server-side — drop stale local copies left behind by deploy wipes,
+        // while preserving manual admin grants ('manual-…') and offline entries.
+        const SERVER_ORIGIN = /^(cs_|pi_|dev_|sumup_|paypal_|pp_|in_|sub_)/;
+        const purchases = getPurchases();
+        const keptPurchases = purchases.filter(x =>
+            x.email !== emailLc || !SERVER_ORIGIN.test(String(x.sessionId || '')) || serverIds.has(x.sessionId));
+        if (keptPurchases.length !== purchases.length) write(K.purchases, keptPurchases);
+        const usersAll = getUsers();
+        const meUser = usersAll.find(x => x.email === emailLc);
+        if (meUser && Array.isArray(meUser.products)) {
+            const keptProds = meUser.products.filter(x =>
+                !SERVER_ORIGIN.test(String(x.sessionId || '')) || serverIds.has(x.sessionId));
+            if (keptProds.length !== meUser.products.length) { meUser.products = keptProds; saveUsers(usersAll); }
+        }
         let added = 0;
         data.products.forEach(p => {
             const rec = {

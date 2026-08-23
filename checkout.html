@@ -163,47 +163,44 @@
         // STRIPE CONFIG — Add your publishable key here
         // Get it from: https://dashboard.stripe.com/apikeys
         // ========================================
-        const STRIPE_PUBLISHABLE_KEY = 'pk_live_51U7RAgGwbBbNDZbSQ66hAEmaWuLu28l6MJ0bhRup44DXd6oydZK6PP31Dhob1oGTYR8SP0st2Hq1J9vg8cBVHwaD00Jf4LP6qW';
+        const STRIPE_PUBLISHABLE_KEY = 'pk_live_51U7cEZRiTJNYtmMn940g4cnSbOvwMlF2ZDxSuhaUEt4NfnFUIi9MLZV1844vpJPDsUbuweoyflcSIc7LN4E3LSsC00566RZDgf';
 
         // Price IDs from your Stripe dashboard
         // ⚠ 50% OFF SALE (ends Oct 31 2026): `price` values below are what the
         // customer SEES. The amount Stripe actually charges comes from your
         // Price IDs in the Stripe Dashboard — make sure those match these
         // sale prices (or create separate sale Prices and swap the IDs).
-        // ⚠ NEW STRIPE ACCOUNT: every priceId below must be created in THIS
-        // account's dashboard, then pasted here. Placeholders show a friendly
-        // "coming soon" message until replaced.
         const BOTS = {
             scalping: {
                 name: 'IMPERA Scalping Bot',
                 sub: 'M1/M5 High-Frequency Scalper',
                 price: 49,
-                priceId: 'price_1U7RMZGwbBbNDZbSN2sNNFjN'
+                priceId: 'price_1U7cTzRiTJNYtmMnrJ9pfDWl'
             },
             gold: {
                 name: 'IMPERA Gold Bot',
                 sub: 'XAU/USD Multi-Timeframe EA',
                 price: 125,
-                priceId: 'price_1U7RN1GwbBbNDZbS2htlMfBx'
+                priceId: 'price_1U7cTIRiTJNYtmMnOxHBGfmn'
             },
             global: {
                 name: 'IMPERA Global Bot',
                 sub: 'Full-Featured Multi-Strategy EA',
                 price: 245,
-                priceId: 'price_1U7RNlGwbBbNDZbSi3tpFFQh'
+                priceId: 'price_1U7cSQRiTJNYtmMnzPNcyDRf'
             },
             'mentor-monthly': {
                 name: 'IMPERA Mentorship — Monthly',
                 sub: '1:1 Coaching · Private Group · Cancel anytime',
                 price: 50,
-                priceId: 'price_1U7RJBGwbBbNDZbSclVBJdgW',
+                priceId: 'price_1U7ccARiTJNYtmMnbYF6Rlqx',
                 mode: 'subscription'
             },
             'mentor-lifetime': {
                 name: 'IMPERA Mentorship — Lifetime',
                 sub: 'One Payment · Lifetime Access · Best Value',
                 price: 175,
-                priceId: 'price_1U7RJwGwbBbNDZbStOG1G7R9',
+                priceId: 'price_1U7cPJRiTJNYtmMnX13LOQKm',
                 mode: 'payment'
             }
         };

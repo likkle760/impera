@@ -41,7 +41,8 @@ const DEFAULT_PRICE_MAP = {
     'price_1U7cTIRiTJNYtmMnOxHBGfmn': { key: 'gold', name: 'IMPERA Gold Bot', type: 'bot' },
     'price_1U7cSQRiTJNYtmMnzPNcyDRf': { key: 'global', name: 'IMPERA Global Bot', type: 'bot' },
     'price_1U7ccARiTJNYtmMnbYF6Rlqx': { key: 'mentor-monthly', name: 'IMPERA Mentorship — Monthly', type: 'mentorship' },
-    'price_1U7cPJRiTJNYtmMnX13LOQKm': { key: 'mentor-lifetime', name: 'IMPERA Mentorship — Lifetime', type: 'mentorship' }
+    'price_1U7cPJRiTJNYtmMnX13LOQKm': { key: 'mentor-lifetime', name: 'IMPERA Mentorship — Lifetime', type: 'mentorship' },
+    'price_1U7dbkRiTJNYtmMnoXAm13Du': { key: 'trfx', name: 'TRFX Bot', type: 'bot' }
 };
 
 function priceMap() {

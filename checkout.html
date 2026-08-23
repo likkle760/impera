@@ -233,8 +233,9 @@
 
         // Which payment provider is live? (server decides — Stripe / SumUp / PayPal)
         let PROVIDER = 'stripe';
-        try {
-            fetch(IMPERA_SERVER + '/api/config').then(r => r.json()).then(c => {
+        const cfgPromise = fetch(IMPERA_SERVER + '/api/config')
+            .then(r => r.json())
+            .then(c => {
                 PROVIDER = (c && c.provider) || 'stripe';
                 const unavail = (c && (c.unavailableOnProvider || c.unavailableOnSumup)) || [];
                 if (PROVIDER === 'sumup') {
@@ -249,8 +250,9 @@
                     errEl.textContent = 'This subscription plan is temporarily unavailable. Please choose a one-time product or contact support.';
                     errEl.classList.add('show');
                 }
-            }).catch(function () {});
-        } catch (e) {}
+                return PROVIDER;
+            })
+            .catch(function () { return 'stripe'; });
 
         document.getElementById('orderItemName').textContent = bot.name;
         document.getElementById('orderItemSub').textContent = bot.sub;
@@ -303,8 +305,12 @@
                     btn.disabled = false;
                     return;
                 }
-                if (PROVIDER === 'sumup') {
-                    const resp = await fetch(IMPERA_SERVER + '/api/create-sumup-checkout', {
+
+                // Wait for the server to tell us which provider is active
+                PROVIDER = await cfgPromise;
+
+                if (PROVIDER === 'paypal') {
+                    const resp = await fetch(IMPERA_SERVER + '/api/create-paypal-order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ key: botKey, email: email })
@@ -313,8 +319,8 @@
                     if (data && data.url) { window.location.href = data.url; return; }
                     throw new Error((data && data.error) || 'Could not start checkout.');
                 }
-                if (PROVIDER === 'paypal') {
-                    const resp = await fetch(IMPERA_SERVER + '/api/create-paypal-order', {
+                if (PROVIDER === 'sumup') {
+                    const resp = await fetch(IMPERA_SERVER + '/api/create-sumup-checkout', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ key: botKey, email: email })

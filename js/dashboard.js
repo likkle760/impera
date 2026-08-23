@@ -201,7 +201,6 @@
         ];
 
         grid.innerHTML = allBots.map(b => {
-            const isLocked = !b.active;
             const hasFile = b.purchased || b.active;
             const downloadHtml = hasFile
                 ? `<a href="bots/${b.file}" download="${b.file}" style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(0,255,178,0.06);border:1px solid rgba(0,255,178,0.15);border-radius:8px;color:#00FFB2;text-decoration:none;font-size:0.85rem;font-weight:600;margin-top:12px;transition:all 0.3s"><span>&darr;</span> Download ${b.file}</a>`
@@ -210,7 +209,7 @@
                 <div class="dash-bot-card">
                     <div class="dash-bot-header">
                         <span class="dash-bot-name">${b.name}</span>
-                        <span class="dash-bot-status ${b.active ? 'active' : 'inactive'}">${b.active ? 'Running' : (isLocked ? 'Locked' : 'Stopped')}</span>
+                        <span class="dash-bot-status ${b.active ? 'active' : 'inactive'}">${b.active ? 'Unlocked' : 'Locked'}</span>
                     </div>
                     <p style="color:var(--gray-500);font-size:0.82rem;margin:8px 0 0">${b.desc}</p>
                     <div class="dash-bot-stats">
@@ -271,7 +270,15 @@
             session.licence = key;
             session.tier = tier;
             localStorage.setItem('impera_session', JSON.stringify(session));
+            const botNames = { Scalping: 'IMPERA Scalping Bot', Gold: 'IMPERA Gold Bot', Global: 'IMPERA Global Bot' };
+            const ok = $('#licenceSuccess');
+            if (ok) {
+                ok.textContent = '\u2713 Licence activated \u2014 ' + (botNames[tier] || 'your bot') + ' unlocked';
+                ok.style.display = '';
+            }
+            errorEl.classList.remove('show');
             renderLicence();
+            renderAll();
         });
     }
 
@@ -280,6 +287,8 @@
         deactivateBtn.addEventListener('click', () => {
             session.licence = null; session.tier = null;
             localStorage.setItem('impera_session', JSON.stringify(session));
+            const ok = $('#licenceSuccess');
+            if (ok) ok.style.display = 'none';
             renderLicence(); renderAll();
             $('#licenceInput').value = '';
         });

@@ -332,7 +332,16 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
             );
 
             rec.emailed = rec.emailed === true;
-            db.write('accounts.json', db.read('accounts.json'));
+            const accs = db.read('accounts.json');
+            const ai = accs.findIndex(a => a.sessionId === session.id);
+            if (ai >= 0) {
+                accs[ai].customerName = billingName;
+                accs[ai].customerEmail = email;
+                accs[ai].amountValue = unit / 100;
+                accs[ai].amountFormatted = amountFormatted;
+                accs[ai].emailed = rec.emailed;
+            }
+            db.write('accounts.json', accs);
             return res.json({ received: true });
         }
 

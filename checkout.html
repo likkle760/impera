@@ -280,22 +280,6 @@
             btn.disabled = true;
             errEl.classList.remove('show');
 
-            if (STRIPE_PUBLISHABLE_KEY.includes('REPLACE')) {
-                errEl.textContent = 'Stripe not configured yet. Add your publishable key in checkout.html.';
-                errEl.classList.add('show');
-                btn.classList.remove('processing');
-                btn.disabled = false;
-                return;
-            }
-
-            if (bot.priceId.includes('REPLACE')) {
-                errEl.textContent = 'This plan\u2019s Stripe Price ID isn\u2019t set up yet. Create it in your Stripe dashboard and paste it into checkout.html (BOTS config).';
-                errEl.classList.add('show');
-                btn.classList.remove('processing');
-                btn.disabled = false;
-                return;
-            }
-
             try {
                 let origin = window.location.origin;
                 if (!origin || origin.indexOf('http') !== 0) {

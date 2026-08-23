@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPERA — Checkout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="js/track.js"></script>
+    <style>
+        body { display: flex; min-height: 100vh; }
+        .checkout-layout { display: flex; width: 100%; min-height: 100vh; }
+        .checkout-left {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 60px 40px; background: #050505;
+        }
+        .checkout-right {
+            width: 420px; background: rgba(16,16,16,0.95);
+            border-left: 1px solid rgba(255,255,255,0.06);
+            padding: 60px 40px; display: flex; flex-direction: column; justify-content: center;
+        }
+        .checkout-form { width: 100%; max-width: 440px; }
+        .checkout-form .back-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: #666; text-decoration: none; font-size: 0.85rem; margin-bottom: 32px;
+            transition: color 0.3s;
+        }
+        .checkout-form .back-link:hover { color: #00C2FF; }
+        .checkout-form h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+        .checkout-form .subtitle { color: #666; margin-bottom: 36px; font-size: 0.95rem; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; font-size: 0.85rem; font-weight: 600; color: #aaa; margin-bottom: 8px;
+        }
+        .form-group input {
+            width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+            color: #fff; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s; outline: none; box-sizing: border-box;
+        }
+        .form-group input:focus { border-color: #00C2FF; }
+        .form-group input::placeholder { color: #444; }
+        .btn-pay {
+            width: 100%; padding: 16px; background: #00C2FF; color: #050505;
+            border: none; border-radius: 12px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s; margin-top: 8px;
+        }
+        .btn-pay:hover { background: #00a8e6; box-shadow: 0 0 30px rgba(0,194,255,0.3); }
+        .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+        .btn-pay .spinner {
+            display: none; width: 18px; height: 18px;
+            border: 2px solid rgba(5,5,5,0.3); border-top-color: #050505;
+            border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto;
+        }
+        .btn-pay.processing .btn-text { display: none; }
+        .btn-pay.processing .spinner { display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .secure-note { text-align: center; margin-top: 16px; color: #444; font-size: 0.8rem; }
+        .order-summary h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 28px; }
+        .order-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .order-item-name { font-weight: 600; font-size: 0.95rem; }
+        .order-item-sub { color: #666; font-size: 0.8rem; margin-top: 2px; }
+        .order-item-price { font-weight: 700; font-size: 1.1rem; }
+        .order-total {
+            display: flex; justify-content: space-between;
+            padding: 20px 0 0; font-size: 1.15rem; font-weight: 800;
+        }
+        .order-total .total-price { color: #00C2FF; }
+        .stripe-badge {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 24px; padding: 14px; background: rgba(99,91,255,0.08);
+            border: 1px solid rgba(99,91,255,0.15); border-radius: 10px;
+            font-size: 0.85rem; color: #888;
+        }
+        .stripe-badge svg { flex-shrink: 0; }
+        .order-guarantee {
+            margin-top: 24px; padding: 20px; background: rgba(0,194,255,0.05);
+            border: 1px solid rgba(0,194,255,0.1); border-radius: 12px;
+            font-size: 0.85rem; color: #888; line-height: 1.6;
+        }
+        .order-guarantee strong { color: #00C2FF; }
+        .error-msg {
+            display: none; margin-top: 12px; padding: 12px 16px;
+            background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2);
+            border-radius: 8px; color: #FF6B6B; font-size: 0.85rem;
+        }
+        .error-msg.show { display: block; }
+        @media (max-width: 860px) {
+            .checkout-layout { flex-direction: column; }
+            .checkout-right { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+            .checkout-left { padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-layout">
+        <div class="checkout-left">
+            <div class="checkout-form">
+                <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="tg-pill" aria-label="Join our Telegram for free signals" style="margin-bottom:20px;">
+                    <span class="tg-avatar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    </span>
+                    <span class="tg-text">
+                        <span class="tg-title">Join our Telegram <span class="tg-live-dot"></span></span>
+                        <span class="tg-sub">FREE signals &amp; support</span>
+                    </span>
+                </a>
+                <a href="index.html" class="back-link">&larr; Back to Store</a>
+                <h1>Checkout</h1>
+                <p class="subtitle">Enter your email, then you'll be redirected to Stripe to complete payment.</p>
+
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="you@example.com" required>
+                    </div>
+                    <button type="submit" class="btn-pay" id="btnPay">
+                        <span class="btn-text">Continue to Payment</span>
+                        <div class="spinner"></div>
+                    </button>
+                    <div class="error-msg" id="errorMsg"></div>
+                    <p class="secure-note">You'll be redirected to Stripe's secure checkout page</p>
+                </form>
+            </div>
+        </div>
+
+        <div class="checkout-right">
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div class="order-item">
+                    <div>
+                        <div class="order-item-name" id="orderItemName">IMPERA Bot</div>
+                        <div class="order-item-sub" id="orderItemSub">MQL5 Expert Advisor</div>
+                    </div>
+                    <div class="order-item-price" id="orderItemPrice">&pound;0</div>
+                </div>
+                <div class="order-total">
+                    <span>Total</span>
+                    <span class="total-price" id="orderTotal">&pound;0</span>
+                </div>
+
+                <div class="stripe-badge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#635BFF" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    Secured by Stripe
+                </div>
+
+                <div class="order-guarantee">
+                    <strong>Instant delivery.</strong> Bots arrive with your unique licence key straight after payment. Mentorship members are added to the private group and booked in for their first 1:1 call immediately.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // ========================================
+        // STRIPE CONFIG — Add your publishable key here
+        // Get it from: https://dashboard.stripe.com/apikeys
+        // ========================================
+        const STRIPE_PUBLISHABLE_KEY = 'pk_live_51U7RAgGwbBbNDZbSQ66hAEmaWuLu28l6MJ0bhRup44DXd6oydZK6PP31Dhob1oGTYR8SP0st2Hq1J9vg8cBVHwaD00Jf4LP6qW';
+
+        // Price IDs from your Stripe dashboard
+        // ⚠ 50% OFF SALE (ends Oct 31 2026): `price` values below are what the
+        // customer SEES. The amount Stripe actually charges comes from your
+        // Price IDs in the Stripe Dashboard — make sure those match these
+        // sale prices (or create separate sale Prices and swap the IDs).
+        // ⚠ NEW STRIPE ACCOUNT: every priceId below must be created in THIS
+        // account's dashboard, then pasted here. Placeholders show a friendly
+        // "coming soon" message until replaced.
+        const BOTS = {
+            scalping: {
+                name: 'IMPERA Scalping Bot',
+                sub: 'M1/M5 High-Frequency Scalper',
+                price: 49,
+                priceId: 'price_1U7RMZGwbBbNDZbSN2sNNFjN'
+            },
+            gold: {
+                name: 'IMPERA Gold Bot',
+                sub: 'XAU/USD Multi-Timeframe EA',
+                price: 125,
+                priceId: 'price_1U7RN1GwbBbNDZbS2htlMfBx'
+            },
+            global: {
+                name: 'IMPERA Global Bot',
+                sub: 'Full-Featured Multi-Strategy EA',
+                price: 245,
+                priceId: 'price_1U7RNlGwbBbNDZbSi3tpFFQh'
+            },
+            'mentor-monthly': {
+                name: 'IMPERA Mentorship — Monthly',
+                sub: '1:1 Coaching · Private Group · Cancel anytime',
+                price: 50,
+                priceId: 'price_1U7RJBGwbBbNDZbSclVBJdgW',
+                mode: 'subscription'
+            },
+            'mentor-lifetime': {
+                name: 'IMPERA Mentorship — Lifetime',
+                sub: 'One Payment · Lifetime Access · Best Value',
+                price: 175,
+                priceId: 'price_1U7RJwGwbBbNDZbStOG1G7R9',
+                mode: 'payment'
+            }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const botKey = params.get('bot') || 'scalping';
+        const bot = BOTS[botKey] || BOTS.scalping;
+
+        document.getElementById('orderItemName').textContent = bot.name;
+        document.getElementById('orderItemSub').textContent = bot.sub;
+        document.getElementById('orderItemPrice').textContent = '\u00A3' + bot.price;
+        document.getElementById('orderTotal').textContent = '\u00A3' + bot.price;
+        document.getElementById('btnPay').querySelector('.btn-text').textContent = 'Pay \u00A3' + bot.price + ' — Redirect to Stripe';
+
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            if (!email) return;
+
+            const btn = document.getElementById('btnPay');
+            const errEl = document.getElementById('errorMsg');
+            btn.classList.add('processing');
+            btn.disabled = true;
+            errEl.classList.remove('show');
+
+            if (STRIPE_PUBLISHABLE_KEY.includes('REPLACE')) {
+                errEl.textContent = 'Stripe not configured yet. Add your publishable key in checkout.html.';
+                errEl.classList.add('show');
+                btn.classList.remove('processing');
+                btn.disabled = false;
+                return;
+            }
+
+            if (bot.priceId.includes('REPLACE')) {
+                errEl.textContent = 'This plan\u2019s Stripe Price ID isn\u2019t set up yet. Create it in your Stripe dashboard and paste it into checkout.html (BOTS config).';
+                errEl.classList.add('show');
+                btn.classList.remove('processing');
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+                const origin = window.location.origin;
+                const { error } = await stripe.redirectToCheckout({
+                    lineItems: [{ price: bot.priceId, quantity: 1 }],
+                    mode: bot.mode || 'payment',
+                    customerEmail: email,
+                    successUrl: origin + '/success.html?session_id={CHECKOUT_SESSION_ID}&bot=' + botKey + '&email=' + encodeURIComponent(email),
+                    cancelUrl: origin + '/cancel.html',
+                });
+                if (error) {
+                    errEl.textContent = error.message;
+                    errEl.classList.add('show');
+                    btn.classList.remove('processing');
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error('Checkout error:', err);
+                errEl.textContent = 'Error: ' + ((err && err.message) || 'Something went wrong. Please try again.');
+                errEl.classList.add('show');
+                btn.classList.remove('processing');
+                btn.disabled = false;
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

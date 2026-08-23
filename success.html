@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPERA — Purchase Complete</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/track.js"></script>
+    <style>
+        .success-page {
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 120px 24px 80px; text-align: center;
+        }
+        .loading-state { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .loading-spinner {
+            width: 48px; height: 48px; border: 3px solid rgba(0,194,255,0.15);
+            border-top-color: #00C2FF; border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: #888; font-size: 1.1rem; }
+
+        .denied-state { display: none; max-width: 480px; }
+        .denied-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(255,107,107,0.1); border: 3px solid #FF6B6B;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; margin-bottom: 28px;
+        }
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .denied-state h1 { font-size: 2rem; font-weight: 900; margin-bottom: 12px; color: #FF6B6B; }
+        .denied-state .subtitle { color: #666; font-size: 1.05rem; margin-bottom: 12px; }
+        .denied-state .reason {
+            background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.15);
+            border-radius: 12px; padding: 20px; margin: 24px 0; text-align: left;
+            font-size: 0.9rem; color: #aaa; line-height: 1.7;
+        }
+        .denied-state .reason strong { color: #FF6B6B; }
+
+        .success-state { display: none; max-width: 540px; width: 100%; }
+        .success-check {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(0,255,178,0.1); border: 3px solid #00FFB2;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; margin-bottom: 28px; animation: popIn 0.5s ease;
+        }
+        .success-state h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 12px; }
+        .success-state .subtitle { color: #666; font-size: 1.05rem; margin-bottom: 48px; }
+
+        .success-cards { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+        .success-card {
+            background: rgba(16,16,16,0.8); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 28px; text-align: left;
+        }
+        .success-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+
+        .licence-display {
+            background: rgba(0,194,255,0.06); border: 1px solid rgba(0,194,255,0.15);
+            border-radius: 12px; padding: 18px 20px; text-align: center;
+        }
+        .licence-display .key-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .licence-display .key-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.6rem;
+            font-weight: 700; color: #00C2FF; letter-spacing: 2px; margin-bottom: 12px;
+        }
+        .licence-display .key-copy {
+            display: inline-block; padding: 8px 20px; background: rgba(0,194,255,0.15);
+            color: #00C2FF; border: 1px solid rgba(0,194,255,0.3); border-radius: 8px;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .licence-display .key-copy:hover { background: rgba(0,194,255,0.25); }
+
+        .download-btn {
+            display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+            background: rgba(0,255,178,0.06); border: 1px solid rgba(0,255,178,0.2);
+            border-radius: 12px; text-decoration: none; color: #fff; transition: all 0.3s;
+        }
+        .download-btn:hover { background: rgba(0,255,178,0.12); border-color: #00FFB2; }
+        .download-icon {
+            width: 44px; height: 44px; background: rgba(0,255,178,0.15);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .download-info { flex: 1; }
+        .download-info .dl-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+        .download-info .dl-size { font-size: 0.8rem; color: #666; }
+        .download-arrow { color: #00FFB2; font-size: 1.2rem; }
+
+        .steps-list { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+        .steps-list li {
+            counter-increment: step; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: flex-start; gap: 14px; font-size: 0.92rem; color: #aaa;
+        }
+        .steps-list li:last-child { border-bottom: none; }
+        .steps-list li::before {
+            content: counter(step); width: 28px; height: 28px;
+            background: rgba(0,194,255,0.1); color: #00C2FF; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+        }
+
+        .success-actions { display: flex; gap: 16px; margin-top: 40px; flex-wrap: wrap; justify-content: center; }
+        .btn-primary {
+            padding: 14px 32px; background: #00C2FF; color: #050505; border-radius: 12px;
+            text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.3s;
+        }
+        .btn-primary:hover { background: #00a8e6; box-shadow: 0 0 20px rgba(0,194,255,0.3); }
+        .btn-secondary {
+            padding: 14px 32px; background: rgba(255,255,255,0.06); color: #fff;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="nav-logo">
+                <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+                    <path d="M9 46 L13.5 18 L24 30 L32 12 L40 30 L50.5 18 L55 46 Z" stroke="url(#succGrad)" stroke-width="3" stroke-linejoin="round" fill="rgba(0,194,255,0.06)"/>
+                    <rect x="11" y="51" width="42" height="5" rx="2.5" fill="url(#succGrad)"/>
+                    <defs>
+                        <linearGradient id="succGrad" x1="6" y1="10" x2="58" y2="54">
+                            <stop offset="0%" stop-color="#00C2FF"/>
+                            <stop offset="100%" stop-color="#00FFB2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>IMPERA</span>
+            </a>
+            <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="tg-pill" aria-label="Join our Telegram for free signals">
+                <span class="tg-avatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </span>
+                <span class="tg-text">
+                    <span class="tg-title">Join our Telegram <span class="tg-live-dot"></span></span>
+                    <span class="tg-sub">FREE signals &amp; support</span>
+                </span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#store" class="nav-cta">Store</a>
+        </div>
+        <button class="mobile-toggle" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <main class="success-page">
+        <!-- Loading -->
+        <div class="loading-state" id="loadingState">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Verifying your payment...</div>
+        </div>
+
+        <!-- Payment denied -->
+        <div class="denied-state" id="deniedState">
+            <div class="denied-icon">&times;</div>
+            <h1>Payment Declined</h1>
+            <p class="subtitle" id="deniedSubtitle">Your payment could not be processed.</p>
+            <div class="reason" id="deniedReason">
+                <strong>What happened?</strong><br>
+                Your card was declined or the payment was cancelled. No charges were made.
+            </div>
+            <div class="success-actions">
+                <a href="index.html" class="btn-primary">Try Again</a>
+                <a href="dashboard.html" class="btn-secondary">Go to Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Payment success -->
+        <div class="success-state" id="successState">
+            <div class="success-check">&#10003;</div>
+            <h1>Payment Complete!</h1>
+            <p class="subtitle">Your bot and licence key are ready. Save your key and download the bot file below.</p>
+
+            <div class="success-cards">
+                <div class="success-card" id="accountCard" style="border: 1px solid rgba(0,255,178,0.3); background: rgba(0,255,178,0.04);">
+                    <h3 style="color: #00FFB2;">&#128100; Your IMPERA Account</h3>
+                    <p style="color:#aaa;font-size:0.9rem;line-height:1.7;margin-bottom:16px;">
+                        Your account has been created automatically. Use these credentials to log in to your dashboard and access your products:
+                    </p>
+                    <div class="licence-display" style="text-align:left;">
+                        <div class="key-label">Email</div>
+                        <div class="key-value" id="accEmailDisplay" style="font-size:1.1rem;letter-spacing:1px;text-align:left;margin-bottom:14px;">&mdash;</div>
+                        <div class="key-label">Password</div>
+                        <div class="key-value" id="accPassDisplay" style="font-size:1.3rem;letter-spacing:2px;text-align:left;margin-bottom:14px;color:#00FFB2;">&mdash;</div>
+                        <button class="key-copy" id="copyCredsBtn" onclick="copyCreds()">Copy Password</button>
+                    </div>
+                    <a href="dashboard.html" class="download-btn" style="margin-top:16px;">
+                        <div class="download-icon">&#128274;</div>
+                        <div class="download-info">
+                            <div class="dl-name">Open Your Dashboard</div>
+                            <div class="dl-size">You are already logged in on this device</div>
+                        </div>
+                        <div class="download-arrow">&rarr;</div>
+                    </a>
+                </div>
+
+                <div class="success-card" id="licenceCard">
+                    <h3>&#128273; Your Licence Key</h3>
+                    <div class="licence-display">
+                        <div class="key-label">Enter this in your MT5 bot settings</div>
+                        <div class="key-value" id="licenceKeyDisplay">&mdash;</div>
+                        <button class="key-copy" id="copyKeyBtn" onclick="copyKey()">Copy Key</button>
+                    </div>
+                </div>
+
+                <div class="success-card" id="downloadCard">
+                    <h3>&#128229; Download Your Bot</h3>
+                    <div id="downloadArea"></div>
+                </div>
+
+                <div class="success-card" id="mentorshipWelcome" style="display:none; border: 1px solid rgba(255,215,0,0.35); background: rgba(255,215,0,0.05);">
+                    <h3 style="color: #FFD700;">&#128081; Welcome To The IMPERA Mentorship</h3>
+                    <p style="color: #aaa; font-size: 0.92rem; line-height: 1.7; margin-bottom: 16px;">
+                        You're in. Here's how to get started with your mentorship:
+                    </p>
+                    <ol class="steps-list">
+                        <li><strong>Join the private trading group</strong> — send a screenshot of this page to our Telegram (<a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" style="color:#FFD700;">@ImperaTrading</a>) and you'll be added straight away.</li>
+                        <li><strong>Book your first 1:1 call</strong> — we'll send you the calendar link as soon as you're in the group.</li>
+                        <li><strong>Get the full strategy course</strong> — all materials and recordings are waiting for you inside.</li>
+                    </ol>
+                    <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:12px 24px;background:linear-gradient(135deg,#2AABEE,#229ED9);color:#fff;border-radius:10px;font-weight:700;font-size:0.9rem;text-decoration:none;">
+                        Join The Private Group &rarr;
+                    </a>
+                </div>
+
+                <div class="success-card" id="sessionPicker" style="display:none; border: 1px solid rgba(201,169,98,0.4); background: rgba(201,169,98,0.05);">
+                    <h3 style="color: #C9A962;">&#128197; Schedule Your First Session</h3>
+                    <p style="color: #aaa; font-size: 0.92rem; line-height: 1.7; margin-bottom: 18px;">
+                        Pick any day and any hour that suits you — including weekends and evenings.
+                    </p>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                        <button type="button" id="spPrev" style="background:none;border:1px solid rgba(255,255,255,0.15);color:#ccc;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.9rem;">&larr;</button>
+                        <strong id="spLabel" style="letter-spacing:1px;"></strong>
+                        <button type="button" id="spNext" style="background:none;border:1px solid rgba(255,255,255,0.15);color:#ccc;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.9rem;">&rarr;</button>
+                    </div>
+                    <div id="spHead" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;text-align:center;color:#666;font-size:0.72rem;letter-spacing:1px;"></div>
+                    <div id="spGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;"></div>
+                    <div id="spSlots" style="display:none;margin-top:18px;">
+                        <div style="color:#888;font-size:0.78rem;margin-bottom:10px;">SELECT A TIME</div>
+                        <div id="spSlotGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+                    </div>
+                    <button type="button" id="spConfirm" disabled style="display:block;width:100%;margin-top:20px;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#E6C97A,#b8933f);color:#050505;font-weight:800;font-family:Inter,sans-serif;letter-spacing:1px;cursor:not-allowed;font-size:0.95rem;">
+                        Select a day &amp; time above
+                    </button>
+                </div>
+
+                <div class="success-card" style="border: 1px solid rgba(122,92,255,0.3); background: rgba(122,92,255,0.06);">
+                    <h3 style="color: #7A5CFF;">&#128248; Send Proof of Order</h3>
+                    <p style="color: #aaa; font-size: 0.92rem; line-height: 1.7; margin-bottom: 16px;">
+                        To activate your order, take a <strong style="color: #fff;">screenshot</strong> of this page and send it to our Telegram:
+                    </p>
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(122,92,255,0.1); border-radius: 12px; margin-bottom: 16px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#7A5CFF"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">@ImperaTrading</div>
+                            <div style="font-size: 0.8rem; color: #888;">Send your screenshot here to confirm your order</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.82rem; line-height: 1.6;">
+                        Include your licence key in the message so we can verify your purchase quickly.
+                    </p>
+                    <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:12px 24px;background:linear-gradient(135deg,#2AABEE,#229ED9);color:#fff;border-radius:10px;font-weight:700;font-size:0.9rem;text-decoration:none;transition:all 0.3s;" onmouseover="this.style.boxShadow='0 6px 24px rgba(42,171,238,0.4)'" onmouseout="this.style.boxShadow=''">
+                        Open Telegram &rarr;
+                    </a>
+                </div>
+
+                <div class="success-card" id="installCard">
+                    <h3>&#128640; Quick Install</h3>
+                    <ol class="steps-list">
+                        <li>Download the .mq5 file above and copy it to your MT5 <code>Experts</code> folder.</li>
+                        <li>Restart MetaTrader 5 or click <code>Refresh</code> in the Navigator panel.</li>
+                        <li>Drag the bot onto your chart (EUR/USD M15 for Scalping, XAU/USD M15 for Gold).</li>
+                        <li>In the bot settings, paste your licence key into the <code>InpLicenceKey</code> field.</li>
+                        <li>Enable <code>Auto Trading</code> and the bot will start executing trades automatically.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="success-actions">
+                <a href="dashboard.html" class="btn-primary">Open Dashboard</a>
+                <a href="index.html" class="btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+        const botKey = params.get('bot') || 'scalping';
+        const emailParam = params.get('email') ? decodeURIComponent(params.get('email')) : null;
+
+        const loadingEl = document.getElementById('loadingState');
+        const deniedEl = document.getElementById('deniedState');
+        const successEl = document.getElementById('successState');
+
+        const BOT_FILES = {
+            scalping: { file: 'IMPERA_Scalping_Bot.mq5', size: '~8 KB' },
+            gold:     { file: 'IMPERA_Gold_Bot.mq5',     size: '~10 KB' },
+            global:   { file: 'IMPERA_Global_Bot.mq5',   size: '~14 KB' }
+        };
+        const BOT_NAMES = {
+            scalping: 'IMPERA Scalping Bot',
+            gold: 'IMPERA Gold Bot',
+            global: 'IMPERA Global Bot'
+        };
+
+        // Generate a licence key (same format as MT5 bot validator)
+        function generateKey() {
+            var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            var seg = '';
+            for (var s = 0; s < 3; s++) {
+                for (var i = 0; i < 4; i++) {
+                    seg += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                if (s < 2) seg += '-';
+            }
+            return 'IMPERA-' + seg;
+        }
+
+        if (!sessionId) {
+            loadingEl.style.display = 'none';
+            deniedEl.style.display = 'block';
+            deniedEl.querySelector('h1').textContent = 'No Payment Found';
+            document.getElementById('deniedSubtitle').textContent = 'No session ID was provided.';
+            document.getElementById('deniedReason').innerHTML = '<strong>What happened?</strong><br>You may have opened this page directly without completing a payment. Please go to the store and try again.';
+            return;
+        }
+
+        // Check if this session was already processed
+        var purchaseKey = 'impera_purchase_' + sessionId;
+        var existing = localStorage.getItem(purchaseKey);
+
+        setTimeout(function() {
+            loadingEl.style.display = 'none';
+
+            if (existing) {
+                // Already processed — show the saved data
+                var data = JSON.parse(existing);
+                showSuccess(data, null);
+            } else {
+                processNewSession();
+            }
+        }, 1500);
+
+        // =========================================================
+        // New payment. If the IMPERA webhook server is deployed,
+        // pull Stripe-verified billing data (name/email/amount/product)
+        // and the server-generated password so it matches the email.
+        // Otherwise fall back to local provisioning.
+        // =========================================================
+        var IMPERA_API = ''; // e.g. 'https://impera-api.up.railway.app' after deploying server/
+        if (IMPERA_API) { try { localStorage.setItem('impera_api_url', IMPERA_API); } catch (e) {} }
+
+        async function fetchServerAccount(sid) {
+            if (!IMPERA_API) return null;
+            try {
+                const r = await fetch(IMPERA_API.replace(/\/$/, '') + '/api/account/' + encodeURIComponent(sid));
+                if (!r.ok) return null;
+                return await r.json();
+            } catch (e) { return null; }
+        }
+
+        async function processNewSession() {
+            var acct = await fetchServerAccount(sessionId);
+
+            if (acct && acct.email && acct.password) {
+                // ---- Server path: everything matches real billing ----
+                var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime';
+                ImperaAuth.provisionWithPassword(acct.email, acct.name, acct.password);
+
+                var data = {
+                    sessionId: sessionId,
+                    bot: acct.bot || botKey,
+                    botName: acct.product || BOT_NAMES[botKey] || BOT_NAMES.scalping,
+                    licenceKey: isMentorshipOrder ? null : (acct.licenceKey || generateKey()),
+                    plan: botKey === 'mentor-monthly' ? 'monthly' : botKey === 'mentor-lifetime' ? 'lifetime' : null,
+                    email: acct.email,
+                    amount: acct.amount || null,
+                    date: new Date().toISOString()
+                };
+                ImperaAuth.addPurchase(data);
+                localStorage.setItem('impera_purchase_' + sessionId, JSON.stringify(data));
+
+                if (!isMentorshipOrder) {
+                    var session = { name: acct.name || 'Trader', email: acct.email, role: 'client', licence: null, tier: null, purchasedBots: [] };
+                    session.licence = data.licenceKey;
+                    session.tier = data.bot === 'scalping' ? 'Scalping' : data.bot === 'gold' ? 'Gold' : 'Global';
+                    session.bot_type = data.bot;
+                    session.purchasedBots.push(data.bot);
+                    ImperaAuth.setSession(ImperaAuth.hydrateSession(session));
+                } else {
+                    ImperaAuth.setSession(ImperaAuth.hydrateSession({ name: acct.name || 'Trader', email: acct.email, role: 'client', licence: null, tier: null }));
+                }
+                showSuccess(data, { email: acct.email, password: acct.password });
+                return;
+            }
+
+            // ---- Local fallback (no server configured) ----
+            var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime';
+            var licenceKey = generateKey();
+            var name = isMentorshipOrder
+                ? 'IMPERA Mentorship — ' + (botKey === 'mentor-lifetime' ? 'Lifetime' : 'Monthly')
+                : (BOT_NAMES[botKey] || BOT_NAMES.scalping);
+
+            // ---- Account: auto-create / refresh credentials, log the buyer in ----
+            var creds = { email: null, password: null };
+            if (emailParam && window.ImperaAuth) {
+                creds = ImperaAuth.autoProvision(null, emailParam);
+            }
+
+            var data = {
+                sessionId: sessionId,
+                bot: botKey,
+                botName: name,
+                licenceKey: isMentorshipOrder ? null : licenceKey,
+                plan: botKey === 'mentor-monthly' ? 'monthly' : botKey === 'mentor-lifetime' ? 'lifetime' : null,
+                email: creds.email,
+                date: new Date().toISOString()
+            };
+
+            if (window.ImperaAuth) ImperaAuth.addPurchase(data);
+            localStorage.setItem('impera_purchase_' + sessionId, JSON.stringify(data));
+
+            if (!isMentorshipOrder && creds.email && window.ImperaAuth) {
+                // Save licence to session for dashboard (bots only)
+                var session2 = JSON.parse(localStorage.getItem('impera_session') || '{}');
+                if (session2.email !== creds.email) {
+                    session2 = { name: session2.name || 'Trader', email: creds.email, role: 'client' };
+                }
+                session2.licence = licenceKey;
+                session2.tier = botKey === 'scalping' ? 'Scalping' : botKey === 'gold' ? 'Gold' : 'Global';
+                session2.bot_type = botKey;
+                session2.purchasedBots = session2.purchasedBots || [];
+                if (!session2.purchasedBots.includes(botKey)) session2.purchasedBots.push(botKey);
+                localStorage.setItem('impera_session', JSON.stringify(session2));
+            } else if (creds.email && window.ImperaAuth) {
+                // mentorship — start a fresh client session for this buyer
+                ImperaAuth.setSession(ImperaAuth.hydrateSession({ name: 'Trader', email: creds.email, role: 'client', licence: null, tier: null }));
+            }
+
+            showSuccess(data, creds);
+        }
+
+        function showSuccess(data, creds) {
+            successEl.style.display = "block";
+
+            // ---- Account credentials card ----
+            var accCard = document.getElementById("accountCard");
+            if (creds && creds.email) {
+                document.getElementById("accEmailDisplay").textContent = creds.email;
+                document.getElementById("accPassDisplay").textContent = creds.password;
+                window.__imperaCreds = creds;
+            } else {
+                accCard.style.display = "none";
+            }
+
+            var isMentorship = data.bot === 'mentor-monthly' || data.bot === 'mentor-lifetime';
+
+            if (isMentorship) {
+                document.getElementById('licenceCard').style.display = 'none';
+                document.getElementById('downloadCard').style.display = 'none';
+                document.getElementById('installCard').style.display = 'none';
+                document.getElementById('mentorshipWelcome').style.display = 'block';
+                document.querySelector('.success-state .subtitle').textContent =
+                    'Your ' + (data.bot === 'mentor-lifetime' ? 'lifetime' : 'monthly') +
+                    ' mentorship is active. Follow the steps below to get started.';
+                initSessionPicker(data);
+                return;
+            }
+
+            document.getElementById('licenceKeyDisplay').textContent = data.licenceKey;
+
+            var bot = BOT_FILES[data.bot] || BOT_FILES.scalping;
+            var name = BOT_NAMES[data.bot] || BOT_NAMES.scalping;
+
+            document.getElementById('downloadArea').innerHTML =
+                '<a href="bots/' + bot.file + '" download="' + bot.file + '" class="download-btn">' +
+                    '<div class="download-icon">&#128230;</div>' +
+                    '<div class="download-info">' +
+                        '<div class="dl-name">' + bot.file + '</div>' +
+                        '<div class="dl-size">MQL5 Expert Advisor &middot; ' + bot.size + '</div>' +
+                    '</div>' +
+                    '<div class="download-arrow">&darr;</div>' +
+                '</a>';
+        }
+
+        // ============ First-session scheduler (mentorship buyers) ============
+        var spDate = new Date(); spDate.setDate(1);
+        var spSel = { date: null, time: null };
+
+        function spYmd(d) {
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function initSessionPicker(data) {
+            var card = document.getElementById('sessionPicker');
+            var buyerEmail = data.email || (window.ImperaAuth && ImperaAuth.session() && ImperaAuth.session().email) || '';
+            if (!buyerEmail) { card.style.display = 'none'; return; }
+            if (localStorage.getItem('impera_sessionbooked_' + sessionId)) { renderSpDone(buyerEmail); return; }
+            card.style.display = 'block';
+            document.getElementById('spPrev').addEventListener('click', function () { spDate.setMonth(spDate.getMonth() - 1); buildSpCal(); });
+            document.getElementById('spNext').addEventListener('click', function () { spDate.setMonth(spDate.getMonth() + 1); buildSpCal(); });
+            document.getElementById('spConfirm').addEventListener('click', function () { confirmSpBooking(buyerEmail); });
+            buildSpCal();
+        }
+
+        function buildSpCal() {
+            document.getElementById('spHead').innerHTML = ['MO','TU','WE','TH','FR','SA','SU'].map(function (d) { return '<div>' + d + '</div>'; }).join('');
+            document.getElementById('spLabel').textContent = spDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            var y = spDate.getFullYear(), m = spDate.getMonth();
+            var startOffset = (new Date(y, m, 1).getDay() + 6) % 7;
+            var daysInMonth = new Date(y, m + 1, 0).getDate();
+            var today = new Date(); today.setHours(0, 0, 0, 0);
+            var html = '';
+            for (var i = 0; i < startOffset; i++) html += '<div></div>';
+            for (var d = 1; d <= daysInMonth; d++) {
+                var dt = new Date(y, m, d);
+                var past = dt < today;
+                html += '<div data-spday="' + d + '" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:0.85rem;' +
+                    'cursor:' + (past ? 'default' : 'pointer') + ';' +
+                    'border:1px solid ' + (past ? 'rgba(255,255,255,0.06)' : 'rgba(201,169,98,0.3)') + ';' +
+                    'background:' + (past ? 'transparent' : 'rgba(201,169,98,0.05)') + ';' +
+                    'color:' + (past ? '#444' : '#fff') + ';">' + d + '</div>';
+            }
+            var grid = document.getElementById('spGrid');
+            grid.innerHTML = html;
+            grid.querySelectorAll('[data-spday]').forEach(function (cell) {
+                cell.addEventListener('click', function () {
+                    var dd = parseInt(cell.dataset.spday, 10);
+                    var dt = new Date(y, m, dd);
+                    if (dt < today) return;
+                    spSel.date = spYmd(dt); spSel.time = null;
+                    var cBtn = document.getElementById('spConfirm');
+                    cBtn.disabled = true; cBtn.style.cursor = 'not-allowed';
+                    cBtn.textContent = 'Now pick a time below';
+                    document.getElementById('spSlots').style.display = 'none';
+                    grid.querySelectorAll('[data-spday]').forEach(function (c) {
+                        c.style.background = 'rgba(201,169,98,0.05)';
+                        c.style.borderColor = 'rgba(201,169,98,0.3)';
+                    });
+                    cell.style.background = 'rgba(201,169,98,0.25)';
+                    cell.style.borderColor = '#C9A962';
+                    renderSpSlots(dt);
+                });
+            });
+        }
+
+        function renderSpSlots(dt) {
+            var wrap = document.getElementById('spSlots');
+            wrap.style.display = 'block';
+            document.getElementById('spSlotGrid').innerHTML = ImperaAuth.SLOTS.map(function (t) {
+                return '<button type="button" data-sptime="' + t + '" style="padding:9px 4px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);' +
+                    'background:rgba(255,255,255,0.04);color:#ddd;font-family:Inter,sans-serif;font-size:0.82rem;cursor:pointer;">' + t + '</button>';
+            }).join('');
+            wrap.querySelectorAll('[data-sptime]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    spSel.time = btn.dataset.sptime;
+                    wrap.querySelectorAll('[data-sptime]').forEach(function (b) {
+                        b.style.background = 'rgba(255,255,255,0.04)';
+                        b.style.borderColor = 'rgba(255,255,255,0.15)';
+                        b.style.color = '#ddd';
+                    });
+                    btn.style.background = 'rgba(201,169,98,0.3)';
+                    btn.style.borderColor = '#C9A962';
+                    btn.style.color = '#FFD700';
+                    var nice = dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+                    var cBtn = document.getElementById('spConfirm');
+                    cBtn.disabled = false;
+                    cBtn.style.cursor = 'pointer';
+                    cBtn.textContent = 'Confirm — ' + nice + ' at ' + spSel.time;
+                });
+            });
+        }
+
+        function confirmSpBooking(email) {
+            if (!spSel.date || !spSel.time) return;
+            var sessN = window.ImperaAuth ? ImperaAuth.session() : null;
+            var name = (sessN && sessN.name && sessN.name !== 'Trader' && sessN.name) || email.split('@')[0];
+            var res = ImperaAuth.addBooking(email, name, spSel.date, spSel.time, 'IMPERA Mentorship — First Session');
+            if (res.error) { alert(res.error); return; }
+            localStorage.setItem('impera_sessionbooked_' + sessionId, spSel.date + 'T' + spSel.time);
+            try {
+                var base = localStorage.getItem('impera_api_url');
+                if (base) fetch(base.replace(/\/$/, '') + '/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(res.booking)
+                }).catch(function () {});
+            } catch (e) {}
+            renderSpDone(email);
+        }
+
+        function renderSpDone(email) {
+            var saved = localStorage.getItem('impera_sessionbooked_' + sessionId) || '';
+            var parts = saved.split('T');
+            var nice = '';
+            if (parts.length === 2) {
+                var d = new Date(parts[0] + 'T00:00:00');
+                nice = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' at ' + parts[1];
+            }
+            document.getElementById('sessionPicker').innerHTML =
+                '<h3 style="color:#00FFB2;">&#9989; Session Booked</h3>' +
+                '<p style="color:#ccc;font-size:1rem;line-height:1.8;">' +
+                (nice ? '<strong style="color:#FFD700;">' + nice + '</strong><br>' : '') +
+                'We have been notified and your Zoom link will be emailed to <strong style="color:#fff;">' + email + '</strong> once confirmed.</p>' +
+                '<a href="dashboard.html" class="btn-secondary" style="display:inline-block;margin-top:14px;">Manage In Dashboard &rarr;</a>';
+        }
+    })();
+
+    function copyKey() {
+        var key = document.getElementById('licenceKeyDisplay').textContent;
+        navigator.clipboard.writeText(key).then(function() {
+            var btn = document.getElementById('copyKeyBtn');
+            btn.textContent = 'Copied!';
+            setTimeout(function() { btn.textContent = 'Copy Key'; }, 2000);
+        });
+    }
+
+    function copyCreds() {
+        var pass = window.__imperaCreds ? window.__imperaCreds.password : '';
+        navigator.clipboard.writeText(pass).then(function() {
+            var btn = document.getElementById('copyCredsBtn');
+            btn.textContent = 'Copied!';
+            setTimeout(function() { btn.textContent = 'Copy Password'; }, 2000);
+        });
+    }
+
+    // Mobile nav
+    var toggle = document.querySelector('.mobile-toggle');
+    var navLinks = document.querySelector('.nav-links');
+    if (toggle && navLinks) {
+        toggle.addEventListener('click', function() {
+            navLinks.classList.toggle('open');
+            toggle.classList.toggle('active');
+        });
+    }
+    window.addEventListener('scroll', function() {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+    </script>
+</body>
+</html>

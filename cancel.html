@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPERA — Payment Declined</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cancel-page {
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 120px 24px 80px; text-align: center;
+        }
+        .cancel-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(255,107,107,0.1); border: 3px solid #FF6B6B;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; margin-bottom: 28px; animation: popIn 0.5s ease;
+        }
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .cancel-page h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 12px; color: #FF6B6B; }
+        .cancel-page .subtitle { color: #666; font-size: 1.05rem; max-width: 500px; margin-bottom: 12px; }
+        .cancel-page .reason {
+            background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.15);
+            border-radius: 12px; padding: 20px; max-width: 480px; margin: 24px 0 32px;
+            font-size: 0.9rem; color: #aaa; line-height: 1.7; text-align: left;
+        }
+        .cancel-page .reason strong { color: #FF6B6B; }
+        .cancel-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        .btn-primary {
+            padding: 14px 32px; background: #00C2FF; color: #050505; border-radius: 12px;
+            text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.3s;
+        }
+        .btn-primary:hover { background: #00a8e6; box-shadow: 0 0 20px rgba(0,194,255,0.3); }
+        .btn-secondary {
+            padding: 14px 32px; background: rgba(255,255,255,0.06); color: #fff;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="nav-logo">
+                <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+                    <path d="M9 46 L13.5 18 L24 30 L32 12 L40 30 L50.5 18 L55 46 Z" stroke="url(#cancGrad)" stroke-width="3" stroke-linejoin="round" fill="rgba(0,194,255,0.06)"/>
+                    <rect x="11" y="51" width="42" height="5" rx="2.5" fill="url(#cancGrad)"/>
+                    <defs>
+                        <linearGradient id="cancGrad" x1="6" y1="10" x2="58" y2="54">
+                            <stop offset="0%" stop-color="#00C2FF"/>
+                            <stop offset="100%" stop-color="#00FFB2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>IMPERA</span>
+            </a>
+            <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="tg-pill" aria-label="Join our Telegram for free signals">
+                <span class="tg-avatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </span>
+                <span class="tg-text">
+                    <span class="tg-title">Join our Telegram <span class="tg-live-dot"></span></span>
+                    <span class="tg-sub">FREE signals &amp; support</span>
+                </span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#store" class="nav-cta">Store</a>
+        </div>
+        <button class="mobile-toggle" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <main class="cancel-page">
+        <div class="cancel-icon">✕</div>
+        <h1>Payment Declined</h1>
+        <p class="subtitle">Your payment was not completed. No charges were made to your card.</p>
+        <div class="reason">
+            <strong>This can happen when:</strong><br>
+            • Your card was declined by your bank<br>
+            • You entered incorrect card details<br>
+            • You cancelled the payment on Stripe's checkout page<br>
+            • Your card has insufficient funds<br><br>
+            You can try again with the same or a different card.
+        </div>
+        <div class="cancel-actions">
+            <a href="index.html" class="btn-primary">Try Again</a>
+            <a href="dashboard.html" class="btn-secondary">Go to Dashboard</a>
+            <a href="index.html" class="btn-secondary">Back to Home</a>
+        </div>
+    </main>
+
+    <script src="js/track.js"></script>
+    <script>
+    const toggle = document.querySelector('.mobile-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    if(toggle && navLinks) {
+        toggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+            toggle.classList.toggle('active');
+        });
+    }
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+    </script>
+</body>
+</html>

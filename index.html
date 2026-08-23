@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPERA — Trade Smarter. Profit Faster.</title>
+    <meta name="description" content="Powerful AI-powered trading bots built to help traders automate the markets with precision, speed and intelligent decision making.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="js/track.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loader" class="loader">
+    <div class="shutter shutter-l"></div>
+    <div class="shutter shutter-r"></div>
+    <div class="loader-content">
+        <div class="intro-mark">
+            <div class="intro-glow"></div>
+            <svg width="72" height="72" viewBox="0 0 64 64" fill="none">
+                <path d="M9 46 L13.5 18 L24 30 L32 12 L40 30 L50.5 18 L55 46 Z" stroke="url(#introGrad)" stroke-width="2" stroke-linejoin="round" fill="none" class="intro-crown"/>
+                <rect x="11" y="51" width="42" height="5" rx="2.5" fill="url(#introGrad)" class="intro-base"/>
+                <circle cx="13.5" cy="15" r="2" fill="#ffffff" class="intro-dot d1"/>
+                <circle cx="32" cy="8.5" r="2.2" fill="#ffffff" class="intro-dot d2"/>
+                <circle cx="50.5" cy="15" r="2" fill="#ffffff" class="intro-dot d3"/>
+                <defs>
+                    <linearGradient id="introGrad" x1="6" y1="10" x2="58" y2="54">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#8f8f8f"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="intro-phrase">
+            <span class="dim">WELCOME&nbsp;TO</span>
+            <span class="lit">IMPERA</span>
+        </div>
+        <div class="intro-bar"><i></i></div>
+    </div>
+</div>
+
+<!-- SCROLL PROGRESS -->
+<div id="scrollProgress" class="scroll-progress"></div>
+
+<!-- CURSOR GLOW -->
+<div id="cursorGlow" class="cursor-glow"></div>
+
+<!-- COOKIE POPUP -->
+<div id="cookiePopup" class="cookie-popup">
+    <div class="cookie-content">
+        <p>We use cookies to enhance your experience. By continuing, you agree to our <a href="#">Privacy Policy</a>.</p>
+        <div class="cookie-actions">
+            <button onclick="acceptCookies()" class="cookie-btn cookie-accept">Accept</button>
+            <button onclick="acceptCookies()" class="cookie-btn cookie-decline">Decline</button>
+        </div>
+    </div>
+</div>
+
+<!-- 50% OFF SALE BAR -->
+<div class="sale-bar" id="saleBar" role="status">
+    <div class="sale-bar-inner">
+        <div class="sale-left">
+            <span class="sale-flame">&#128293;</span>
+            <span class="sale-text"><strong>FLASH SALE</strong> &mdash; 50% OFF everything <em class="sale-end">ends Oct&nbsp;31</em></span>
+        </div>
+        <div class="sale-countdown" id="saleCountdown" aria-label="Sale countdown">
+            <div class="sc-unit"><b id="scD">00</b><i>Days</i></div>
+            <span class="sc-col">:</span>
+            <div class="sc-unit"><b id="scH">00</b><i>Hrs</i></div>
+            <span class="sc-col">:</span>
+            <div class="sc-unit"><b id="scM">00</b><i>Min</i></div>
+            <span class="sc-col">:</span>
+            <div class="sc-unit"><b id="scS">00</b><i>Sec</i></div>
+        </div>
+        <a href="#store" class="sale-cta">Claim 50% Off</a>
+    </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav id="navbar" class="navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="#" class="nav-logo">
+                <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+                    <path d="M9 46 L13.5 18 L24 30 L32 12 L40 30 L50.5 18 L55 46 Z" stroke="url(#navGrad)" stroke-width="3" stroke-linejoin="round" fill="rgba(0,194,255,0.06)"/>
+                    <rect x="11" y="51" width="42" height="5" rx="2.5" fill="url(#navGrad)"/>
+                    <defs>
+                        <linearGradient id="navGrad" x1="6" y1="10" x2="58" y2="54">
+                            <stop offset="0%" stop-color="#00C2FF"/>
+                            <stop offset="100%" stop-color="#00FFB2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>IMPERA</span>
+            </a>
+            <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="tg-pill" aria-label="Join our Telegram for free signals">
+                <span class="tg-avatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </span>
+                <span class="tg-text">
+                    <span class="tg-title">Join our Telegram <span class="tg-live-dot"></span></span>
+                    <span class="tg-sub">FREE signals &amp; support</span>
+                </span>
+            </a>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="#markets" class="nav-link">Markets</a>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#store" class="nav-link">Store</a>
+            <a href="#mentorship" class="nav-link">Mentorship</a>
+            <a href="#performance" class="nav-link">Performance</a>
+            <a href="#faq" class="nav-link">FAQ</a>
+            <a href="#contact" class="nav-link">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <a href="dashboard.html" class="btn btn-glass btn-sm">My Account</a>
+            <a href="#store" class="btn btn-primary btn-sm">Get Started</a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-inner">
+        <a href="#markets" class="mobile-link">Markets</a>
+        <a href="#features" class="mobile-link">Features</a>
+        <a href="#store" class="mobile-link">Bots</a>
+        <a href="#mentorship" class="mobile-link">Mentorship</a>
+        <a href="#performance" class="mobile-link">Performance</a>
+        <a href="#faq" class="mobile-link">FAQ</a>
+        <a href="#contact" class="mobile-link">Contact</a>
+        <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="mobile-link" style="color:#2AABEE;font-weight:700;">Join our Telegram — Free Signals</a>
+        <a href="#store" class="btn btn-primary" style="margin-top:1rem;width:100%;text-align:center;">Get Started</a>
+    </div>
+</div>
+
+<!-- HERO SECTION -->
+<section id="hero" class="hero">
+    <canvas id="heroCanvas" class="hero-canvas"></canvas>
+    <div class="hero-grid-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge animate-in">
+            <span class="badge-dot"></span>
+            50% OFF Launch Sale &mdash; Ends October 31st
+        </div>
+        <h1 class="hero-title animate-in">
+            Trade Smarter.<br>
+            <span class="gradient-text">Profit Faster.</span>
+        </h1>
+        <p class="hero-subtitle animate-in">
+            Powerful AI-powered trading bots built to help traders automate the markets with precision, speed and intelligent decision making.
+        </p>
+        <div class="hero-buttons animate-in">
+            <a href="#store" class="btn btn-primary btn-lg">
+                <span>Get Started</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#store" class="btn btn-glass btn-lg">
+                <span>View Bots</span>
+            </a>
+        </div>
+        <div class="hero-stats animate-in">
+            <div class="hero-stat">
+                <div class="hero-stat-value" data-count="98.7" data-suffix="%">0</div>
+                <div class="hero-stat-label">AI Accuracy</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-value" data-count="2500" data-suffix="+">0</div>
+                <div class="hero-stat-label">Active Traders</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-value" data-count="8" data-prefix="£" data-suffix="M+">0</div>
+                <div class="hero-stat-label">Volume Analysed Daily</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-value-static">24/7</div>
+                <div class="hero-stat-label">AI Monitoring</div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-fade-bottom"></div>
+</section>
+
+<!-- LIVE MARKETS SECTION -->
+<section id="markets" class="section markets-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Live Markets</div>
+            <h2 class="section-title animate-in">Real-Time <span class="gradient-text">Market Data</span></h2>
+            <p class="section-subtitle animate-in">Our AI monitors global markets 24/7 to identify the best trading opportunities</p>
+        </div>
+        <div class="markets-live">
+            <!-- Live ticker tape -->
+            <div class="tv-ticker-wrap animate-in">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                    {
+                    "symbols": [
+                        { "proName": "OANDA:XAUUSD", "title": "XAU/USD" },
+                        { "proName": "FX:EURUSD", "title": "EUR/USD" },
+                        { "proName": "FX:GBPUSD", "title": "GBP/USD" },
+                        { "proName": "FX:USDJPY", "title": "USD/JPY" },
+                        { "proName": "FX:AUDUSD", "title": "AUD/USD" },
+                        { "proName": "TVC:NDX", "title": "NASDAQ 100" },
+                        { "proName": "COINBASE:BTCUSD", "title": "BTC/USD" }
+                    ],
+                    "showSymbolLogo": true,
+                    "isTransparent": true,
+                    "displayMode": "adaptive",
+                    "colorTheme": "dark",
+                    "locale": "en"
+                    }
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+
+            <!-- Featured: XAU/USD live chart + AI-style technical gauge -->
+            <div class="tv-featured">
+                <div class="tv-panel tv-chart-card animate-in">
+                    <div class="tv-panel-label"><span class="live-dot"></span> XAU/USD &mdash; Gold · Live Chart</div>
+                    <!-- TradingView Widget BEGIN -->
+                    <div class="tradingview-widget-container" style="height:calc(100% - 34px);">
+                        <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                        "autosize": true,
+                        "symbol": "OANDA:XAUUSD",
+                        "interval": "60",
+                        "timezone": "Europe/London",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "backgroundColor": "rgba(8,8,9,1)",
+                        "gridColor": "rgba(255,255,255,0.05)",
+                        "hide_side_toolbar": false,
+                        "allow_symbol_change": true,
+                        "save_image": false,
+                        "calendar": false,
+                        "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                    <!-- TradingView Widget END -->
+                </div>
+
+                <div class="tv-side-col">
+                    <div class="tv-panel tv-ta-card animate-in">
+                        <div class="tv-panel-label"><span class="live-dot"></span> Technical Rating</div>
+                        <!-- TradingView Widget BEGIN -->
+                        <div class="tradingview-widget-container" style="height:calc(100% - 34px);">
+                            <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                            {
+                            "interval": "1h",
+                            "width": "100%",
+                            "isTransparent": true,
+                            "height": "100%",
+                            "symbol": "OANDA:XAUUSD",
+                            "showIntervalTabs": true,
+                            "displayMode": "single",
+                            "locale": "en",
+                            "colorTheme": "dark"
+                            }
+                            </script>
+                        </div>
+                        <!-- TradingView Widget END -->
+                    </div>
+
+                    <div class="tv-panel tv-mini-card animate-in">
+                        <div class="tv-panel-label">XAU/USD Snapshot</div>
+                        <!-- TradingView Widget BEGIN -->
+                        <div class="tradingview-widget-container" style="height:calc(100% - 34px);">
+                            <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js" async>
+                            {
+                            "symbol": "OANDA:XAUUSD",
+                            "width": "100%",
+                            "locale": "en",
+                            "colorTheme": "dark",
+                            "isTransparent": true
+                            }
+                            </script>
+                        </div>
+                        <!-- TradingView Widget END -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-market overview -->
+            <div class="tv-panel tv-overview-card animate-in">
+                <div class="tv-panel-label"><span class="live-dot"></span> Market Overview</div>
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:calc(100% - 34px);">
+                    <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+                    {
+                    "colorTheme": "dark",
+                    "dateRange": "1D",
+                    "showChart": true,
+                    "locale": "en",
+                    "width": "100%",
+                    "height": "100%",
+                    "largeChartUrl": "",
+                    "isTransparent": true,
+                    "showSymbolLogo": true,
+                    "showFloatingTooltip": false,
+                    "tabs": [
+                        {
+                            "title": "Forex",
+                            "symbols": [
+                                { "s": "FX:EURUSD", "d": "EUR/USD" },
+                                { "s": "FX:GBPUSD", "d": "GBP/USD" },
+                                { "s": "FX:USDJPY", "d": "USD/JPY" },
+                                { "s": "FX:AUDUSD", "d": "AUD/USD" },
+                                { "s": "FX:USDCAD", "d": "USD/CAD" },
+                                { "s": "FX:GBPJPY", "d": "GBP/JPY" }
+                            ],
+                            "originalTitle": "Forex"
+                        },
+                        {
+                            "title": "Metals",
+                            "symbols": [
+                                { "s": "OANDA:XAUUSD", "d": "Gold" },
+                                { "s": "OANDA:XAGUSD", "d": "Silver" }
+                            ],
+                            "originalTitle": "Metals"
+                        },
+                        {
+                            "title": "Indices",
+                            "symbols": [
+                                { "s": "TVC:NDX", "d": "NASDAQ 100" },
+                                { "s": "TVC:SPX", "d": "S&P 500" },
+                                { "s": "TVC:DJI", "d": "Dow Jones" },
+                                { "s": "XETR:DAX", "d": "DAX" }
+                            ],
+                            "originalTitle": "Indices"
+                        },
+                        {
+                            "title": "Crypto",
+                            "symbols": [
+                                { "s": "COINBASE:BTCUSD", "d": "Bitcoin" },
+                                { "s": "COINBASE:ETHUSD", "d": "Ethereum" }
+                            ],
+                            "originalTitle": "Crypto"
+                        }
+                    ]
+                    }
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section id="features" class="section features-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Features</div>
+            <h2 class="section-title animate-in">Built With <span class="gradient-text">Advanced AI</span></h2>
+            <p class="section-subtitle animate-in">Every feature is engineered for precision trading and maximum profitability</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #00C2FF">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3 class="feature-title">AI Trade Analysis</h3>
+                <p class="feature-desc">Deep neural networks analyse market patterns in real-time for high-probability setups</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #00FFB2">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <h3 class="feature-title">Lightning Fast Execution</h3>
+                <p class="feature-desc">Millisecond execution speeds ensure you never miss an entry or exit</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #7A5CFF">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h3 class="feature-title">24/7 Automation</h3>
+                <p class="feature-desc">AI bots work around the clock so you never miss a trading opportunity</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #FF6B6B">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 class="feature-title">Risk Management</h3>
+                <p class="feature-desc">Advanced algorithms protect your capital with dynamic position sizing and drawdown limits</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #FFD700">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <h3 class="feature-title">Smart Entries</h3>
+                <p class="feature-desc">AI identifies optimal entry points using multi-timeframe analysis</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #00FFB2">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h3 class="feature-title">Automatic Take Profit</h3>
+                <p class="feature-desc">Smart TP levels calculated by AI for maximum profit extraction per trade</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #FF6B6B">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h3 class="feature-title">Automatic Stop Loss</h3>
+                <p class="feature-desc">Dynamic stop-loss levels adapt to market conditions for optimal risk control</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #FFD700">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>
+                </div>
+                <h3 class="feature-title">Gold Optimized</h3>
+                <p class="feature-desc">Specialised algorithms tuned specifically for XAU/USD gold trading patterns</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #00C2FF">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <h3 class="feature-title">Scalping Technology</h3>
+                <p class="feature-desc">Ultra-fast scalping engine designed for small, consistent profits on lower timeframes</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #7A5CFF">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                </div>
+                <h3 class="feature-title">Market Trend Detection</h3>
+                <p class="feature-desc">Identify market regime changes before they happen with AI trend recognition</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #00FFB2">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <h3 class="feature-title">One Click Setup</h3>
+                <p class="feature-desc">Deploy your AI trading bot in seconds with our streamlined installation process</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="--accent: #00C2FF">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <h3 class="feature-title">Lifetime Updates</h3>
+                <p class="feature-desc">Free algorithm updates as markets evolve — your bot always stays ahead</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STORE SECTION -->
+<section id="store" class="section" style="padding: 120px 0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(5,5,5,1) 10%, rgba(5,5,5,1) 90%, rgba(0,0,0,0) 100%);">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Store</div>
+            <h2 class="section-title animate-in">Choose Your <span class="gradient-text">Bot</span></h2>
+            <p class="section-subtitle animate-in">Premium MQL5 Expert Advisors built for MetaTrader 5. Activate with your licence key and start trading instantly.</p>
+        </div>
+        <div class="store-grid">
+            <!-- Scalping Bot -->
+            <div class="bot-card scalping animate-in">
+                <span class="badge">Popular</span>
+                <span class="sale-tag">&minus;50%</span>
+                <h2>Scalping Bot</h2>
+                <p class="subtitle">M1/M5 high-frequency scalper</p>
+                <div class="price-row">
+                    <span class="price-old">&pound;99</span>
+                    <div class="price">&pound;49</div>
+                </div>
+                <p class="price-note">One-time purchase · Lifetime licence · <span class="save-flash">Save &pound;151</span></p>
+                <ul class="features">
+                    <li>EMA crossover + RSI confirmation</li>
+                    <li>Optimised for EUR/USD, GBP/USD, USD/JPY</li>
+                    <li>Dynamic lot sizing based on account balance</li>
+                    <li>Session filter (London + New York)</li>
+                    <li>Trailing stop with configurable step</li>
+                    <li>Max 3 concurrent trades</li>
+                    <li>Works on any MT5 broker</li>
+                </ul>
+                <a href="checkout.html?bot=scalping" class="btn-buy">Buy Now</a>
+            </div>
+
+            <!-- Gold Bot -->
+            <div class="bot-card gold animate-in">
+                <span class="badge">Gold Specialist</span>
+                <span class="sale-tag">&minus;50%</span>
+                <h2>Gold Bot</h2>
+                <p class="subtitle">XAU/USD multi-timeframe EA</p>
+                <div class="price-row">
+                    <span class="price-old">&pound;249</span>
+                    <div class="price">&pound;125</div>
+                </div>
+                <p class="price-note">One-time purchase · Lifetime licence · <span class="save-flash">Save &pound;375</span></p>
+                <ul class="features">
+                    <li>Multi-timeframe EMA + MACD + Stochastic</li>
+                    <li>Trend-following on H1, entries on M15</li>
+                    <li>ATR-based dynamic SL/TP</li>
+                    <li>Oversold/overbought reversal filters</li>
+                    <li>Trailing stop with pips-based trigger</li>
+                    <li>Max 2 concurrent trades</li>
+                    <li>Session filter (London + New York)</li>
+                </ul>
+                <a href="checkout.html?bot=gold" class="btn-buy">Buy Now</a>
+            </div>
+
+            <!-- Global Bot -->
+            <div class="bot-card global animate-in">
+                <span class="badge">VIP — All Strategies</span>
+                <span class="sale-tag">&minus;50%</span>
+                <h2>Global Bot</h2>
+                <p class="subtitle">Full-featured multi-strategy EA</p>
+                <div class="price-row">
+                    <span class="price-old">&pound;489</span>
+                    <div class="price">&pound;245</div>
+                </div>
+                <p class="price-note">One-time purchase · Lifetime licence · <span class="save-flash">Save &pound;754</span></p>
+                <ul class="features">
+                    <li>3 strategies in one: Scalp + Swing + Breakout</li>
+                    <li>8 indicators: EMA, RSI, MACD, ATR, Stoch, BB, ADX</li>
+                    <li>Bollinger Band breakout detection</li>
+                    <li>Max drawdown protection circuit breaker</li>
+                    <li>Dynamic lot sizing with risk % control</li>
+                    <li>Max 5 concurrent trades</li>
+                    <li>Works on all symbols + any MT5 broker</li>
+                </ul>
+                <a href="checkout.html?bot=global" class="btn-buy">Buy Now</a>
+            </div>
+        </div>
+
+        <div class="store-guarantee animate-in">
+            <div class="guarantee-icon">🛡</div>
+            <h3>30-Day Money-Back Guarantee</h3>
+            <p>If the bot doesn't meet your expectations, email us within 30 days for a full refund. Your .mq5 source files are yours to keep. Licence key is delivered instantly via email after purchase.</p>
+        </div>
+    </div>
+</section>
+
+<!-- MENTORSHIP SECTION -->
+<section id="mentorship" class="section mentorship-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Mentorship</div>
+            <h2 class="section-title animate-in">Learn The Strategy <span class="gradient-text">1:1</span></h2>
+            <p class="section-subtitle animate-in">Work directly with us and master the exact IMPERA strategy — from entries and exits to risk and psychology.</p>
+        </div>
+
+        <div class="mentor-grid">
+            <!-- Monthly -->
+            <div class="mentor-card monthly animate-in">
+                <span class="badge">Flexible</span>
+                <span class="sale-tag">&minus;50%</span>
+                <h3 class="mentor-name">Mentorship Monthly</h3>
+                <p class="subtitle">Full access. Cancel anytime.</p>
+                <div class="price-row">
+                    <span class="price-old">&pound;100/mo</span>
+                    <div class="price">&pound;50<span class="price-period">/mo</span></div>
+                </div>
+                <p class="price-note">Recurring &middot; Cancel anytime &middot; No lock-in</p>
+                <ul class="features">
+                    <li>Full IMPERA strategy taught step-by-step</li>
+                    <li>2x private 1:1 video calls every month</li>
+                    <li>Private trading group access (24/7)</li>
+                    <li>Daily watchlist + trade setups posted</li>
+                    <li>Trade reviews with direct feedback</li>
+                    <li>Risk management framework setup</li>
+                    <li>Psychology &amp; discipline coaching</li>
+                </ul>
+                <a href="checkout.html?bot=mentor-monthly" class="btn-buy">Start Monthly &mdash; &pound;50/mo</a>
+            </div>
+
+            <!-- Lifetime -->
+            <div class="mentor-card lifetime animate-in">
+                <span class="badge">Best Value &mdash; Save &pound;850+/yr</span>
+                <span class="sale-tag">&minus;50%</span>
+                <h3 class="mentor-name">Mentorship Lifetime</h3>
+                <p class="subtitle">One payment. Yours forever.</p>
+                <div class="price-row">
+                    <span class="price-old">&pound;350</span>
+                    <div class="price">&pound;175<span class="price-period">once</span></div>
+                </div>
+                <p class="price-note">Pays for itself in under 4 months &middot; Never pay again</p>
+                <ul class="features">
+                    <li><strong>Everything in Monthly — locked for life</strong></li>
+                    <li>Lifetime private group + all future updates</li>
+                    <li>Monthly 1:1 strategy call — forever</li>
+                    <li>Complete strategy course + session recordings</li>
+                    <li>Live trading sessions — watch us execute</li>
+                    <li>Personal trade journal audits</li>
+                    <li>Priority support — front of the queue, always</li>
+                </ul>
+                <a href="checkout.html?bot=mentor-lifetime" class="btn-buy">Get Lifetime &mdash; &pound;175</a>
+            </div>
+        </div>
+
+        <div class="mentor-perks">
+            <div class="mentor-perk animate-in">
+                <div class="mentor-perk-icon" style="--accent:#FFD700">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                </div>
+                <h4>Weekly 1:1 Calls</h4>
+                <p>Face-to-face video calls where we review your trades, fix your mistakes and build your edge together.</p>
+            </div>
+            <div class="mentor-perk animate-in">
+                <div class="mentor-perk-icon" style="--accent:#00C2FF">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                </div>
+                <h4>Private Trading Group</h4>
+                <p>An inner circle of serious traders sharing setups, breakdowns and live market commentary every single day.</p>
+            </div>
+            <div class="mentor-perk animate-in">
+                <div class="mentor-perk-icon" style="--accent:#00FFB2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h4>The Exact IMPERA Strategy</h4>
+                <p>No secrets held back — the precise entry model, session timing, stop placement and take-profit rules we trade ourselves.</p>
+            </div>
+            <div class="mentor-perk animate-in">
+                <div class="mentor-perk-icon" style="--accent:#FF6B6B">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <h4>Daily Setups &amp; Watchlist</h4>
+                <p>Know exactly what we're watching before the London open — levels, bias and high-probability setups posted daily.</p>
+            </div>
+            <div class="mentor-perk animate-in">
+                <div class="mentor-perk-icon" style="--accent:#7A5CFF">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <h4>Journal &amp; Risk Audits</h4>
+                <p>We audit your trading journal and risk plan so you compound good habits — and cut costly ones fast.</p>
+            </div>
+            <div class="mentor-perk animate-in">
+                <div class="mentor-perk-icon" style="--accent:#00FFB2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </div>
+                <h4>Mindset Coaching</h4>
+                <p>Trading psychology is the real edge. Learn to stay disciplined through drawdowns and scale with confidence.</p>
+            </div>
+        </div>
+
+        <div class="store-guarantee animate-in">
+            <div class="guarantee-icon">&#128081;</div>
+            <h3>Limited Spots — Kept Small On Purpose</h3>
+            <p>We cap mentorship numbers so every member gets genuine 1:1 attention. When spots are gone, you'll join the waitlist. Questions first? Message us on Telegram any time.</p>
+        </div>
+    </div>
+</section>
+
+<!-- PERFORMANCE SECTION -->
+<section id="performance" class="section performance-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Performance</div>
+            <h2 class="section-title animate-in">Results That <span class="gradient-text">Speak</span></h2>
+            <p class="section-subtitle animate-in">Verified performance metrics from our AI trading systems</p>
+        </div>
+        <div class="performance-grid">
+            <div class="performance-card animate-in">
+                <div class="circular-progress" data-progress="98" data-color="#00C2FF">
+                    <svg viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" class="progress-bg"/>
+                        <circle cx="60" cy="60" r="54" class="progress-ring" style="--circumference: 339.292; --offset: 6.786"/>
+                    </svg>
+                    <div class="progress-value">
+                        <span class="progress-number" data-target="98">0</span>
+                        <span class="progress-suffix">%</span>
+                    </div>
+                </div>
+                <h3 class="performance-label">Win Rate</h3>
+                <p class="performance-desc">Consistent winning trades across all market conditions</p>
+            </div>
+            <div class="performance-card animate-in">
+                <div class="circular-progress" data-progress="75" data-color="#00FFB2">
+                    <svg viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" class="progress-bg"/>
+                        <circle cx="60" cy="60" r="54" class="progress-ring" style="--circumference: 339.292; --offset: 84.823"/>
+                    </svg>
+                    <div class="progress-value">
+                        <span class="progress-number" data-target="15">0</span>
+                        <span class="progress-suffix">%</span>
+                    </div>
+                </div>
+                <h3 class="performance-label">Avg Monthly Growth</h3>
+                <p class="performance-desc">12-18% consistent monthly returns on average</p>
+            </div>
+            <div class="performance-card animate-in">
+                <div class="circular-progress" data-progress="85" data-color="#7A5CFF">
+                    <svg viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" class="progress-bg"/>
+                        <circle cx="60" cy="60" r="54" class="progress-ring" style="--circumference: 339.292; --offset: 50.894"/>
+                    </svg>
+                    <div class="progress-value">
+                        <span class="progress-number" data-target="50000" data-suffix="+">0</span>
+                    </div>
+                </div>
+                <h3 class="performance-label">Trades Executed</h3>
+                <p class="performance-desc">Over 50,000 successful trades and counting</p>
+            </div>
+            <div class="performance-card animate-in">
+                <div class="circular-progress" data-progress="60" data-color="#FFD700">
+                    <svg viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" class="progress-bg"/>
+                        <circle cx="60" cy="60" r="54" class="progress-ring" style="--circumference: 339.292; --offset: 135.717"/>
+                    </svg>
+                    <div class="progress-value">
+                        <span class="progress-number" data-target="5">0</span>
+                        <span class="progress-suffix">+</span>
+                    </div>
+                </div>
+                <h3 class="performance-label">Years of Development</h3>
+                <p class="performance-desc">5+ years of strategy refinement and backtesting</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section id="why" class="section why-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Why IMPERA</div>
+            <h2 class="section-title animate-in">Why Choose <span class="gradient-text">IMPERA</span></h2>
+            <p class="section-subtitle animate-in">The advantages that set us apart from the competition</p>
+        </div>
+        <div class="why-grid">
+            <div class="why-card animate-in">
+                <div class="why-card-number">01</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="1.5"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h3 class="why-title">Professional Algorithms</h3>
+                <p class="why-desc">Institutional-grade algorithms used by professional hedge funds, now available to you</p>
+            </div>
+            <div class="why-card animate-in">
+                <div class="why-card-number">02</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00FFB2" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <h3 class="why-title">Continuous Updates</h3>
+                <p class="why-desc">Regular algorithm improvements to adapt to changing market conditions</p>
+            </div>
+            <div class="why-card animate-in">
+                <div class="why-card-number">03</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7A5CFF" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3 class="why-title">AI Driven Decisions</h3>
+                <p class="why-desc">Remove emotions from trading with purely data-driven AI decisions</p>
+            </div>
+            <div class="why-card animate-in">
+                <div class="why-card-number">04</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <h3 class="why-title">Fast Execution</h3>
+                <p class="why-desc">Lightning-fast trade execution ensures optimal entry and exit prices</p>
+            </div>
+            <div class="why-card animate-in">
+                <div class="why-card-number">05</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 class="why-title">Secure Trading</h3>
+                <p class="why-desc">Your funds stay in your broker account — we never have access to your capital</p>
+            </div>
+            <div class="why-card animate-in">
+                <div class="why-card-number">06</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00FFB2" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <h3 class="why-title">Easy Installation</h3>
+                <p class="why-desc">Simple one-click setup process — get trading in under 5 minutes</p>
+            </div>
+            <div class="why-card why-card-wide animate-in">
+                <div class="why-card-number">07</div>
+                <div class="why-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7A5CFF" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                </div>
+                <h3 class="why-title">Built For Serious Traders</h3>
+                <p class="why-desc">Designed for traders who demand professional-grade tools and consistent results</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="section testimonials-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">Testimonials</div>
+            <h2 class="section-title animate-in">What Traders <span class="gradient-text">Say</span></h2>
+            <p class="section-subtitle animate-in">Real feedback from our community of AI traders</p>
+        </div>
+        <div class="testimonials-slider">
+            <div class="testimonials-track" id="testimonialsTrack">
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"Made my trading far easier. The AI does all the heavy lifting while I focus on my daily life. Consistent profits every week."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #00C2FF">J</div>
+                            <div>
+                                <div class="testimonial-name">James</div>
+                                <div class="testimonial-role">Forex Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"Professional bot with amazing consistency. The Gold Bot has been incredible for XAUUSD trading. Best investment I've made."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #FFD700">S</div>
+                            <div>
+                                <div class="testimonial-name">Sarah</div>
+                                <div class="testimonial-role">Gold Specialist</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"Best AI trading software I've ever used. The Global Bot's institutional-level strategies have transformed my portfolio completely."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #7A5CFF">M</div>
+                            <div>
+                                <div class="testimonial-name">Michael</div>
+                                <div class="testimonial-role">Portfolio Manager</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"I was sceptical at first, but after 3 months of using the Scalping Bot, my account has grown 42%. Absolutely incredible."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #00FFB2">D</div>
+                            <div>
+                                <div class="testimonial-name">David</div>
+                                <div class="testimonial-role">Day Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"The risk management alone is worth the price. My drawdowns are minimal and the profits keep rolling in. Highly recommend."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #FF6B6B">A</div>
+                            <div>
+                                <div class="testimonial-name">Alex</div>
+                                <div class="testimonial-role">Swing Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"Setup took less than 5 minutes and I was live trading. The auto stop loss and take profit features give me total peace of mind."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #00C2FF">R</div>
+                            <div>
+                                <div class="testimonial-name">Rachel</div>
+                                <div class="testimonial-role">Part-Time Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"I've tried many bots over the years. IMPERA is the only one that's actually consistent month after month. The Gold Bot is pure gold."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #FFD700">K</div>
+                            <div>
+                                <div class="testimonial-name">Kevin</div>
+                                <div class="testimonial-role">Gold &amp; Forex Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"The Global Bot pays for itself in a week. Institutional-level execution on my personal account. The analytics dashboard is outstanding."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #7A5CFF">L</div>
+                            <div>
+                                <div class="testimonial-name">Laura</div>
+                                <div class="testimonial-role">Prop Firm Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"Being a beginner, I was nervous about automated trading. But IMPERA made it so simple. Their support team walked me through everything."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #00FFB2">T</div>
+                            <div>
+                                <div class="testimonial-name">Tom</div>
+                                <div class="testimonial-role">Beginner Trader</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">"3 months in and my account is up 38%. The scalping bot catches moves I would have completely missed manually. Life-changing."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" style="--avatar-color: #FF6B6B">N</div>
+                            <div>
+                                <div class="testimonial-name">Nathan</div>
+                                <div class="testimonial-role">Scalper</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonials-nav">
+                <button class="testimonial-btn" id="prevTestimonial" aria-label="Previous">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="testimonials-dots" id="testimonialDots"></div>
+                <button class="testimonial-btn" id="nextTestimonial" aria-label="Next">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section id="faq" class="section faq-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-tag animate-in">FAQ</div>
+            <h2 class="section-title animate-in">Frequently Asked <span class="gradient-text">Questions</span></h2>
+            <p class="section-subtitle animate-in">Everything you need to know about IMPERA bots</p>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item animate-in">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Which brokers work with IMPERA?</span>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <p>IMPERA bots work with most MT4 and MT5 compatible brokers. We recommend brokers with low spreads and fast execution such as IC Markets, Pepperstone, and XM. Contact our support for a full list of recommended brokers.</p>
+                </div>
+            </div>
+            <div class="faq-item animate-in">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Does it work with MT4?</span>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes! All IMPERA bots are fully compatible with MetaTrader 4 (MT4). Installation is simple — just drag the bot onto your chart and configure your settings.</p>
+                </div>
+            </div>
+            <div class="faq-item animate-in">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Does it work with MT5?</span>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Absolutely. All our bots support MetaTrader 5 (MT5) as well. You'll receive both MT4 and MT5 versions with your purchase.</p>
+                </div>
+            </div>
+            <div class="faq-item animate-in">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Can beginners use IMPERA?</span>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes! Our bots are designed for all skill levels. The one-click setup makes it easy for beginners, while the advanced features cater to experienced traders. Our support team is always available to help.</p>
+                </div>
+            </div>
+            <div class="faq-item animate-in">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Do I receive updates?</span>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes, all bots come with lifetime updates. As we improve our algorithms and adapt to market changes, you'll receive free updates to keep your bot performing at its best.</p>
+                </div>
+            </div>
+            <div class="faq-item animate-in">
+                <button class="faq-question" aria-expanded="false">
+                    <span>How do I install the bot?</span>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Installation takes less than 5 minutes. After purchase, you'll receive detailed instructions and video guides. Simply download the bot file, place it in your MT4/MT5 experts folder, restart your platform, and drag the bot onto your chart. Our support team can assist you via Discord or Telegram.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT / NEWSLETTER -->
+<section id="contact" class="section contact-section">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <div class="section-tag animate-in">Get In Touch</div>
+                <h2 class="section-title animate-in">Ready to Start <span class="gradient-text">Trading?</span></h2>
+                <p class="section-subtitle animate-in" style="text-align:left">Join thousands of traders already using IMPERA to automate their trading and maximise profits.</p>
+                <div class="contact-channels animate-in">
+                    <a href="#" class="contact-channel">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        <span>Live Chat</span>
+                        <span class="channel-status online">Online</span>
+                    </a>
+                    <a href="#" class="contact-channel">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        <span>Support</span>
+                    </a>
+                </div>
+            </div>
+            <div class="contact-form-wrapper animate-in">
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="contactName">Name</label>
+                        <input type="text" id="contactName" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Email</label>
+                        <input type="email" id="contactEmail" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactSubject">Subject</label>
+                        <select id="contactSubject">
+                            <option>General Inquiry</option>
+                            <option>Bot Support</option>
+                            <option>Partnership</option>
+                            <option>Technical Issue</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactMessage">Message</label>
+                        <textarea id="contactMessage" rows="4" placeholder="Your message..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                </form>
+            </div>
+        </div>
+        <div class="newsletter animate-in">
+            <div class="newsletter-content">
+                <h3 class="newsletter-title">Stay Updated</h3>
+                <p class="newsletter-desc">Get the latest AI trading insights, bot updates, and market analysis delivered to your inbox.</p>
+            </div>
+            <form class="newsletter-form" id="newsletterForm">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="nav-logo">
+                    <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+                        <path d="M9 46 L13.5 18 L24 30 L32 12 L40 30 L50.5 18 L55 46 Z" stroke="url(#footerGrad)" stroke-width="3" stroke-linejoin="round" fill="rgba(0,194,255,0.06)"/>
+                        <rect x="11" y="51" width="42" height="5" rx="2.5" fill="url(#footerGrad)"/>
+                        <defs>
+                            <linearGradient id="footerGrad" x1="6" y1="10" x2="58" y2="54">
+                                <stop offset="0%" stop-color="#00C2FF"/>
+                                <stop offset="100%" stop-color="#00FFB2"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>IMPERA</span>
+                </a>
+                <p class="footer-desc">AI-powered trading technology for the modern trader. Automate, optimise, and profit.</p>
+            </div>
+            <div class="footer-links-group">
+                <h4 class="footer-heading">Community</h4>
+                <a href="#" class="footer-link">Discord</a>
+                <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="footer-link">Telegram</a>
+                <a href="#" class="footer-link">Instagram</a>
+            </div>
+            <div class="footer-links-group">
+                <h4 class="footer-heading">Legal</h4>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+            </div>
+                <div class="footer-links-group">
+                    <h4 class="footer-heading">Product</h4>
+                    <a href="#features" class="footer-link">Features</a>
+                    <a href="#store" class="footer-link">Bots</a>
+                    <a href="#mentorship" class="footer-link">Mentorship</a>
+                    <a href="#performance" class="footer-link">Performance</a>
+                    <a href="#faq" class="footer-link">FAQ</a>
+                </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 IMPERA. All rights reserved.</p>
+            <div class="footer-socials">
+                <a href="#" class="social-link" aria-label="Discord">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                </a>
+                <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener" class="social-link" aria-label="Telegram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </a>
+                <a href="#" class="social-link" aria-label="Instagram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- BACK TO TOP -->
+<button id="backToTop" class="back-to-top" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+<!-- LIVE CHAT PLACEHOLDER -->
+<div class="live-chat" id="liveChat">
+    <button class="live-chat-btn" id="liveChatBtn" aria-label="Live chat">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </button>
+    <div class="live-chat-window" id="liveChatWindow">
+        <div class="chat-header">
+            <span>IMPERA Support</span>
+            <button class="chat-close" id="chatClose" aria-label="Close chat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="chat-body">
+            <div class="chat-message bot">
+                <p>Hi! How can we help you today?</p>
+                <span class="chat-time">Just now</span>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" placeholder="Type a message..." id="chatInput">
+            <button class="chat-send" id="chatSend" aria-label="Send">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

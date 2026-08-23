@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPERA — Email Sender</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold:#C9A962; --mint:#00FFB2; --bg:#050505; }
+        * { box-sizing: border-box; }
+        body { background: var(--bg); color: #fff; font-family: Inter, sans-serif; margin: 0; padding: 40px 24px 80px; }
+        .wrap { max-width: 1280px; margin: 0 auto; }
+        header.top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:30px; }
+        h1 { font-size:1.5rem; font-weight:800; letter-spacing:-.5px; margin:0; }
+        h1 span { color: var(--gold); }
+        a.back { color:#888; font-size:.85rem; text-decoration:none; }
+        .cols { display:grid; grid-template-columns: 380px 1fr; gap:24px; }
+        @media(max-width:900px){ .cols { grid-template-columns:1fr; } }
+
+        .panel { background:linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.09); border-radius:18px; padding:26px; }
+        label.f { display:block; font-size:.75rem; text-transform:uppercase; letter-spacing:1.5px; color:#999; margin:16px 0 7px; font-weight:600; }
+        label.f:first-of-type { margin-top:0; }
+        input.f, select.f, textarea.f { width:100%; padding:11px 13px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); border-radius:9px; color:#fff; font-size:.9rem; font-family:Inter,sans-serif; outline:none; }
+        textarea.f { resize:vertical; min-height:70px; }
+        .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+        button.a { padding:12px 18px; border-radius:10px; border:none; font-weight:700; cursor:pointer; font-size:.8rem; text-transform:uppercase; letter-spacing:1px; font-family:Inter,sans-serif; }
+        .gold { background:linear-gradient(135deg,#E6C97A,#B08D3F); color:#050505; }
+        .blue { background:#00C2FF; color:#050505; }
+        .grey { background:rgba(255,255,255,.07); color:#ddd; border:1px solid rgba(255,255,255,.14); }
+        #preview { width:100%; height:640px; border:none; border-radius:12px; background:#0b0b0b; }
+        .hint { color:#777; font-size:.78rem; line-height:1.6; margin-top:18px; border-top:1px solid rgba(255,255,255,.08); padding-top:14px; }
+        .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#00FFB2; color:#050505; font-weight:700; padding:12px 24px; border-radius:99px; opacity:0; transition:.3s; pointer-events:none; font-size:.85rem; }
+        .toast.show { opacity:1; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header class="top">
+        <h1><span>&#9819;</span> IMPERA Email Sender</h1>
+        <a class="back" href="admin.html">&larr; Back to Admin Portal</a>
+    </header>
+
+    <div class="cols">
+        <div class="panel">
+            <label class="f">Template</label>
+            <select class="f" id="tpl">
+                <option value="approved">Order Confirmation — Approved</option>
+                <option value="declined">Order Confirmation — Declined</option>
+                <option value="reminder">Meeting Reminder (Zoom)</option>
+            </select>
+
+            <label class="f">To (email)</label>
+            <input class="f" id="to" type="email" placeholder="client@example.com">
+
+            <!-- approved / declined fields -->
+            <div id="orderFields">
+                <label class="f">Client Name</label>
+                <input class="f" id="name" placeholder="John Smith">
+                <label class="f">Product</label>
+                <input class="f" id="product" placeholder="IMPERA Gold Bot">
+                <label class="f">Amount Paid</label>
+                <input class="f" id="amount" placeholder="$299.00">
+                <div id="approvedOnly">
+                    <label class="f">Licence Key</label>
+                    <input class="f" id="key" placeholder="IMPERA-XXXX-XXXX-XXXX">
+                    <label class="f">Account Email (login)</label>
+                    <input class="f" id="accEmail" placeholder="same as To, or different">
+                    <label class="f">Account Password</label>
+                    <input class="f" id="accPass" placeholder="e.g. K7R2M-QW90X">
+                </div>
+                <div id="declinedOnly" style="display:none">
+                    <label class="f">Reason</label>
+                    <textarea class="f" id="reason" placeholder="Payment could not be processed…"></textarea>
+                </div>
+            </div>
+
+            <!-- reminder fields -->
+            <div id="remFields" style="display:none">
+                <label class="f">Client Name</label>
+                <input class="f" id="rName" placeholder="John Smith">
+                <label class="f">Date</label>
+                <input class="f" id="rDate" placeholder="Friday 28 August 2026">
+                <label class="f">Time (incl. timezone)</label>
+                <input class="f" id="rTime" placeholder="14:00 BST">
+                <label class="f">Zoom Link</label>
+                <input class="f" id="rZoom" placeholder="https://zoom.us/j/…">
+            </div>
+
+            <div class="actions">
+                <button class="a blue" onclick="openMailto()">Open in Mail App</button>
+                <button class="a gold" onclick="downloadEml()">Download .eml</button>
+                <button class="a grey" onclick="copyHtml()">Copy HTML</button>
+            </div>
+
+            <p class="hint">
+                <strong style="color:#aaa">How to send:</strong> "Open in Mail App" pre-fills the message in your default mail client
+                with the styled HTML. Paste any remaining details, add your client's address if empty and hit send.
+                Works great with Gmail ("paste with formatting") too — use Copy HTML then paste into Gmail compose.
+            </p>
+        </div>
+
+        <div class="panel">
+            <iframe id="preview" title="Email preview"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+    'use strict';
+
+    // Pre-fill from Admin Portal query params
+    const q = new URLSearchParams(location.search);
+    const map = {
+        'to': 'to', 'name': 'name', 'bot': 'product', 'amount': 'amount',
+        'date': 'rDate', 'time': 'rTime', 'zoom': 'rZoom'
+    };
+    Object.entries(map).forEach(([k, id]) => { if (q.get(k)) setVal(id, q.get(k)); });
+    if (q.get('template')) setVal('tpl', q.get('template'));
+    function setVal(id, v) { const el = document.getElementById(id); if (el) el.value = v; }
+
+    const CROWN = '<div style="text-align:center;padding-bottom:24px;border-bottom:1px solid rgba(201,169,98,0.25);margin-bottom:28px;"><span style="font-size:34px;color:#C9A962;">&#9819;</span><h1 style="margin:10px 0 4px;font-size:26px;letter-spacing:6px;font-weight:800;color:#ffffff;">IMPERA</h1><p style="margin:0;color:#C9A962;font-size:11px;letter-spacing:3px;text-transform:uppercase;">Precision Trading Systems</p></div>';
+    const FOOT = '<div style="margin-top:36px;padding-top:22px;border-top:1px solid rgba(201,169,98,0.25);text-align:center;"><p style="color:#888888;font-size:12px;margin:0;line-height:20px;">IMPERA &middot; Precision Trading Systems<br>You are receiving this email because of your recent order or mentorship membership.<br><a href="mailto:support@impera.com" style="color:#C9A962;text-decoration:none;">support@impera.com</a></p></div>';
+    const SHELL = (inner) => '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>' +
+        '<body style="margin:0;padding:0;background-color:#050505;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#050505"><tr><td align="center" style="padding:40px 16px;"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#0b0d10;border:1px solid rgba(201,169,98,0.25);border-radius:16px;font-family:Arial,Helvetica,sans-serif;"><tr><td style="padding:44px 44px 40px;">' + inner + '</td></tr></table></td></tr></table></body></html>';
+
+    const btn = (txt, href) => '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:30px auto 0;"><tr><td align="center" bgcolor="#00FFB2" style="border-radius:10px;"><a href="' + href + '" style="display:inline-block;padding:15px 38px;color:#050505;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;text-decoration:none;border-radius:10px;">' + txt + '</a></td></tr></table>';
+
+    const TEMPLATES = {
+        approved(d) {
+            return SHELL(CROWN +
+                '<h2 style="color:#00FFB2;font-size:22px;margin:0 0 18px;text-align:center;">&#10003; Payment Confirmed</h2>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">Hi ' + e(d.name) + ',</p>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">Thank you for your purchase from IMPERA. Your payment for <strong style="color:#ffffff;">' + e(d.product) + '</strong> has been received successfully.</p>' +
+                '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(0,255,178,0.06);border:1px solid rgba(0,255,178,0.35);border-radius:12px;margin:26px 0;"><tr><td style="padding:22px 26px;">' +
+                row('Amount paid', d.amount, '#00FFB2') +
+                row('Product', d.product) +
+                (d.key ? row('Licence key', d.key, '#C9A962') : '') +
+                '</td></tr></table>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;"><strong style="color:#ffffff;">Your account access:</strong></p>' +
+                '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(201,169,98,0.07);border:1px dashed rgba(201,169,98,0.45);border-radius:12px;margin:14px 0 6px;"><tr><td style="padding:20px 26px;">' +
+                row('Dashboard login', d.accEmail || d.to) +
+                row('Password', d.accPass, '#00FFB2') +
+                '</td></tr></table>' +
+                '<p style="color:#999999;font-size:13px;line-height:22px;">Log in to your dashboard to download your bot, view your licence key and book mentorship sessions.</p>' +
+                btn('Open Your Dashboard', '{{DASHBOARD_URL}}') + FOOT);
+        },
+        declined(d) {
+            return SHELL(CROWN +
+                '<h2 style="color:#ff5c7a;font-size:22px;margin:0 0 18px;text-align:center;">&#9888; Payment Unsuccessful</h2>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">Hi ' + e(d.name) + ',</p>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">We were unable to process your payment for <strong style="color:#ffffff;">' + e(d.product) + '</strong>.</p>' +
+                '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(255,92,122,0.07);border:1px solid rgba(255,92,122,0.35);border-radius:12px;margin:26px 0;"><tr><td style="padding:22px 26px;">' +
+                row('Reason', d.reason, '#ff5c7a') + row('Product', d.product) + '</td></tr></table>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">No money has been taken from your card. You can retry checkout at any time — your order is still reserved.</p>' +
+                btn('Retry Payment', '{{RETRY_URL}}') + FOOT);
+        },
+        reminder(d) {
+            return SHELL(CROWN +
+                '<h2 style="color:#C9A962;font-size:22px;margin:0 0 18px;text-align:center;">&#128197; Session Reminder</h2>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">Hi ' + e(d.name) + ',</p>' +
+                '<p style="color:#cccccc;font-size:15px;line-height:26px;">This is a friendly reminder about your upcoming 1:1 IMPERA mentorship session on <strong style="color:#ffffff;">Zoom</strong>.</p>' +
+                '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(201,169,98,0.07);border:1px solid rgba(201,169,98,0.4);border-radius:12px;margin:26px 0;"><tr><td style="padding:22px 26px;">' +
+                row('Date', d.date) + row('Time', d.time, '#C9A962') +
+                (d.zoom ? row('Zoom link', '<a href="' + e(d.zoom) + '" style="color:#00FFB2;word-break:break-all;">Join session &#8594;</a>') : row('Zoom link', 'You will receive the link once confirmed.')) +
+                '</td></tr></table>' +
+                '<p style="color:#999999;font-size:13px;line-height:22px;">Tip: come with your trade screenshots and questions ready so we can make the most of our time together.</p>' +
+                (d.zoom ? btn('Join On Zoom', d.zoom) : '') + FOOT);
+        }
+    };
+
+    function row(label, val, color) {
+        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0;"><tr>' +
+            '<td style="color:#888888;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:4px 0;width:130px;vertical-align:top;">' + label + '</td>' +
+            '<td style="color:' + (color || '#ffffff') + ';font-size:15px;font-weight:bold;padding:4px 0;">' + (val || '&mdash;') + '</td>' +
+            '</tr></table>';
+    }
+    function e(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    const val = id => (document.getElementById(id).value || '').trim();
+    const show = (id, yes) => document.getElementById(id).style.display = yes ? '' : 'none';
+
+    function current() {
+        const tpl = val('tpl');
+        const d = { to: val('to') };
+        if (tpl === 'reminder') {
+            Object.assign(d, { name: val('rName'), date: val('rDate'), time: val('rTime'), zoom: val('rZoom') });
+        } else {
+            Object.assign(d, { name: val('name'), product: val('product'), amount: val('amount'), reason: val('reason') });
+            if (tpl === 'approved') Object.assign(d, { key: val('key'), accEmail: val('accEmail'), accPass: val('accPass') });
+        }
+        return { tpl, d };
+    }
+
+    const SUBJECTS = {
+        approved: d => 'IMPERA — Order Confirmed (' + (d.product || 'Order') + ')',
+        declined: d => 'IMPERA — Action needed regarding your order',
+        reminder: d => 'IMPERA Mentorship — Session Reminder ' + (d.date ? '· ' + d.date : '')
+    };
+
+    function render() {
+        const tpl = val('tpl');
+        show('orderFields', tpl !== 'reminder');
+        show('approvedOnly', tpl === 'approved');
+        show('declinedOnly', tpl === 'declined');
+        show('remFields', tpl === 'reminder');
+        const html = buildHtml();
+        document.getElementById('preview').srcdoc = html;
+        return html;
+    }
+    function buildHtml() {
+        const { tpl, d } = current();
+        return (TEMPLATES[tpl] || TEMPLATES.approved)(d);
+    }
+
+    window.openMailto = function () {
+        const { tpl, d } = current();
+        if (!d.to) return toast('Enter the recipient email first');
+        const body = buildHtml().replace(/\{\{[A-Z_]+\}\}/g, '');
+        location.href = 'mailto:' + encodeURIComponent(d.to) +
+            '?subject=' + encodeURIComponent(SUBJECTS[tpl](d)) +
+            '&body=' + encodeURIComponent(body);
+        toast('Opening your mail app…');
+    };
+
+    window.downloadEml = function () {
+        const { tpl, d } = current();
+        const eml = [
+            'From: IMPERA <support@impera.com>',
+            'To: ' + (d.to || 'client@example.com'),
+            'Subject: ' + SUBJECTS[tpl](d),
+            'MIME-Version: 1.0',
+            'Content-Type: text/html; charset=UTF-8',
+            '',
+            buildHtml()
+        ].join('\r\n');
+        const blob = new Blob([eml], { type: 'message/rfc822' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'impera-' + tpl + '-' + Date.now() + '.eml';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast('.eml downloaded — open it in Outlook/Apple Mail and press Send');
+    };
+
+    window.copyHtml = function () {
+        navigator.clipboard.writeText(buildHtml()).then(() => toast('HTML copied — paste into Gmail/Outlook'));
+    };
+
+    let tId;
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(tId);
+        tId = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    ['tpl', 'to', 'name', 'product', 'amount', 'key', 'accEmail', 'accPass', 'reason', 'rName', 'rDate', 'rTime', 'rZoom']
+        .forEach(id => document.getElementById(id).addEventListener('input', render));
+    render();
+})();
+</script>
+</body>
+</html>

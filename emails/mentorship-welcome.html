@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!--
+  IMPERA — Mentorship Welcome email (Stripe payment succeeded, mentorship plan)
+  =============================================================================
+  Sent automatically by server/server.js when a mentorship price is purchased.
+  Client picks their first session on the confirmation screen (all days/hours).
+
+  Replace the {{placeholders}}:
+    {{customer_name}}   -> first name                e.g. James
+    {{plan_name}}       -> Monthly / Lifetime        e.g. IMPERA Mentorship — Monthly
+    {{amount}}          -> formatted total           e.g. £100.00
+    {{order_number}}    -> order id                  e.g. #IMP-1A2B3C4D
+    {{date}}            -> join date                 e.g. 23 Aug 2026
+    {{dashboard_url}}   -> link to dashboard.html
+    {{login_email}}     -> billing email
+    {{temp_password}}   -> generated password XXXXX-XXXXX
+    {{telegram_url}}    -> Telegram invite
+    {{support_email}}   -> support inbox
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="x-apple-disable-message-reformatting">
+<title>Welcome to IMPERA Mentorship</title>
+</head>
+<body style="margin:0; padding:0; background:#f4f6fb; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#171717;">
+
+<!-- Preheader -->
+<div style="display:none; max-height:0; overflow:hidden;">
+  Welcome to IMPERA Mentorship — your account is live and your first session calendar is waiting.
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb; padding:32px 12px;">
+<tr>
+<td align="center">
+
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+
+    <!-- Logo -->
+    <tr>
+      <td align="center" style="padding:8px 0 24px 0;">
+        <div style="font-size:22px; font-weight:800; letter-spacing:6px; color:#0b1220;">IMPERA<span style="color:#00b37e;">.</span></div>
+        <div style="font-size:11px; color:#8a93a5; letter-spacing:2px; margin-top:2px;">AI-POWERED TRADING</div>
+      </td>
+    </tr>
+
+    <!-- Card -->
+    <tr>
+      <td style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(11,18,32,0.08);">
+
+        <!-- Header -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0b1220;">
+          <tr>
+            <td align="center" style="padding:36px 40px 32px 40px;">
+              <div style="width:64px; height:64px; line-height:64px; text-align:center; background:#d9a441; border-radius:50%; font-size:30px; color:#0b1220; margin:0 auto 16px auto;">&#9819;</div>
+              <h1 style="margin:0; font-size:24px; font-weight:800; color:#ffffff;">Welcome to IMPERA Mentorship</h1>
+              <p style="margin:8px 0 0 0; font-size:14px; color:#9fb0c9;">Your membership is active — and your first session is already scheduled.</p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Greeting -->
+        <tr><td style="padding:32px 40px 0 40px;">
+          <p style="margin:0 0 16px 0; font-size:15px; line-height:1.7; color:#3c4657;">
+            Hi <strong>{{customer_name}}</strong>,
+          </p>
+          <p style="margin:0 0 20px 0; font-size:15px; line-height:1.7; color:#3c4657;">
+            Your payment for <strong style="color:#0b1220;">{{plan_name}}</strong> was completed successfully on {{date}}.
+            You now have full access to the IMPERA mentorship programme.
+          </p>
+
+          <!-- Order summary -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafbfe; border:1px solid #eef1f6; border-radius:12px; padding:18px 22px; font-size:14px; color:#3c4657;">
+            <tr><td style="padding:4px 0; color:#8a93a5; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Plan</td><td align="right" style="padding:4px 0;"><strong>{{plan_name}}</strong></td></tr>
+            <tr><td style="padding:4px 0; color:#8a93a5; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Amount paid</td><td align="right" style="padding:4px 0;"><strong style="color:#00b37e;">{{amount}}</strong></td></tr>
+            <tr><td style="padding:4px 0; color:#8a93a5; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Order</td><td align="right" style="padding:4px 0;">{{order_number}}</td></tr>
+          </table>
+        </td></tr>
+
+        <!-- First session -->
+        <tr><td style="padding:28px 40px 0 40px;">
+          <p style="margin:0 0 10px 0; font-size:12px; font-weight:700; letter-spacing:1.5px; color:#8a93a5; text-transform:uppercase;">Your First 1:1 Session (Zoom)</p>
+          <div style="background:#fffaf0; border:1px solid #ecd9b0; border-radius:12px; padding:22px 26px; text-align:center;">
+            <div style="font-size:19px; font-weight:800; color:#0b1220;">Choose your slot instantly</div>
+            <div style="font-family:'Courier New',Courier,monospace; font-size:20px; font-weight:700; letter-spacing:2px; color:#b07d1e; margin-top:6px;">RIGHT AFTER CHECKOUT</div>
+            <div style="font-size:12px; color:#8a93a5; margin-top:10px; line-height:1.7;">
+              Your live calendar is waiting on your order confirmation screen — pick any day and any hour
+              that suits you, including weekends and evenings. Can't make it later? Reschedule any time
+              from your IMPERA dashboard (<em>Book a Session</em>) and we'll confirm your new slot by email.
+            </div>
+          </div>
+        </td></tr>
+
+        <!-- What's included -->
+        <tr><td style="padding:28px 40px 0 40px;">
+          <p style="margin:0 0 10px 0; font-size:12px; font-weight:700; letter-spacing:1.5px; color:#8a93a5; text-transform:uppercase;">What happens next?</p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#3c4657; line-height:1.7;">
+            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">1.</strong>&nbsp; Log in to your IMPERA account below.</td></tr>
+            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">2.</strong>&nbsp; Join our private Telegram community for daily setups.</td></tr>
+            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">3.</strong>&nbsp; Bring your charts and questions to your first session.</td></tr>
+          </table>
+        </td></tr>
+
+        <!-- Account access -->
+        <tr><td style="padding:28px 40px 0 40px;">
+          <p style="margin:0 0 10px 0; font-size:12px; font-weight:700; letter-spacing:1.5px; color:#8a93a5; text-transform:uppercase;">Your IMPERA Account</p>
+          <div style="background:#f0f7ff; border:1px solid #cfe1ff; border-radius:12px; padding:18px 22px; font-size:14px; color:#3c4657; line-height:1.9;">
+            Log in at <strong>{{dashboard_url}}</strong>:<br/>
+            <strong>Email:</strong> {{login_email}}<br/>
+            <strong>Password:</strong> <span style="font-family:'Courier New',Courier,monospace; font-weight:700; letter-spacing:1px; color:#0b66f2;">{{temp_password}}</span><br/>
+            <span style="font-size:12px; color:#8a93a5;">Keep this email safe — you can change your password later in Settings.</span>
+          </div>
+        </td></tr>
+
+        <!-- CTA -->
+        <tr><td align="center" style="padding:28px 40px 8px 40px;">
+          <a href="{{dashboard_url}}" style="display:inline-block; background:#00b37e; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:15px 44px; border-radius:10px;">Open Your Dashboard</a>
+        </td></tr>
+
+        <!-- Secondary actions -->
+        <tr><td align="center" style="padding:12px 40px 0 40px;">
+          <p style="margin:0; font-size:13px; line-height:1.8; color:#8a93a5;">
+            <a href="{{telegram_url}}" style="color:#0b66f2; text-decoration:none;">Join our Telegram (members area)</a>
+          </p>
+        </td></tr>
+
+        <!-- Support -->
+        <tr><td style="padding:28px 40px 36px 40px;">
+          <div style="border-top:1px solid #eef1f6; padding-top:20px; font-size:13px; line-height:1.7; color:#8a93a5;">
+            Questions? Reply to this email or contact us at
+            <a href="mailto:{{support_email}}" style="color:#0b66f2; text-decoration:none;">{{support_email}}</a>.
+          </div>
+        </td></tr>
+
+      </td>
+    </tr>
+    </table>
+
+    <!-- Footer -->
+    <tr>
+      <td align="center" style="padding:24px 0 8px 0;">
+        <p style="margin:0; font-size:11px; color:#b6bfce; line-height:1.8;">
+          &copy; IMPERA — AI-Powered Trading<br/>
+          This is an automated receipt for your recent purchase.
+        </p>
+      </td>
+    </tr>
+
+  </table>
+</td>
+</tr>
+</table>
+</body>
+</html>

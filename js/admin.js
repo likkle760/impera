@@ -20,12 +20,15 @@
 
     const LOCAL_PRICE = {
         scalping: 49, gold: 125, global: 245,
-        platinum: 799, 'mentor-monthly': 50, 'mentor-lifetime': 175
+        platinum: 799, 'mentor-monthly': 50, 'mentor-lifetime': 175,
+        'impera-bot': 49, test: 1
     };
     const BOT_LABEL = {
         scalping: 'IMPERA Scalping Bot', gold: 'IMPERA Gold Bot', global: 'IMPERA Global Bot',
-        'mentor-monthly': 'IMPERA Mentorship — Monthly', 'mentor-lifetime': 'IMPERA Mentorship — Lifetime'
+        'mentor-monthly': 'IMPERA Mentorship — Monthly', 'mentor-lifetime': 'IMPERA Mentorship — Lifetime',
+        'impera-bot': 'IMPERA Scalping Bot', test: 'Test Product'
     };
+    const DEFAULT_API = 'https://impera-5b6l.onrender.com';
 
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function money(n) { return '£' + (Number(n) || 0).toFixed(2); }
@@ -72,6 +75,7 @@
         if (res.error === 'No account found with this email.') return gateFail(res.error + ' Click "Reset owner access" below.');
         if (res.error) return gateFail(res.error + ' (passwords are case-sensitive)');
         if (res.session.role !== 'admin') { A.clearSession(); return gateFail('This account does not have admin access.'); }
+        try { sessionStorage.setItem('impera_admin_pass', $('#gPass').value); } catch (e) { /* private mode */ }
         openPortal();
     });
     function gateFail(msg) { const el = $('#gateError'); el.textContent = msg; el.style.display = 'block'; }
@@ -81,7 +85,31 @@
         $('#shell').classList.add('on');
         bindNav();
         bindSettings();
-        startPolling();
+        autoConnect().finally(startPolling);
+    }
+
+    /* ---------- Auto-connect live data ----------
+       Exchanges the portal login for an admin token so the panel
+       goes LIVE with zero manual configuration. */
+    async function autoConnect() {
+        if (apiCfg().token) return;
+        let pass = '';
+        try { pass = sessionStorage.getItem('impera_admin_pass') || ''; } catch (e) {}
+        const s = A.session();
+        const email = (s && s.email) || ($('#gEmail').value || '').trim();
+        if (!pass || !email) return;
+        try {
+            const r = await fetch(DEFAULT_API + '/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: pass })
+            });
+            const j = await r.json().catch(() => ({}));
+            if (r.ok && j.token) {
+                localStorage.setItem('impera_admin_token', j.token);
+                toast('Live data connected ✓');
+            }
+        } catch (e) { /* offline — demo mode until server reachable */ }
     }
 
     $('#logoutBtn').addEventListener('click', () => { A.clearSession(); location.reload(); });
@@ -155,7 +183,7 @@
     /* ================= SETTINGS ================= */
     function apiCfg() {
         return {
-            url: (localStorage.getItem('impera_api_url') || '').trim(),
+            url: (localStorage.getItem('impera_api_url') || '').trim() || DEFAULT_API,
             token: (localStorage.getItem('impera_admin_token') || '').trim()
         };
     }
@@ -374,8 +402,19 @@
             </div>`).join('');
     }
 
+    /* ---------- edit-safe re-renders: never wipe a table the admin is typing in ---------- */
+    let lastOrdSig = '', lastBkSig = '';
+    function skipRerender(bodyEl, sig, lastSig) {
+        const editing = bodyEl && bodyEl.contains(document.activeElement) &&
+            /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+        return sig === lastSig && editing;
+    }
+
     function renderOrders(orders) {
         const body = $('#ordersBody');
+        const sig = JSON.stringify(orders);
+        if (skipRerender(body, sig, lastOrdSig)) return;
+        lastOrdSig = sig;
         if (!orders.length) { body.innerHTML = '<tr><td colspan="5" class="dim" style="text-align:center;padding:28px">No orders yet.</td></tr>'; return; }
         body.innerHTML = orders.map(o => `
             <tr>
@@ -390,6 +429,9 @@
     /* ---------- Bookings (dual-write: local + server PATCH) ---------- */
     function renderBookings(bookings) {
         const body = $('#bookingsBody');
+        const sig = JSON.stringify(bookings);
+        if (skipRerender(body, sig, lastBkSig)) return;
+        lastBkSig = sig;
         const all = [...bookings].sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
         if (!all.length) { body.innerHTML = '<tr><td colspan="6" class="dim" style="text-align:center;padding:28px">No bookings yet.</td></tr>'; return; }
 
@@ -455,31 +497,53 @@
         }).catch(() => {});
     }
 
-    /* ---------- Customers (local dashboard accounts) ---------- */
+    /* ---------- Customers (live server accounts merged with device-local ones) ---------- */
     function renderClients() {
         const body = $('#clientsBody');
-        const users = A.getUsers().filter(u => u.role !== 'admin');
+        const localUsers = A.getUsers().filter(u => u.role !== 'admin');
+        const serverRows = (MODE === 'live' && DATA && Array.isArray(DATA.clients)) ? DATA.clients : [];
+        const seen = new Set(localUsers.map(u => String(u.email).toLowerCase()));
+
+        const rows = [
+            ...localUsers.map(u => ({
+                local: true,
+                name: u.name, email: u.email, createdAt: u.createdAt,
+                products: (u.products || []).map(p => p.botName || p.bot),
+                member: (u.products || []).some(p => A.isMentorship(p.bot))
+            })),
+            ...serverRows
+                .filter(c => !seen.has(String(c.email).toLowerCase()))
+                .map(c => ({
+                    local: false,
+                    name: c.name || '', email: c.email, createdAt: c.createdAt,
+                    products: c.products || [],
+                    member: (c.products || []).some(p => /mentor|membership/i.test(p))
+                }))
+        ];
+
         $('#custNote').textContent = MODE === 'live'
-            ? 'These are client dashboard logins created on this device. Orders processed by Stripe (any device) are under the Orders tab.'
+            ? 'Live server accounts merged with this device. Action buttons manage the highlighted device-local accounts.'
             : 'Customer dashboard accounts stored on this device.';
 
-        if (!users.length) { body.innerHTML = '<tr><td colspan="5" class="dim" style="text-align:center;padding:28px">No clients yet.</td></tr>'; return; }
+        if (!rows.length) { body.innerHTML = '<tr><td colspan="5" class="dim" style="text-align:center;padding:28px">No clients yet.</td></tr>'; return; }
 
-        body.innerHTML = users.map(u => {
-            const prods = (u.products || []).map(p =>
-                `<span class="pill ${A.isMentorship(p.bot) ? 'pill-pending' : 'pill-paid'}" style="margin-right:6px">${A.isMentorship(p.bot) ? 'Mentorship' : esc(p.botName || p.bot)}</span>`
+        body.innerHTML = rows.map(u => {
+            const prods = (u.products || []).filter(Boolean).map(p =>
+                `<span class="pill ${u.member ? 'pill-pending' : 'pill-paid'}" style="margin-right:6px">${esc(p)}</span>`
             ).join('') || '<span class="dim">None</span>';
-            const member = (u.products || []).some(p => A.isMentorship(p.bot));
+            const src = u.local
+                ? '<span class="pill pill-paid" title="Stored on this device — full actions available">device</span>'
+                : '<span class="pill pill-member" title="Synced from live server">cloud</span>';
             return `<tr>
-                <td>${esc(u.name)}</td>
+                <td>${esc(u.name) || '<span class="dim">—</span>'}<br>${src}</td>
                 <td class="dim">${esc(u.email)}</td>
                 <td>${prods}</td>
-                <td>${member ? '<span class="pill pill-member">Member</span>' : '<span class="pill pill-cancelled">No</span>'}</td>
-                <td><div class="row-actions">
+                <td>${u.member ? '<span class="pill pill-member">Member</span>' : '<span class="pill pill-cancelled">No</span>'}</td>
+                <td>${u.local ? `<div class="row-actions">
                     <button class="mini-btn b-grey" onclick="resetPass('${esc(u.email)}')">Reset Password</button>
-                    <button class="mini-btn ${member ? 'b-red' : 'b-gold'}" onclick="toggleMentor('${esc(u.email)}',${member})">${member ? 'Revoke Mentor' : 'Grant Mentor'}</button>
+                    <button class="mini-btn ${u.member ? 'b-red' : 'b-gold'}" onclick="toggleMentor('${esc(u.email)}',${u.member})">${u.member ? 'Revoke Mentor' : 'Grant Mentor'}</button>
                     <button class="mini-btn b-red" onclick="delUser('${esc(u.email)}')">Del</button>
-                </div></td>
+                </div>` : '<span class="dim" style="font-size:.8rem">read-only</span>'}</td>
             </tr>`;
         }).join('');
     }

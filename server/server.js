@@ -1029,6 +1029,36 @@ app.get('/api/admin/overview', (req, res) => {
     res.json(buildOverview());
 });
 
+// ---------- Admin login: exchange email + password for the admin token ----------
+const adminFails = {};
+app.post('/api/admin/login', express.json(), (req, res) => {
+    const ip = req.ip || 'unknown';
+    const now = Date.now();
+    const f = adminFails[ip] || (adminFails[ip] = { n: 0, ts: 0 });
+    if (f.n >= 8 && now - f.ts < 10 * 60000) {
+        return res.status(429).json({ error: 'Too many attempts — try again in a few minutes.' });
+    }
+
+    const { email, password } = req.body || {};
+    let ok = false;
+    if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+        ok = String(email || '').trim().toLowerCase() === process.env.ADMIN_EMAIL.trim().toLowerCase()
+            && String(password) === process.env.ADMIN_PASSWORD;
+    } else {
+        // fallback: any admin account stored in users.json (base64 "impera:<password>")
+        const u = db.read('users.json').find(u => u.role === 'admin' &&
+            String(u.email || '').toLowerCase() === String(email || '').trim().toLowerCase());
+        try {
+            ok = !!(u && Buffer.from('impera:' + String(password)).toString('base64') === u.pass);
+        } catch { ok = false; }
+    }
+
+    if (!ok) { f.n++; f.ts = now; return res.status(401).json({ error: 'Invalid admin credentials.' }); }
+    f.n = 0;
+    if (!process.env.ADMIN_TOKEN) return res.status(500).json({ error: 'Server missing ADMIN_TOKEN env var.' });
+    res.json({ ok: true, token: process.env.ADMIN_TOKEN });
+});
+
 // Diagnose email delivery: sends a test email to ADMIN_NOTIFY_EMAIL
 app.get('/api/mailcheck', async (req, res) => {
     if (req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {

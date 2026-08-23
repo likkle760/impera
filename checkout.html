@@ -216,6 +216,15 @@
         document.getElementById('orderTotal').textContent = '\u00A3' + bot.price;
         document.getElementById('btnPay').querySelector('.btn-text').textContent = 'Pay \u00A3' + bot.price + ' — Redirect to Stripe';
 
+        // Returning from Stripe without paying
+        if (params.get('cancelled') === '1') {
+            const errEl = document.getElementById('errorMsg');
+            errEl.textContent = 'Payment not completed \u2014 you have NOT been charged. Your order is still ready below whenever you want to try again.';
+            errEl.classList.add('show');
+            try { history.replaceState(null, '', '/checkout.html?bot=' + encodeURIComponent(botKey)); } catch (e) {}
+            setTimeout(() => { try { errEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, 150);
+        }
+
         document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();

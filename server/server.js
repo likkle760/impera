@@ -364,7 +364,7 @@ app.post('/api/create-checkout-session', express.json(), async (req, res) => {
             line_items: [{ price: priceId, quantity: 1 }],
             customer_email: email || undefined,
             success_url: origin + '/success.html?session_id={CHECKOUT_SESSION_ID}&bot=' + encodeURIComponent(info.key || '') + '&email=' + encodeURIComponent(email || ''),
-            cancel_url: origin + '/cancel.html',
+            cancel_url: origin + '/checkout.html?bot=' + encodeURIComponent(info.key || 'scalping') + '&cancelled=1',
         });
         res.json({ url: session.url });
     } catch (err) {

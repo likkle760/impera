@@ -331,8 +331,37 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 });
 
 // ---------- Visitor tracking (called from every public page) ----------
-app.post('/api/track', express.json(), (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
+// ---------- Create Checkout Session (server-side) ----------
+function siteOrigin(req) {
+    const envUrl = (process.env.SITE_URL || '').trim();
+    if (/^https?:\/\//i.test(envUrl)) return envUrl.replace(/\/+$/, '');
+    const o = req.get('origin');
+    if (o && /^https?:\/\//i.test(o)) return o.replace(/\/+$/, '');
+    return 'https://impera1.onrender.com';
+}
+
+app.post('/api/create-checkout-session', express.json(), async (req, res) => {
+    try {
+        const { priceId, email } = req.body || {};
+        const map = priceMap();
+        const info = priceId && map[priceId];
+        if (!info) return res.status(400).json({ error: 'Unknown or missing price. Please contact support.' });
+        const origin = siteOrigin(req);
+        const session = await stripe.checkout.sessions.create({
+            mode: info.key === 'mentor-monthly' ? 'subscription' : 'payment',
+            line_items: [{ price: priceId, quantity: 1 }],
+            customer_email: email || undefined,
+            success_url: origin + '/success.html?session_id={CHECKOUT_SESSION_ID}&bot=' + encodeURIComponent(info.key || '') + '&email=' + encodeURIComponent(email || ''),
+            cancel_url: origin + '/cancel.html',
+        });
+        res.json({ url: session.url });
+    } catch (err) {
+        console.error('[checkout] create session failed:', err.message);
+        res.status(500).json({ error: 'Could not start checkout. Please try again.' });
+    }
+});
+
+app.post('/api/track', express.json(), (req, res) => {    res.set('Access-Control-Allow-Origin', '*');
     const { v, p, r } = req.body || {};
     if (!v) return res.status(400).json({ error: 'missing visitor id' });
     const visits = db.read('visits.json');

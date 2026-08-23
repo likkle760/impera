@@ -164,6 +164,7 @@
         // Get it from: https://dashboard.stripe.com/apikeys
         // ========================================
         const STRIPE_PUBLISHABLE_KEY = 'pk_live_51U7cEZRiTJNYtmMn940g4cnSbOvwMlF2ZDxSuhaUEt4NfnFUIi9MLZV1844vpJPDsUbuweoyflcSIc7LN4E3LSsC00566RZDgf';
+        const IMPERA_SERVER = 'https://impera-5b6l.onrender.com';
 
         // Price IDs from your Stripe dashboard
         // ⚠ 50% OFF SALE (ends Oct 31 2026): `price` values below are what the
@@ -243,7 +244,6 @@
             }
 
             try {
-                const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
                 let origin = window.location.origin;
                 if (!origin || origin.indexOf('http') !== 0) {
                     errEl.textContent = 'Please open this page through a web address (your live site URL), not by double-clicking the file.';
@@ -252,19 +252,17 @@
                     btn.disabled = false;
                     return;
                 }
-                const { error } = await stripe.redirectToCheckout({
-                    lineItems: [{ price: bot.priceId, quantity: 1 }],
-                    mode: bot.mode || 'payment',
-                    customerEmail: email,
-                    successUrl: origin + '/success.html?session_id={CHECKOUT_SESSION_ID}&bot=' + botKey + '&email=' + encodeURIComponent(email),
-                    cancelUrl: origin + '/cancel.html',
+                const resp = await fetch(IMPERA_SERVER + '/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ priceId: bot.priceId, email: email })
                 });
-                if (error) {
-                    errEl.textContent = error.message;
-                    errEl.classList.add('show');
-                    btn.classList.remove('processing');
-                    btn.disabled = false;
+                const data = await resp.json();
+                if (data && data.url) {
+                    window.location.href = data.url;
+                    return;
                 }
+                throw new Error((data && data.error) || 'Could not start checkout.');
             } catch (err) {
                 console.error('Checkout error:', err);
                 errEl.textContent = 'Error: ' + ((err && err.message) || 'Something went wrong. Please try again.');

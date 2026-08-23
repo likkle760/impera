@@ -112,10 +112,27 @@ const transporter = nodemailer.createTransport({
 
 const smtpConfigured = () => !!(process.env.SMTP_USER && process.env.SMTP_PASS);
 
+// HTTP email API (works on Render free tier, which blocks SMTP ports)
+async function sendViaApi({ to, subject, html }) {
+    const key = process.env.RESEND_API_KEY;
+    const from = process.env.MAIL_FROM || 'IMPERA <onboarding@resend.dev>';
+    if (typeof fetch !== 'function') throw new Error('fetch unavailable');
+    const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, to: [to], subject, html })
+    });
+    if (!r.ok) {
+        const body = await r.text().catch(() => '');
+        throw new Error('Email API error ' + r.status + ': ' + body.slice(0, 140));
+    }
+}
+
 async function sendHtml(to, subject, html) {
+    if (process.env.RESEND_API_KEY) return sendViaApi({ to, subject, html });
     if (!smtpConfigured()) {
-        console.log('[mail] SKIPPED "' + subject + '" -> ' + to + ' (SMTP_USER/SMTP_PASS not set)');
-        throw new Error('SMTP not configured');
+        console.log('[mail] SKIPPED "' + subject + '" -> ' + to + ' (no RESEND_API_KEY and SMTP_USER/SMTP_PASS not set)');
+        throw new Error('Email not configured');
     }
     await transporter.sendMail({
         from: process.env.MAIL_FROM || 'IMPERA <support@impera.com>',
@@ -127,11 +144,22 @@ async function sendHtml(to, subject, html) {
 // Internal alert -> owner inbox (ADMIN_NOTIFY_EMAIL). Never blocks the main flow.
 async function notifyAdmin(subject, lines) {
     const to = process.env.ADMIN_NOTIFY_EMAIL;
-    if (!to || !smtpConfigured()) {
-        console.log('[mail] admin alert SKIPPED "' + subject + '" (no ADMIN_NOTIFY_EMAIL or SMTP config)');
+    if (!to || (!process.env.RESEND_API_KEY && !smtpConfigured())) {
+        console.log('[mail] admin alert SKIPPED "' + subject + '" (no ADMIN_NOTIFY_EMAIL / RESEND_API_KEY / SMTP)');
         return;
     }
     try {
+        if (process.env.RESEND_API_KEY) {
+            await sendViaApi({ to, subject, html: `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;background:#f4f6fb;padding:24px;">
+                <table role="presentation" width="100%" bgcolor="#050505" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 16px;">
+                <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#0b0d10;border:1px solid rgba(201,169,98,.35);border-radius:14px;">
+                <tr><td style="padding:34px;text-align:center;">
+                <div style="font-size:26px;color:#C9A962;">&#9819;</div>
+                <h2 style="letter-spacing:5px;font-size:17px;color:#fff;margin:10px 0 20px;">IMPERA ADMIN ALERT</h2>
+                ${lines.map(l => `<p style="color:#ddd;font-size:14px;margin:6px 0;">${l}</p>`).join('')}
+                </td></tr></table></td></tr></table></div>` });
+            return;
+        }
         await transporter.sendMail({
             from: process.env.MAIL_FROM || 'IMPERA <support@impera.com>',
             to,
@@ -585,16 +613,12 @@ app.get('/api/mailcheck', async (req, res) => {
     if (req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
         return res.status(401).json({ error: 'unauthorized' });
     }
-    if (!smtpConfigured()) return res.json({ ok: false, error: 'SMTP_USER / SMTP_PASS are not set in Render environment variables.' });
+    if (!process.env.RESEND_API_KEY && !smtpConfigured()) return res.json({ ok: false, error: 'No email method configured. Add RESEND_API_KEY (free tier) or SMTP vars (paid instance).' });
     if (!process.env.ADMIN_NOTIFY_EMAIL) return res.json({ ok: false, error: 'ADMIN_NOTIFY_EMAIL is not set.' });
     try {
-        await transporter.sendMail({
-            from: process.env.MAIL_FROM || 'IMPERA <' + process.env.SMTP_USER + '>',
-            to: process.env.ADMIN_NOTIFY_EMAIL,
-            subject: 'IMPERA — mail test',
-            text: 'If you receive this, order & booking emails are working.'
-        });
-        res.json({ ok: true });
+        await sendHtml(process.env.ADMIN_NOTIFY_EMAIL, 'IMPERA — mail test',
+            '<div style="font-family:Arial,sans-serif;padding:24px">If you receive this, order &amp; booking emails are working. 👑</div>');
+        res.json({ ok: true, via: process.env.RESEND_API_KEY ? 'resend-api' : 'smtp' });
     } catch (err) {
         res.json({ ok: false, error: err.message });
     }

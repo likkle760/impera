@@ -102,10 +102,7 @@
             'overview': 'Overview',
             'products': 'My Products',
             'sessions': 'Book a Session',
-            'live-trades': 'Live Trades',
-            'performance': 'Performance',
             'bots': 'My Bots',
-            'mt5': 'MT5 Account',
             'licence': 'Licence Key',
             'settings': 'Settings'
         };
@@ -160,283 +157,32 @@
         window.location.href = 'index.html';
     });
 
-    // ---- Bot-specific trade configs ----
-    const botConfigs = {
-        scalping: {
-            pairs: ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD'],
-            maxTrades: 3, lotRange: [0.01, 0.02, 0.05], avgDuration: '5-15m',
-            strategy: 'EMA Crossover + RSI',
-            bases: { 'EUR/USD': 1.089, 'GBP/USD': 1.271, 'USD/JPY': 157.3, 'AUD/USD': 0.662, 'USD/CAD': 1.364 }
-        },
-        gold: {
-            pairs: ['XAU/USD'], maxTrades: 2, lotRange: [0.01, 0.02, 0.05], avgDuration: '15-60m',
-            strategy: 'Multi-TF EMA + MACD + Stoch',
-            bases: { 'XAU/USD': 2384 }
-        },
-        global: {
-            pairs: ['EUR/USD', 'GBP/USD', 'XAU/USD', 'USD/JPY', 'NAS100', 'GBP/JPY', 'AUD/USD', 'BTC/USD'],
-            maxTrades: 5, lotRange: [0.01, 0.05, 0.1], avgDuration: '5-120m',
-            strategy: 'Scalp + Swing + Breakout',
-            bases: { 'EUR/USD': 1.089, 'GBP/USD': 1.271, 'XAU/USD': 2384, 'BTC/USD': 67842, 'USD/JPY': 157.3, 'NAS100': 19403, 'GBP/JPY': 199.8, 'AUD/USD': 0.662 }
-        }
-    };
+    // ================= OVERVIEW — real account data only =================
+    function renderOverviewStats() {
+        const A = window.ImperaAuth;
+        const purchases = A ? A.getPurchases().filter(p => p.email === session.email) : [];
+        const bots = purchases.filter(p => !A.isMentorship(p.bot));
+        const member = purchases.some(p => A.isMentorship(p.bot));
 
-    let activeBotType = null;
-    let openTrades = [];
-    let closedTrades = [];
-    let tradeInterval = null;
+        const set = (id, v) => { const el = $('#' + id); if (el) el.textContent = v; };
+        set('ovBots', bots.length);
+        set('ovPlan', member ? (purchases.some(p => p.bot === 'mentor-lifetime') ? 'Lifetime' : 'Monthly') : '\u2014');
 
-    function detectBotType() {
-        if (!session.licence) return null;
-        const key = session.licence.toUpperCase();
-        if (key.includes('DIAM') || key.includes('VIPX') || session.tier === 'Global') return 'global';
-        if (key.includes('GOLD') || key.includes('ULTR') || session.tier === 'Gold') return 'gold';
-        return 'scalping';
-    }
+        const upcoming = A ? A.getBookings()
+            .filter(b => b.userEmail === session.email && b.status !== 'cancelled' &&
+                         new Date(b.date + 'T' + b.time) >= new Date())
+            .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0] : null;
+        set('ovSession', upcoming ? upcoming.date + ' \u00b7 ' + upcoming.time : 'None booked');
 
-    function randomPrice(pair, bases) {
-        const base = bases[pair] || 1.0;
-        return base + (Math.random() - 0.5) * base * 0.003;
-    }
-
-    function fmt(v, pair) {
-        const dp = (pair === 'XAU/USD' || pair === 'BTC/USD' || pair === 'NAS100') ? 2 : (pair.includes('JPY') ? 3 : 5);
-        return v.toFixed(dp);
-    }
-
-    function generateTrades() {
-        const botType = detectBotType();
-        if (!botType) {
-            openTrades = []; closedTrades = []; activeBotType = null;
-            if (tradeInterval) { clearInterval(tradeInterval); tradeInterval = null; }
-            renderAll(); return;
-        }
-        if (botType === activeBotType && openTrades.length > 0) return;
-        activeBotType = botType;
-        const config = botConfigs[botType];
-        const pairs = config.pairs;
-        const bases = config.bases;
-        const now = Date.now();
-
-        openTrades = [];
-        const numOpen = Math.min(config.maxTrades, Math.floor(Math.random() * config.maxTrades) + 1);
-        for (let i = 0; i < numOpen; i++) {
-            const pair = pairs[Math.floor(Math.random() * pairs.length)];
-            const type = Math.random() > 0.5 ? 'BUY' : 'SELL';
-            const entry = randomPrice(pair, bases);
-            const current = randomPrice(pair, bases);
-            const lots = config.lotRange[Math.floor(Math.random() * config.lotRange.length)];
-            const diff = type === 'BUY' ? current - entry : entry - current;
-            const profit = diff * lots * (pair === 'XAU/USD' ? 100 : pair === 'BTC/USD' ? 0.01 : 100000);
-            const sl = type === 'BUY' ? entry * 0.998 : entry * 1.002;
-            const tp = type === 'BUY' ? entry * 1.004 : entry * 0.996;
-            const duration = Math.floor(Math.random() * 120) + 5;
-            openTrades.push({ ticket: 1000000 + Math.floor(Math.random() * 900000), pair, type, lots, entry, sl, tp, current, profit, duration, strategy: config.strategy });
-        }
-
-        closedTrades = [];
-        for (let i = 0; i < 10; i++) {
-            const pair = pairs[Math.floor(Math.random() * pairs.length)];
-            const type = Math.random() > 0.5 ? 'BUY' : 'SELL';
-            const entry = randomPrice(pair, bases);
-            const exit = randomPrice(pair, bases);
-            const lots = config.lotRange[Math.floor(Math.random() * config.lotRange.length)];
-            const diff = type === 'BUY' ? exit - entry : entry - exit;
-            const profit = diff * lots * (pair === 'XAU/USD' ? 100 : pair === 'BTC/USD' ? 0.01 : 100000);
-            const mins = Math.floor(Math.random() * 280) + 5;
-            const time = new Date(now - mins * 60000);
-            closedTrades.push({ pair, type, entry, exit, profit, time });
-        }
-        renderAll();
+        const u = A ? A.findUser(session.email) : null;
+        set('ovSince', u && u.createdAt
+            ? new Date(u.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+            : '\u2014');
     }
 
     function renderAll() {
-        renderLiveTrades(); renderClosedTrades(); renderRecentTrades();
-        renderBots(); renderOverviewStats(); renderEmptyStates();
-    }
-
-    function renderEmptyStates() {
-        const noLicence = !session.licence;
-        const recentBody = $('#recentTradesBody');
-        const liveBody = $('#liveTradesBody');
-        const closedBody = $('#closedTradesBody');
-        if (noLicence) {
-            const emptyHtml = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-500)">No active licence key. <a href="#" onclick="switchTab(\'licence\');return false" style="color:#00C2FF">Activate your bot</a> to start trading.</td></tr>';
-            const emptyHtmlWide = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--gray-500)">No active trades. <a href="#" onclick="switchTab(\'licence\');return false" style="color:#00C2FF">Enter your licence key</a> to begin.</td></tr>';
-            if (recentBody) recentBody.innerHTML = emptyHtml;
-            if (liveBody) liveBody.innerHTML = emptyHtmlWide;
-            if (closedBody) closedBody.innerHTML = emptyHtml;
-        }
-    }
-
-    function renderOverviewStats() {
-        const balanceEl = $('#statBalance');
-        const profitEl = $('#statProfit');
-        const openEl = $('#statOpenTrades');
-        const winEl = $('#statWinRate');
-        if (session.licence) {
-            const balance = 10000 + Math.random() * 5000;
-            const todayProfit = closedTrades.reduce((sum, t) => sum + t.profit, 0);
-            const wins = closedTrades.filter(t => t.profit > 0).length;
-            const winRate = closedTrades.length > 0 ? ((wins / closedTrades.length) * 100).toFixed(1) : '0.0';
-            if (balanceEl) balanceEl.textContent = balance.toLocaleString(undefined, { minimumFractionDigits: 2 });
-            if (profitEl) profitEl.textContent = todayProfit >= 0 ? todayProfit.toFixed(2) : todayProfit.toFixed(2);
-            if (openEl) openEl.textContent = openTrades.length;
-            if (winEl) winEl.textContent = winRate;
-        } else {
-            if (balanceEl) balanceEl.textContent = '0.00';
-            if (profitEl) profitEl.textContent = '0.00';
-            if (openEl) openEl.textContent = '0';
-            if (winEl) winEl.textContent = '0.0';
-        }
-    }
-
-    function renderLiveTrades() {
-        const body = $('#liveTradesBody');
-        if (!body) return;
-        if (!session.licence) { body.innerHTML = ''; return; }
-        if (openTrades.length === 0) {
-            body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--gray-500)">No open trades at the moment.</td></tr>';
-            return;
-        }
-        body.innerHTML = openTrades.map(t => `
-            <tr>
-                <td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--gray-500)">#${t.ticket}</td>
-                <td><strong>${t.pair}</strong></td>
-                <td class="${t.type === 'BUY' ? 'trade-buy' : 'trade-sell'}">${t.type}</td>
-                <td>${t.lots}</td>
-                <td style="font-family:var(--font-mono)">${fmt(t.entry, t.pair)}</td>
-                <td style="font-family:var(--font-mono);color:var(--red)">${fmt(t.sl, t.pair)}</td>
-                <td style="font-family:var(--font-mono);color:var(--emerald)">${fmt(t.tp, t.pair)}</td>
-                <td style="font-family:var(--font-mono)">${fmt(t.current, t.pair)}</td>
-                <td class="${t.profit >= 0 ? 'trade-profit' : 'trade-loss'}">${t.profit >= 0 ? '+' : ''}$${t.profit.toFixed(2)}</td>
-                <td style="color:var(--gray-500)">${t.duration}m</td>
-            </tr>
-        `).join('');
-    }
-
-    function renderClosedTrades() {
-        const body = $('#closedTradesBody');
-        if (!body) return;
-        if (!session.licence) { body.innerHTML = ''; return; }
-        if (closedTrades.length === 0) {
-            body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-500)">No closed trades yet.</td></tr>';
-            return;
-        }
-        body.innerHTML = closedTrades.map(t => `
-            <tr>
-                <td><strong>${t.pair}</strong></td>
-                <td class="${t.type === 'BUY' ? 'trade-buy' : 'trade-sell'}">${t.type}</td>
-                <td style="font-family:var(--font-mono)">${fmt(t.entry, t.pair)}</td>
-                <td style="font-family:var(--font-mono)">${fmt(t.exit, t.pair)}</td>
-                <td class="${t.profit >= 0 ? 'trade-profit' : 'trade-loss'}">${t.profit >= 0 ? '+' : ''}$${t.profit.toFixed(2)}</td>
-                <td style="color:var(--gray-500)">${t.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-            </tr>
-        `).join('');
-    }
-
-    function renderRecentTrades() {
-        const body = $('#recentTradesBody');
-        if (!body) return;
-        if (!session.licence || closedTrades.length === 0) { body.innerHTML = ''; return; }
-        const recent = closedTrades.slice(0, 5);
-        body.innerHTML = recent.map(t => `
-            <tr>
-                <td><strong>${t.pair}</strong></td>
-                <td class="${t.type === 'BUY' ? 'trade-buy' : 'trade-sell'}">${t.type}</td>
-                <td style="font-family:var(--font-mono)">${fmt(t.entry, t.pair)}</td>
-                <td style="font-family:var(--font-mono)">${fmt(t.exit, t.pair)}</td>
-                <td class="${t.profit >= 0 ? 'trade-profit' : 'trade-loss'}">${t.profit >= 0 ? '+' : ''}$${t.profit.toFixed(2)}</td>
-                <td><span class="trade-status ${t.profit >= 0 ? 'winning' : 'losing'}">${t.profit >= 0 ? 'WIN' : 'LOSS'}</span></td>
-            </tr>
-        `).join('');
-    }
-
-    // ---- Equity chart ----
-    function drawEquityChart() {
-        const canvas = $('#equityChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * 2; canvas.height = rect.height * 2;
-        ctx.scale(2, 2);
-        const w = rect.width, h = rect.height;
-        const pad = { top: 20, right: 20, bottom: 30, left: 60 };
-        const days = 30;
-        const data = [];
-        let equity = session.licence ? 10000 : 0;
-        for (let i = 0; i < days; i++) {
-            equity += (Math.random() - 0.35) * 200;
-            if (!session.licence) equity = 0;
-            data.push(equity);
-        }
-        const min = session.licence ? Math.min(...data) * 0.998 : 0;
-        const max = session.licence ? Math.max(...data) * 1.002 : 100;
-        const chartW = w - pad.left - pad.right;
-        const chartH = h - pad.top - pad.bottom;
-
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 0.5;
-        for (let i = 0; i <= 4; i++) {
-            const y = pad.top + (chartH / 4) * i;
-            ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-            const val = max - ((max - min) / 4) * i;
-            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '10px JetBrains Mono, monospace';
-            ctx.textAlign = 'right'; ctx.fillText('$' + Math.round(val).toLocaleString(), pad.left - 8, y + 4);
-        }
-
-        if (!session.licence) {
-            ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.font = '14px Inter, sans-serif';
-            ctx.textAlign = 'center'; ctx.fillText('Activate a licence key to see your equity curve', w / 2, h / 2);
-            return;
-        }
-
-        const gradient = ctx.createLinearGradient(0, pad.top, 0, h - pad.bottom);
-        gradient.addColorStop(0, 'rgba(0, 194, 255, 0.15)'); gradient.addColorStop(1, 'rgba(0, 194, 255, 0)');
-        ctx.beginPath();
-        data.forEach((v, i) => {
-            const x = pad.left + (i / (days - 1)) * chartW;
-            const y = pad.top + (1 - (v - min) / (max - min)) * chartH;
-            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        });
-        ctx.strokeStyle = '#00C2FF'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.lineTo(pad.left + chartW, pad.top + chartH); ctx.lineTo(pad.left, pad.top + chartH);
-        ctx.closePath(); ctx.fillStyle = gradient; ctx.fill();
-
-        const lastX = pad.left + chartW;
-        const lastY = pad.top + (1 - (data[data.length - 1] - min) / (max - min)) * chartH;
-        ctx.beginPath(); ctx.arc(lastX, lastY, 4, 0, Math.PI * 2); ctx.fillStyle = '#00C2FF'; ctx.fill();
-        ctx.beginPath(); ctx.arc(lastX, lastY, 8, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 194, 255, 0.2)'; ctx.fill();
-    }
-
-    function drawMonthlyChart() {
-        const canvas = $('#monthlyChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * 2; canvas.height = rect.height * 2;
-        ctx.scale(2, 2);
-        const w = rect.width, h = rect.height;
-        const pad = { top: 20, right: 20, bottom: 40, left: 50 };
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const values = [8.2, 12.5, 6.1, 15.3, 11.8, 18.2, 14.6, 9.3, 16.7, 13.1, 10.8, 17.5];
-        const maxVal = Math.max(...values) * 1.2;
-        const chartW = w - pad.left - pad.right;
-        const chartH = h - pad.top - pad.bottom;
-        const barW = chartW / months.length * 0.6;
-        const gap = chartW / months.length;
-        months.forEach((m, i) => {
-            const x = pad.left + gap * i + (gap - barW) / 2;
-            const barH = (values[i] / maxVal) * chartH;
-            const y = pad.top + chartH - barH;
-            const grad = ctx.createLinearGradient(x, y, x, pad.top + chartH);
-            grad.addColorStop(0, i === 5 ? '#FFD700' : '#00C2FF');
-            grad.addColorStop(1, i === 5 ? 'rgba(255,215,0,0.1)' : 'rgba(0,194,255,0.1)');
-            ctx.beginPath(); ctx.roundRect(x, y, barW, barH, [4, 4, 0, 0]); ctx.fillStyle = grad; ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '10px JetBrains Mono, monospace';
-            ctx.textAlign = 'center'; ctx.fillText(values[i] + '%', x + barW / 2, y - 6);
-            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '10px Inter, sans-serif';
-            ctx.fillText(m, x + barW / 2, pad.top + chartH + 16);
-        });
+        renderBots();
+        renderOverviewStats();
     }
 
     // ---- My Bots tab ----
@@ -468,56 +214,13 @@
                     </div>
                     <p style="color:var(--gray-500);font-size:0.82rem;margin:8px 0 0">${b.desc}</p>
                     <div class="dash-bot-stats">
-                        <div class="dash-bot-stat"><div class="dash-bot-stat-val">${b.active ? Math.floor(Math.random() * 200 + 50) : '&mdash;'}</div><div class="dash-bot-stat-label">Trades</div></div>
-                        <div class="dash-bot-stat"><div class="dash-bot-stat-val" style="color:${b.active ? 'var(--emerald)' : 'var(--gray-500)'}">${b.active ? (90 + Math.random() * 8).toFixed(1) + '%' : '&mdash;'}</div><div class="dash-bot-stat-label">Win Rate</div></div>
-                        <div class="dash-bot-stat"><div class="dash-bot-stat-val" style="color:${b.active ? 'var(--emerald)' : 'var(--gray-500)'}">${b.active ? '+$' + (Math.random() * 500 + 100).toFixed(0) : '$0'}</div><div class="dash-bot-stat-label">Profit</div></div>
+                        <div class="dash-bot-stat"><div class="dash-bot-stat-val" style="font-size:0.95rem">${b.active ? 'Unlocked' : 'Locked'}</div><div class="dash-bot-stat-label">Access</div></div>
+                        <div class="dash-bot-stat"><div class="dash-bot-stat-val">${b.tier}</div><div class="dash-bot-stat-label">Tier</div></div>
+                        <div class="dash-bot-stat"><div class="dash-bot-stat-val" style="font-size:0.95rem">MT5 · .mq5</div><div class="dash-bot-stat-label">Format</div></div>
                     </div>
                     ${downloadHtml}
                 </div>`;
         }).join('');
-    }
-
-    // ---- MT5 connection (simulated) ----
-    const mt5Form = $('#mt5Form');
-    const mt5ConnectedInfo = $('#mt5ConnectedInfo');
-    const mt5Status = $('#mt5Status');
-    const mt5Data = JSON.parse(localStorage.getItem('impera_mt5_' + session.email) || 'null');
-    if (mt5Data && mt5Form) showMT5Connected(mt5Data);
-
-    if (mt5Form) {
-        mt5Form.addEventListener('submit', e => {
-            e.preventDefault();
-            const broker = $('#mt5Broker').value;
-            const login = $('#mt5Login').value;
-            const pass = $('#mt5Pass').value;
-            if (!broker || !login || !pass) return;
-            const data = { broker, login, balance: (10000 + Math.random() * 5000).toFixed(2), equity: (10000 + Math.random() * 5500).toFixed(2), leverage: '1:500', server: broker };
-            localStorage.setItem('impera_mt5_' + session.email, JSON.stringify(data));
-            showMT5Connected(data);
-        });
-    }
-
-    function showMT5Connected(data) {
-        if (mt5Form) mt5Form.style.display = 'none';
-        if (mt5ConnectedInfo) mt5ConnectedInfo.style.display = '';
-        if (mt5Status) mt5Status.innerHTML = '<div class="mt5-status-dot connected"></div><span style="color:var(--emerald)">Connected</span>';
-        if ($('#mt5InfoBroker')) $('#mt5InfoBroker').textContent = data.broker;
-        if ($('#mt5InfoLogin')) $('#mt5InfoLogin').textContent = data.login;
-        if ($('#mt5InfoBalance')) $('#mt5InfoBalance').textContent = '$' + parseFloat(data.balance).toLocaleString(undefined, { minimumFractionDigits: 2 });
-        if ($('#mt5InfoEquity')) $('#mt5InfoEquity').textContent = '$' + parseFloat(data.equity).toLocaleString(undefined, { minimumFractionDigits: 2 });
-        if ($('#mt5InfoLeverage')) $('#mt5InfoLeverage').textContent = data.leverage;
-        if ($('#mt5InfoServer')) $('#mt5InfoServer').textContent = data.server;
-    }
-
-    const mt5DisconnectBtn = $('#mt5DisconnectBtn');
-    if (mt5DisconnectBtn) {
-        mt5DisconnectBtn.addEventListener('click', () => {
-            localStorage.removeItem('impera_mt5_' + session.email);
-            if (mt5Form) mt5Form.style.display = '';
-            if (mt5ConnectedInfo) mt5ConnectedInfo.style.display = 'none';
-            if (mt5Status) mt5Status.innerHTML = '<div class="mt5-status-dot disconnected"></div><span>Not Connected</span>';
-            if (mt5Form) mt5Form.reset();
-        });
     }
 
     // ---- Licence key ----
@@ -568,8 +271,7 @@
             session.licence = key;
             session.tier = tier;
             localStorage.setItem('impera_session', JSON.stringify(session));
-            activeBotType = null; openTrades = []; closedTrades = [];
-            renderLicence(); generateTrades();
+            renderLicence();
         });
     }
 
@@ -578,8 +280,6 @@
         deactivateBtn.addEventListener('click', () => {
             session.licence = null; session.tier = null;
             localStorage.setItem('impera_session', JSON.stringify(session));
-            activeBotType = null; openTrades = []; closedTrades = [];
-            if (tradeInterval) { clearInterval(tradeInterval); tradeInterval = null; }
             renderLicence(); renderAll();
             $('#licenceInput').value = '';
         });
@@ -607,28 +307,7 @@
     }
 
     // ---- Init ----
-    generateTrades();
-    drawEquityChart();
-
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => { drawEquityChart(); drawMonthlyChart(); }, 200);
-    });
-
-    // Simulate live trade updates
-    if (session.licence) {
-        const config = botConfigs[activeBotType] || botConfigs.scalping;
-        tradeInterval = setInterval(() => {
-            openTrades.forEach(t => {
-                t.current = randomPrice(t.pair, config.bases);
-                const diff = t.type === 'BUY' ? t.current - t.entry : t.entry - t.current;
-                t.profit = diff * t.lots * (t.pair === 'XAU/USD' ? 100 : t.pair === 'BTC/USD' ? 0.01 : 100000);
-                t.duration += 1;
-            });
-            renderLiveTrades();
-        }, 3000);
-    }
+    renderAll();
 
     /* ========================================
        MY PRODUCTS

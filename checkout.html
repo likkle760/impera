@@ -231,18 +231,22 @@
         const botKey = params.get('bot') || 'scalping';
         const bot = BOTS[botKey] || BOTS.scalping;
 
-        // Which payment provider is live? (server decides — Stripe or SumUp)
+        // Which payment provider is live? (server decides — Stripe / SumUp / PayPal)
         let PROVIDER = 'stripe';
         try {
             fetch(IMPERA_SERVER + '/api/config').then(r => r.json()).then(c => {
                 PROVIDER = (c && c.provider) || 'stripe';
+                const unavail = (c && (c.unavailableOnProvider || c.unavailableOnSumup)) || [];
                 if (PROVIDER === 'sumup') {
                     document.getElementById('btnPay').querySelector('.btn-text').textContent = 'Pay \u00A3' + bot.price + ' \u2014 Card Payment';
                 }
-                if (PROVIDER === 'sumup' && c.unavailableOnSumup && c.unavailableOnSumup.indexOf(botKey) >= 0) {
+                if (PROVIDER === 'paypal') {
+                    document.getElementById('btnPay').querySelector('.btn-text').textContent = 'Pay \u00A3' + bot.price + ' \u2014 PayPal';
+                }
+                if ((PROVIDER === 'sumup' || PROVIDER === 'paypal') && unavail.indexOf(botKey) >= 0) {
                     document.getElementById('btnPay').disabled = true;
                     const errEl = document.getElementById('errorMsg');
-                    errEl.textContent = 'This subscription plan is temporarily unavailable for card payment. Please choose a one-time product or contact support.';
+                    errEl.textContent = 'This subscription plan is temporarily unavailable. Please choose a one-time product or contact support.';
                     errEl.classList.add('show');
                 }
             }).catch(function () {});
@@ -301,6 +305,16 @@
                 }
                 if (PROVIDER === 'sumup') {
                     const resp = await fetch(IMPERA_SERVER + '/api/create-sumup-checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: botKey, email: email })
+                    });
+                    const data = await resp.json();
+                    if (data && data.url) { window.location.href = data.url; return; }
+                    throw new Error((data && data.error) || 'Could not start checkout.');
+                }
+                if (PROVIDER === 'paypal') {
+                    const resp = await fetch(IMPERA_SERVER + '/api/create-paypal-order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ key: botKey, email: email })

@@ -527,12 +527,147 @@ async function sumupMerchantCode() {
     return _merchantCodeCache;
 }
 
-app.get('/api/config', (req, res) => {
-    res.json({
-        provider: PAYMENT_PROVIDER,
-        sumupReady: PAYMENT_PROVIDER === 'sumup' ? sumupOk() : undefined,
-        unavailableOnSumup: ['mentor-monthly', 'basic-membership']
+app.get('/api/config-old', (req, res) => { res.json({ provider: PAYMENT_PROVIDER }); });
+
+// ---------- PayPal Checkout (Orders v2) ----------
+const PAYPAL_BASE = (process.env.PAYPAL_ENV === 'sandbox') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+let _ppTokenCache = null;
+async function paypalToken() {
+    if (_ppTokenCache && _ppTokenCache.exp > Date.now() + 60000) return _ppTokenCache.t;
+    const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_CLIENT_SECRET).toString('base64');
+    const r = await fetch(PAYPAL_BASE + '/v1/oauth2/token', {
+        method: 'POST',
+        headers: { Authorization: 'Basic ' + auth, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'grant_type=client_credentials'
     });
+    if (!r.ok) throw new Error('PayPal authentication failed (HTTP ' + r.status + ')');
+    const d = await r.json();
+    _ppTokenCache = { t: d.access_token, exp: Date.now() + ((d.expires_in || 300) - 60) * 1000 };
+    return _ppTokenCache.t;
+}
+
+app.get('/api/config', (req, res) => {
+    const provider = PAYMENT_PROVIDER;
+    let ready;
+    if (provider === 'sumup') ready = sumupOk();
+    else if (provider === 'paypal') ready = !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET);
+    // Products that cannot be sold through direct (non-Stripe) providers:
+    // subscriptions + anything priced £0 (below processor minimums)
+    const unavailable = ['mentor-monthly'];
+    Object.keys(SUMUP_CATALOG).forEach(k => {
+        if (SUMUP_CATALOG[k].recurring || !(SUMUP_CATALOG[k].amount > 0)) unavailable.push(k);
+    });
+    res.json({
+        provider,
+        ready: ready !== undefined ? ready : undefined,
+        sumupReady: provider === 'sumup' ? sumupOk() : undefined,
+        unavailableOnSumup: unavailable,
+        unavailableOnProvider: unavailable
+    });
+});
+
+app.post('/api/create-paypal-order', express.json(), async (req, res) => {
+    try {
+        if (!(PAYMENT_PROVIDER === 'paypal')) return res.status(400).json({ error: 'PayPal is not the active payment provider.' });
+        const { key, email } = req.body || {};
+        const info = SUMUP_CATALOG[key];
+        if (!info) return res.status(400).json({ error: 'Unknown product.' });
+        if (!(info.amount > 0)) return res.status(400).json({ error: 'This product cannot be purchased right now.' });
+        if (!email || !/.+@.+\..+/.test(email)) return res.status(400).json({ error: 'A valid email address is required.' });
+
+        const t = await paypalToken();
+        const origin = siteOrigin(req);
+        const r = await fetch(PAYPAL_BASE + '/v2/checkout/orders', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                intent: 'CAPTURE',
+                purchase_units: [{
+                    description: info.name,
+                    custom_id: key + '|' + email,
+                    amount: { currency_code: 'GBP', value: Number(info.amount).toFixed(2) }
+                }],
+                application_context: {
+                    brand_name: 'IMPERA',
+                    locale: 'en-GB',
+                    user_action: 'PAY_NOW',
+                    shipping_preference: 'NO_SHIPPING',
+                    return_url: origin + '/success.html?paypal_return=1&bot=' + encodeURIComponent(key) + '&email=' + encodeURIComponent(email),
+                    cancel_url: origin + '/checkout.html?bot=' + encodeURIComponent(key) + '&cancelled=1'
+                }
+            })
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error((d.details && d.details[0] && d.details[0].description) || d.message || ('HTTP ' + r.status));
+        const approve = (d.links || []).find(l => l.rel === 'approve');
+        if (!approve) throw new Error('No approval link returned');
+
+        const orders = db.read('paypalorders.json');
+        orders.push({ id: d.id, key, email, name: info.name, type: info.type, amount: info.amount, status: 'created', createdAt: new Date().toISOString() });
+        db.write('paypalorders.json', orders);
+        res.json({ url: approve.href });
+    } catch (err) {
+        console.error('[paypal] create failed:', err.message);
+        res.status(500).json({ error: 'Could not start checkout. Please try again.', detail: err.message });
+    }
+});
+
+app.post('/api/paypal/capture/:orderId', express.json(), async (req, res) => {
+    try {
+        if (!process.env.PAYPAL_CLIENT_ID) return res.status(500).json({ error: 'PayPal is not configured.' });
+        const oid = String(req.params.orderId || '');
+        const orders = db.read('paypalorders.json');
+        const o = orders.find(x => x.id === oid);
+        if (!o) return res.status(404).json({ error: 'Order not found.' });
+
+        if (o.status === 'paid') {
+            const p = acctPayload(o.sessionId);
+            if (p) return res.json(p);
+        }
+
+        const t = await paypalToken();
+        let status = null;
+        const g = await fetch(PAYPAL_BASE + '/v2/checkout/orders/' + encodeURIComponent(oid), { headers: { Authorization: 'Bearer ' + t } });
+        if (g.ok) { const gj = await g.json().catch(() => ({})); status = gj.status || null; }
+
+        if (status !== 'COMPLETED') {
+            const r = await fetch(PAYPAL_BASE + '/v2/checkout/orders/' + encodeURIComponent(oid) + '/capture', {
+                method: 'POST',
+                headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) {
+                const msg = (d.details && d.details[0] && d.details[0].description) || d.message || ('HTTP ' + r.status);
+                if (!/ORDER_ALREADY_CAPTURED/i.test(msg)) {
+                    return res.json({ pending: status === 'APPROVED' || status === 'CREATED', status: status, detail: msg });
+                }
+            }
+            status = 'COMPLETED';
+        }
+
+        o.status = 'paid';
+        o.sessionId = o.sessionId || ('pp_' + oid);
+        o.paidAt = new Date().toISOString();
+        db.write('paypalorders.json', orders);
+
+        await deliverProduct({
+            sessionId: o.sessionId,
+            type: o.key,
+            productName: o.name,
+            priceId: 'paypal:' + o.key,
+            amountFormatted: '£' + Number(o.amount).toFixed(2),
+            amountValue: o.amount,
+            customerName: '',
+            email: o.email,
+            receiptUrl: 'https://www.paypal.com/activity/payment/' + oid
+        });
+        const p = acctPayload(o.sessionId);
+        if (!p) return res.status(500).json({ error: 'Fulfilment failed.' });
+        res.json(p);
+    } catch (err) {
+        console.error('[paypal] capture failed:', err.message);
+        res.status(500).json({ error: 'Verification failed.', detail: err.message });
+    }
 });
 
 app.post('/api/create-sumup-checkout', express.json(), async (req, res) => {

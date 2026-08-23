@@ -352,30 +352,33 @@
             }
         }, 1500);
 
-        // ---- SumUp return: poll the server until payment is confirmed ----
+        // ---- Direct-provider returns (SumUp / PayPal): poll server until confirmed ----
         var IMPERA_API_SU = 'https://impera-5b6l.onrender.com';
-        if (sumupRef) {
-            (function pollSumup() {
+        var ppOrderId = params.get('token') || (params.get('paypal_return') === '1' ? '' : null);
+        if (sumupRef || params.get('paypal_return') === '1') {
+            (function pollProvider() {
                 var tries = 0;
+                var url = sumupRef
+                    ? IMPERA_API_SU + '/api/sumup/verify/' + encodeURIComponent(sumupRef)
+                    : IMPERA_API_SU + '/api/paypal/capture/' + encodeURIComponent(params.get('token') || '');
                 var timer = setInterval(async function () {
                     tries++;
                     try {
-                        const r = await fetch(IMPERA_API_SU + '/api/sumup/verify/' + encodeURIComponent(sumupRef));
+                        const r = await fetch(url, { method: sumupRef ? 'GET' : 'POST', headers: { 'Content-Type': 'application/json' } });
                         const j = await r.json();
                         if (j && j.email && j.password) {
                             clearInterval(timer);
                             loadingEl.style.display = 'none';
                             processNewSession(j, true);
-                        } else if (j && j.status === 'FAILED') {
+                        } else if (j && (j.status === 'FAILED' || j.status === 'VOIDED')) {
                             clearInterval(timer);
                             loadingEl.style.display = 'none';
                             deniedEl.style.display = 'block';
                             deniedEl.querySelector('h1').textContent = 'Payment Not Completed';
-                            document.getElementById('deniedSubtitle').textContent = 'The card payment did not go through.';
+                            document.getElementById('deniedSubtitle').textContent = 'The payment did not go through.';
                             document.getElementById('deniedReason').innerHTML = 'You have <strong>not been charged</strong> for a failed payment. Please try again from the checkout page.';
                         }
                     } catch (e) {}
-                    if (tries >= 20 && !timer._done) { /* keep last state */ }
                     if (tries >= 25) {
                         clearInterval(timer);
                         loadingEl.innerHTML = '<p style="color:#ccc">Still confirming your payment… This usually takes under a minute. You can refresh this page in a moment.</p>';

@@ -42,7 +42,8 @@ const DEFAULT_PRICE_MAP = {
     'price_1U7cSQRiTJNYtmMnzPNcyDRf': { key: 'global', name: 'IMPERA Global Bot', type: 'bot' },
     'price_1U7ccARiTJNYtmMnbYF6Rlqx': { key: 'mentor-monthly', name: 'IMPERA Mentorship — Monthly', type: 'mentorship' },
     'price_1U7cPJRiTJNYtmMnX13LOQKm': { key: 'mentor-lifetime', name: 'IMPERA Mentorship — Lifetime', type: 'mentorship' },
-    'price_1U7dbkRiTJNYtmMnoXAm13Du': { key: 'trfx', name: 'TRFX Bot', type: 'bot' }
+    'price_1U7dbxRiTJNYtmMnONXnmiVk': { key: 'impera-bot', name: 'IMPERA Bot', type: 'bot' },
+    'price_1U7dcLRiTJNYtmMnqPYwKCA5': { key: 'basic-membership', name: 'IMPERA Basic Membership', type: 'mentorship', recurring: true }
 };
 
 function priceMap() {
@@ -361,7 +362,7 @@ app.post('/api/create-checkout-session', express.json(), async (req, res) => {
         if (!info) return res.status(400).json({ error: 'Unknown or missing price. Please contact support.' });
         const origin = siteOrigin(req);
         const session = await stripe.checkout.sessions.create({
-            mode: info.key === 'mentor-monthly' ? 'subscription' : 'payment',
+            mode: (info.recurring || info.key === 'mentor-monthly') ? 'subscription' : 'payment',
             line_items: [{ price: priceId, quantity: 1 }],
             customer_email: email || undefined,
             success_url: origin + '/success.html?session_id={CHECKOUT_SESSION_ID}&bot=' + encodeURIComponent(info.key || '') + '&email=' + encodeURIComponent(email || ''),

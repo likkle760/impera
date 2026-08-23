@@ -34,11 +34,23 @@ const DASHBOARD_URL = SITE_URL.replace(/\/$/, '') + '/dashboard.html';
 const TELEGRAM_URL = process.env.TELEGRAM_URL || 'https://t.me/+PwykI4dxBOEzMGFk';
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@impera.com';
 
-// Map Stripe Price IDs -> product info. Set PRICE_MAP in .env as JSON,
-// e.g. PRICE_MAP={"price_123":{"key":"gold","name":"IMPERA Gold Bot","type":"bot"}}
+// Map Stripe Price IDs -> product info.
+// Built-in defaults below; optionally override/extend via PRICE_MAP env (JSON).
+const DEFAULT_PRICE_MAP = {
+    'price_1U7cTzRiTJNYtmMnrJ9pfDWl': { key: 'scalping', name: 'IMPERA Scalping Bot', type: 'bot' },
+    'price_1U7cTIRiTJNYtmMnOxHBGfmn': { key: 'gold', name: 'IMPERA Gold Bot', type: 'bot' },
+    'price_1U7cSQRiTJNYtmMnzPNcyDRf': { key: 'global', name: 'IMPERA Global Bot', type: 'bot' },
+    'price_1U7ccARiTJNYtmMnbYF6Rlqx': { key: 'mentor-monthly', name: 'IMPERA Mentorship — Monthly', type: 'mentorship' },
+    'price_1U7cPJRiTJNYtmMnX13LOQKm': { key: 'mentor-lifetime', name: 'IMPERA Mentorship — Lifetime', type: 'mentorship' }
+};
+
 function priceMap() {
-    try { return JSON.parse(process.env.PRICE_MAP || '{}'); }
-    catch { return {}; }
+    let extra = {};
+    try {
+        const parsed = JSON.parse(process.env.PRICE_MAP || '{}');
+        if (parsed && typeof parsed === 'object') extra = parsed;
+    } catch { /* ignore malformed env */ }
+    return Object.assign({}, DEFAULT_PRICE_MAP, extra);
 }
 
 // ---------- Tiny JSON store ----------

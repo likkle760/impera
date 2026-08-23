@@ -232,7 +232,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
                 expand: ['line_items', 'invoice', 'payment_intent.latest_charge']
             });
 
-            const email = session.customer_details?.email;
+            const email = session.customer_details?.email || session.customer_email || null;
             const billingName = session.customer_details?.name || '';
             if (!email) { console.error('[webhook] no customer email on session'); return res.json({ received: true }); }
 

@@ -553,7 +553,7 @@ app.get('/api/config', (req, res) => {
     else if (provider === 'paypal') ready = !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET);
     // Products that cannot be sold through direct (non-Stripe) providers:
     // subscriptions + anything priced £0 (below processor minimums)
-    const unavailable = ['mentor-monthly'];
+    const unavailable = ['mentor-monthly', 'basic-membership'];
     Object.keys(SUMUP_CATALOG).forEach(k => {
         if (SUMUP_CATALOG[k].recurring || !(SUMUP_CATALOG[k].amount > 0)) unavailable.push(k);
     });

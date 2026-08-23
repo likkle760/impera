@@ -29,8 +29,11 @@ const PORT = process.env.PORT || 4242;
 const DATA_DIR = path.join(__dirname, 'data');
 
 // ---------- Config ----------
-const SITE_URL = process.env.SITE_URL || 'http://localhost:5500';
-const DASHBOARD_URL = SITE_URL.replace(/\/$/, '') + '/dashboard.html';
+const _rawSite = (process.env.SITE_URL || '').trim();
+const SITE_URL = /^https?:\/\//i.test(_rawSite) && !/your-site\.com|example\.com|localhost/i.test(_rawSite)
+    ? _rawSite.replace(/\/+$/, '')
+    : 'https://impera1.onrender.com';
+const DASHBOARD_URL = SITE_URL + '/dashboard.html';
 const TELEGRAM_URL = process.env.TELEGRAM_URL || 'https://t.me/+PwykI4dxBOEzMGFk';
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@impera.com';
 
@@ -281,7 +284,15 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
             }
 
             saveUser(rec, billingName, email);
-            await sendHtml(email, subject, html);
+            rec.emailed = false;
+
+            // ---- Customer email: never let mail problems break order processing ----
+            try {
+                await sendHtml(email, subject, html);
+                rec.emailed = true;
+            } catch (mailErr) {
+                console.error('[webhook] customer email failed:', mailErr.message);
+            }
 
             // ---- Owner alert: new sale ----
             notifyAdmin(
@@ -293,7 +304,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
                 ]
             );
 
-            rec.emailed = true;
+            rec.emailed = rec.emailed === true;
             db.write('accounts.json', db.read('accounts.json'));
             return res.json({ received: true });
         }

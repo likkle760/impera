@@ -203,7 +203,7 @@
         const prods = (A ? A.userProducts(session.email) : []) || [];
         const purchasedBots = prods.filter(p => !A.isMentorship(p.bot)).map(p => p.bot);
         // 'impera-bot' is the entry-level product — uses the Scalping download
-        const has = k => purchasedBots.includes(k) || (k === 'scalping' && purchasedBots.includes('impera-bot'));
+        const has = k => purchasedBots.includes(k) || (k === 'scalping' && (purchasedBots.includes('impera-bot') || purchasedBots.includes('test')));
         const unlocked = session.unlockedBots || [];
 
         const allBots = [
@@ -235,7 +235,7 @@
     }
 
     // ---- Licence key ----
-    const TIER_LABEL = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+    const TIER_LABEL = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
     function licenceTierLabel() {
         const k = (session.unlockedBots || [])[0];
         if (k) return (TIER_LABEL[k] || 'Standard') + ' License';
@@ -243,7 +243,7 @@
         const owned = prods.find(p => !ImperaAuth.isMentorship(p.bot));
         return owned ? ((TIER_MAP_NAME[owned.bot]) || 'Standard') + ' License' : 'License';
     }
-    const TIER_MAP_NAME = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+    const TIER_MAP_NAME = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
     function renderLicence() {
         const activeBox = $('#licenceActive');
         const inactiveBox = $('#licenceInactive');
@@ -310,7 +310,7 @@
             }
 
             session.licence = key;
-            session.unlockedBots = [res.botKey === 'impera-bot' ? 'scalping' : res.botKey];
+            session.unlockedBots = [(res.botKey === 'impera-bot' || res.botKey === 'test') ? 'scalping' : res.botKey];
             delete session.tier; // legacy field — bots now unlock from verified orders only
             localStorage.setItem('impera_session', JSON.stringify(session));
             okEl.textContent = '\u2713 Licence verified \u2014 ' + (res.productName || 'your bot') + ' unlocked';

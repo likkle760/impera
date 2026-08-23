@@ -101,7 +101,7 @@
 
     const isMentorship = (botKey) => botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
 
-    const TIER_MAP = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+    const TIER_MAP = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
     const IMPERA_API = 'https://impera-5b6l.onrender.com';
 
     function userProducts(email) {

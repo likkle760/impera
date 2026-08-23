@@ -989,7 +989,7 @@ app.get('/api/account/:sessionId', async (req, res) => {
 });
 
 // ---------- Products by buyer email (drives dashboard across devices) ----------
-const TIER_BY_KEY = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+const TIER_BY_KEY = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
 
 app.get('/api/products/:email', (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');

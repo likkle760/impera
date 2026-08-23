@@ -15,6 +15,15 @@
         return;
     }
 
+    // Sync this buyer's real purchases from the IMPERA server so
+    // membership + bots work on any device, not just the checkout browser.
+    try {
+        if (window.ImperaAuth && ImperaAuth.syncFromServer) {
+            await ImperaAuth.syncFromServer(session.email);
+            session = ImperaAuth.session();
+        }
+    } catch (e) { /* offline — keep local data */ }
+
     function showAuthScreen() {
         document.querySelector('.dash-main').innerHTML = `
             <div style="display:flex;align-items:center;justify-content:center;min-height:80vh;padding:40px">
@@ -190,16 +199,18 @@
     function renderBots() {
         const grid = $('#dashBotsGrid');
         if (!grid) return;
-        const purchases = JSON.parse(localStorage.getItem('impera_purchases') || '[]');
-        const userPurchases = purchases.filter(p => p.email === session.email);
-        const purchasedBots = userPurchases.map(p => p.bot);
-        const tier = session.tier;
+        const A = window.ImperaAuth;
+        const prods = (A ? A.userProducts(session.email) : []) || [];
+        const purchasedBots = prods.filter(p => !A.isMentorship(p.bot)).map(p => p.bot);
+        // 'impera-bot' is the entry-level product — uses the Scalping download
+        const has = k => purchasedBots.includes(k) || (k === 'scalping' && purchasedBots.includes('impera-bot'));
+        const unlocked = session.unlockedBots || [];
 
         const allBots = [
-            { key: 'scalping', name: 'IMPERA Scalping Bot', tier: 'Scalping', file: 'IMPERA_Scalping_Bot.mq5', desc: 'EMA crossover + RSI · M1/M5 scalper · EUR/USD, GBP/USD, USD/JPY', active: tier === 'Scalping' || tier === 'Gold' || tier === 'Global', purchased: purchasedBots.includes('scalping') },
-            { key: 'gold', name: 'IMPERA Gold Bot', tier: 'Gold', file: 'IMPERA_Gold_Bot.mq5', desc: 'Multi-TF EMA + MACD + Stoch · XAU/USD specialist', active: tier === 'Gold' || tier === 'Global', purchased: purchasedBots.includes('gold') },
-            { key: 'global', name: 'IMPERA Global Bot', tier: 'Global', file: 'IMPERA_Global_Bot.mq5', desc: '3 strategies: Scalp + Swing + Breakout · All symbols · VIP', active: tier === 'Global', purchased: purchasedBots.includes('global') }
-        ];
+            { key: 'scalping', name: 'IMPERA Scalping Bot', tier: 'Scalping', file: 'IMPERA_Scalping_Bot.mq5', desc: 'EMA crossover + RSI · M1/M5 scalper · EUR/USD, GBP/USD, USD/JPY', purchased: has('scalping') },
+            { key: 'gold', name: 'IMPERA Gold Bot', tier: 'Gold', file: 'IMPERA_Gold_Bot.mq5', desc: 'Multi-TF EMA + MACD + Stoch · XAU/USD specialist', purchased: has('gold') },
+            { key: 'global', name: 'IMPERA Global Bot', tier: 'Global', file: 'IMPERA_Global_Bot.mq5', desc: '3 strategies: Scalp + Swing + Breakout · All symbols · VIP', purchased: has('global') }
+        ].map(b => Object.assign(b, { active: b.purchased || unlocked.includes(b.key) }));
 
         grid.innerHTML = allBots.map(b => {
             const hasFile = b.purchased || b.active;
@@ -224,13 +235,22 @@
     }
 
     // ---- Licence key ----
+    const TIER_LABEL = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+    function licenceTierLabel() {
+        const k = (session.unlockedBots || [])[0];
+        if (k) return (TIER_LABEL[k] || 'Standard') + ' License';
+        const prods = window.ImperaAuth ? ImperaAuth.userProducts(session.email) : [];
+        const owned = prods.find(p => !ImperaAuth.isMentorship(p.bot));
+        return owned ? ((TIER_MAP_NAME[owned.bot]) || 'Standard') + ' License' : 'License';
+    }
+    const TIER_MAP_NAME = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
     function renderLicence() {
         const activeBox = $('#licenceActive');
         const inactiveBox = $('#licenceInactive');
         if (session.licence) {
             if (activeBox) activeBox.style.display = '';
             if (inactiveBox) inactiveBox.style.display = 'none';
-            if ($('#licenceTier')) $('#licenceTier').textContent = (session.tier || 'Standard') + ' License';
+            if ($('#licenceTier')) $('#licenceTier').textContent = licenceTierLabel();
             if ($('#licenceKeyDisplay')) $('#licenceKeyDisplay').textContent = session.licence;
         } else {
             if (activeBox) activeBox.style.display = 'none';
@@ -239,6 +259,7 @@
     }
     renderLicence();
 
+    const IMPERA_API_BASE = 'https://impera-5b6l.onrender.com';
     const licenceForm = $('#licenceForm');
     if (licenceForm) {
         const input = $('#licenceInput');
@@ -254,30 +275,46 @@
             e.target.value = formatted;
         });
 
-        licenceForm.addEventListener('submit', e => {
+        licenceForm.addEventListener('submit', async e => {
             e.preventDefault();
             const key = input.value.trim().toUpperCase();
             const errorEl = $('#licenceError');
+            const okEl = $('#licenceSuccess');
             errorEl.classList.remove('show');
+            okEl.style.display = 'none';
             if (!/^IMPERA-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(key)) {
                 errorEl.textContent = 'Invalid key format. Use IMPERA-XXXX-XXXX-XXXX.';
                 errorEl.classList.add('show');
                 return;
             }
-            let tier = 'Scalping';
-            if (key.includes('DIAM') || key.includes('VIPX')) tier = 'Global';
-            else if (key.includes('GOLD') || key.includes('ULTR')) tier = 'Gold';
+
+            // Verify the key against real orders on the IMPERA server.
+            let res;
+            try {
+                let base = IMPERA_API_BASE;
+                try { base = localStorage.getItem('impera_api_url') || IMPERA_API_BASE; } catch (err) {}
+                const r = await fetch(base.replace(/\/$/, '') + '/api/licence/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key })
+                });
+                res = await r.json().catch(() => ({ ok: false }));
+            } catch (err) {
+                res = { ok: false, error: 'Could not reach the IMPERA licence server. Check your connection and try again.' };
+            }
+
+            if (!res.ok) {
+                errorEl.textContent = res.error || 'This licence key was not recognised.';
+                errorEl.classList.add('show');
+                return;
+            }
 
             session.licence = key;
-            session.tier = tier;
+            session.unlockedBots = [res.botKey === 'impera-bot' ? 'scalping' : res.botKey];
+            delete session.tier; // legacy field — bots now unlock from verified orders only
             localStorage.setItem('impera_session', JSON.stringify(session));
-            const botNames = { Scalping: 'IMPERA Scalping Bot', Gold: 'IMPERA Gold Bot', Global: 'IMPERA Global Bot' };
-            const ok = $('#licenceSuccess');
-            if (ok) {
-                ok.textContent = '\u2713 Licence activated \u2014 ' + (botNames[tier] || 'your bot') + ' unlocked';
-                ok.style.display = '';
-            }
-            errorEl.classList.remove('show');
+            okEl.textContent = '\u2713 Licence verified \u2014 ' + (res.productName || 'your bot') + ' unlocked';
+            okEl.style.display = '';
             renderLicence();
             renderAll();
         });
@@ -286,7 +323,7 @@
     const deactivateBtn = $('#deactivateKeyBtn');
     if (deactivateBtn) {
         deactivateBtn.addEventListener('click', () => {
-            session.licence = null; session.tier = null;
+            session.licence = null; session.tier = null; session.unlockedBots = [];
             localStorage.setItem('impera_session', JSON.stringify(session));
             const ok = $('#licenceSuccess');
             if (ok) ok.style.display = 'none';

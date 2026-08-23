@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IMPERA — The Precision Trading Playbook (Free eBook)</title>
-<meta name="description" content="The official IMPERA trading eBook — master the markets with the exact strategy, risk framework and psychology behind IMPERA Precision Trading Systems.">
+<meta name="description" content="The official IMPERA trading eBook — master market structure, price action, six proven strategies, risk management and trading psychology. The playbook behind IMPERA Precision Trading Systems.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -27,7 +27,6 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -41,7 +40,7 @@
 
     ::selection { background: rgba(255, 215, 0, .25); color: #fff; }
 
-    .page { max-width: 780px; margin: 0 auto; padding: 0 28px; }
+    .page { max-width: 820px; margin: 0 auto; padding: 0 28px; }
 
     /* ---------- PRINT BAR ---------- */
     .print-bar {
@@ -87,10 +86,7 @@
     .cover-crown { animation: crownFloat 5s ease-in-out infinite; margin-bottom: 30px; }
     @keyframes crownFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-    .cover-brand {
-        font-size: 15px; letter-spacing: 10px; font-weight: 300; color: var(--muted);
-        text-transform: uppercase; margin-bottom: 14px;
-    }
+    .cover-brand { font-size: 15px; letter-spacing: 10px; font-weight: 300; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
     .cover-title {
         font-size: clamp(38px, 7vw, 64px); font-weight: 900; line-height: 1.08;
         letter-spacing: -1px; max-width: 700px;
@@ -98,12 +94,8 @@
         -webkit-background-clip: text; background-clip: text;
         -webkit-text-fill-color: transparent;
     }
-    .cover-sub {
-        font-family: var(--font-mono); color: var(--gold-deep);
-        font-size: clamp(12px, 2vw, 14px); letter-spacing: 4px; text-transform: uppercase;
-        margin-top: 26px;
-    }
-    .cover-desc { color: var(--muted); max-width: 560px; margin-top: 26px; font-size: 16.5px; }
+    .cover-sub { font-family: var(--font-mono); color: var(--gold-deep); font-size: clamp(12px, 2vw, 14px); letter-spacing: 4px; text-transform: uppercase; margin-top: 26px; }
+    .cover-desc { color: var(--muted); max-width: 600px; margin-top: 26px; font-size: 16.5px; }
     .cover-edition {
         display: inline-flex; align-items: center; gap: 10px;
         margin-top: 42px; padding: 10px 24px;
@@ -126,14 +118,8 @@
 
     /* ---------- TOC ---------- */
     .toc { padding: 110px 0 90px; }
-    .kicker {
-        font-family: var(--font-mono); font-size: 12px; letter-spacing: 4px;
-        text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
-    }
-    .h-section {
-        font-size: clamp(30px, 5vw, 42px); font-weight: 900; letter-spacing: -.5px;
-        line-height: 1.15; margin-bottom: 18px;
-    }
+    .kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+    .h-section { font-size: clamp(30px, 5vw, 42px); font-weight: 900; letter-spacing: -.5px; line-height: 1.15; margin-bottom: 18px; }
     .h-section em { font-style: normal; color: var(--gold); }
     .toc-list { margin-top: 44px; border-top: 1px solid var(--line); }
     .toc-item {
@@ -142,15 +128,9 @@
         text-decoration: none; transition: background .2s ease, padding-left .2s ease;
     }
     .toc-item:hover { background: rgba(255, 215, 0, .04); padding-left: 14px; }
-    .toc-num {
-        font-family: var(--font-mono); color: var(--gold-deep);
-        font-size: 13px; min-width: 34px;
-    }
+    .toc-num { font-family: var(--font-mono); color: var(--gold-deep); font-size: 13px; min-width: 34px; }
     .toc-name { font-weight: 700; font-size: 17.5px; color: var(--text); flex: 1; }
-    .toc-tag {
-        font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px;
-        color: var(--muted); text-transform: uppercase;
-    }
+    .toc-tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
 
     /* ---------- CHAPTERS ---------- */
     .chapter { padding: 96px 0 40px; border-top: 1px solid var(--line); scroll-margin-top: 70px; }
@@ -159,15 +139,9 @@
         font-family: var(--font-mono); font-size: 60px; font-weight: 600;
         color: transparent; -webkit-text-stroke: 1px var(--gold-deep); line-height: 1;
     }
-    .ch-label {
-        font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 4px;
-        text-transform: uppercase; color: var(--gold);
-    }
-    h2.ch-title {
-        font-size: clamp(27px, 4.5vw, 37px); font-weight: 900; letter-spacing: -.5px;
-        line-height: 1.18; margin: 14px 0 10px;
-    }
-    .ch-lede { color: var(--muted); font-size: 18.5px; margin-bottom: 34px; max-width: 640px; }
+    .ch-label { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
+    h2.ch-title { font-size: clamp(27px, 4.5vw, 37px); font-weight: 900; letter-spacing: -.5px; line-height: 1.18; margin: 14px 0 10px; }
+    .ch-lede { color: var(--muted); font-size: 18.5px; margin-bottom: 34px; max-width: 680px; }
     .chapter p { margin-bottom: 20px; color: #d6d6d6; }
     .chapter p strong, .chapter li strong { color: #fff; }
     .chapter h3 {
@@ -178,17 +152,15 @@
     .chapter li { margin-bottom: 10px; padding-left: 6px; }
     .chapter li::marker { color: var(--gold); }
     a { color: var(--gold); }
+    code { font-family: var(--font-mono); font-size: .85em; background: rgba(255,215,0,.08); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; color: var(--gold); }
 
-    /* callouts & boxes */
+    /* callouts */
     .callout {
         border: 1px solid var(--line); border-radius: 14px;
         padding: 22px 24px; margin: 28px 0;
         background: linear-gradient(180deg, rgba(255,215,0,.05), rgba(255,215,0,.015));
     }
-    .callout-title {
-        font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 3px;
-        text-transform: uppercase; color: var(--gold); margin-bottom: 10px; font-weight: 600;
-    }
+    .callout-title { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; font-weight: 600; }
     .callout p:last-child, .callout ul:last-child, .callout ol:last-child { margin-bottom: 0; }
     .callout.cyan { background: linear-gradient(180deg, rgba(0,194,255,.06), rgba(0,194,255,.015)); border-color: rgba(0,194,255,.25); }
     .callout.cyan .callout-title { color: var(--cyan); }
@@ -197,12 +169,11 @@
     .callout.mint { background: linear-gradient(180deg, rgba(0,255,178,.05), rgba(0,255,178,.015)); border-color: rgba(0,255,178,.25); }
     .callout.mint .callout-title { color: var(--mint); }
 
-    /* rule cards / grids */
+    /* grids & cards */
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 26px 0; }
-    .mini-card {
-        border: 1px solid rgba(255,255,255,.09); border-radius: 12px;
-        padding: 18px 20px; background: var(--bg-card);
-    }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 26px 0; }
+    @media (max-width: 700px) { .grid3 { grid-template-columns: 1fr; } }
+    .mini-card { border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 18px 20px; background: var(--bg-card); }
     .mini-card h4 { font-size: 15.5px; font-weight: 800; margin-bottom: 6px; color: var(--gold); }
     .mini-card p { font-size: 14.5px; margin: 0; color: var(--muted); line-height: 1.65; }
 
@@ -217,6 +188,7 @@
     td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.07); color: #d6d6d6; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     td.mono { font-family: var(--font-mono); font-size: 13px; color: var(--mint); white-space: nowrap; }
+    td.good { color: var(--mint); } td.warn { color: var(--red); } td.mid { color: var(--gold); }
 
     /* formula block */
     .formula {
@@ -227,38 +199,82 @@
     }
     .formula .cm { color: var(--muted); }
 
+    /* figures / charts */
+    .figure { margin: 32px 0; }
+    .chart-frame {
+        border: 1px solid rgba(255,255,255,.09); border-radius: 16px;
+        background: linear-gradient(180deg, #0e0e0e, #0a0a0a);
+        padding: 20px 14px 12px;
+    }
+    .chart-frame svg { width: 100%; height: auto; display: block; }
+    figcaption {
+        font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px;
+        color: var(--muted); text-align: center; margin-top: 12px;
+    }
+
+    /* svg chart palette (dark) */
+    svg text { font-family: 'JetBrains Mono', monospace; }
+    svg .grid { stroke: rgba(255,255,255,.07); stroke-width: 1; }
+    svg .axis-txt { fill: #8f8f8f; font-size: 11.5px; }
+    svg .cb { fill: #00FFB2; stroke: #00FFB2; }
+    svg .cr { fill: #FF6B6B; stroke: #FF6B6B; }
+    svg .note { fill: #e9e9e9; font-size: 12px; font-weight: 600; }
+    svg .note.gold { fill: #FFD700; } svg .note.mint { fill: #00FFB2; }
+    svg .note.red { fill: #FF6B6B; } svg .note.cyan { fill: #00C2FF; }
+    svg .lead { stroke: #777; stroke-width: 1; stroke-dasharray: 2 3; }
+    svg .line-emaF { stroke: #00C2FF; } svg .line-emaS { stroke: #FFD700; }
+    svg .line-violet { stroke: #A88CFF; } svg .line-gold { stroke: #FFD700; }
+    svg .line-dim { stroke: rgba(255,255,255,.35); }
+    svg .line-bb { stroke: rgba(122,92,255,.75); }
+    svg .area-gold { fill: url(#ag) !important; fill: rgba(255,215,0,.16); stroke: none; }
+    svg .zb-dim { fill: rgba(255,255,255,.03); }
+    svg .zb-cyan { fill: rgba(0,194,255,.08); }
+    svg .zb-gold { fill: rgba(255,215,0,.11); }
+    svg .zb-mint { fill: rgba(0,255,178,.06); }
+    svg .zone-s { fill: rgba(0,255,178,.09); stroke: rgba(0,255,178,.4); stroke-width: 1; stroke-dasharray: 5 4; rx: 6; }
+    svg .zone-r { fill: rgba(255,107,107,.08); stroke: rgba(255,107,107,.4); stroke-width: 1; stroke-dasharray: 5 4; }
+    svg .zone-n { fill: rgba(255,215,0,.06); stroke: rgba(255,215,0,.35); stroke-width: 1; stroke-dasharray: 5 4; }
+    svg .zone-os { fill: rgba(0,255,178,.07); }
+    svg .zone-ob { fill: rgba(255,107,107,.07); }
+    svg .zone-bb { fill: rgba(122,92,255,.07); stroke: none; }
+    svg .zone-m { fill: rgba(0,255,178,.13); stroke: rgba(0,255,178,.5); stroke-width: 1; }
+    svg .hline-s { stroke: #00FFB2; stroke-width: 1.8; stroke-dasharray: 7 5; }
+    svg .hline-r { stroke: #FF6B6B; stroke-width: 1.8; stroke-dasharray: 7 5; }
+    svg .hline-gold { stroke: #FFD700; stroke-width: 1.6; }
+    svg .hline-t { stroke: #00FFB2; stroke-width: 1.6; stroke-dasharray: 4 4; }
+    svg .hline-w { stroke: #ffffff; stroke-width: 1.8; }
+    svg .hline-m { stroke: #00FFB2; stroke-width: 1.8; }
+    svg .mark-gold { fill: none; stroke: #FFD700; stroke-width: 2.2; }
+    svg .mark-mint { fill: none; stroke: #00FFB2; stroke-width: 2.2; }
+    svg .mark-red { fill: none; stroke: #FF6B6B; stroke-width: 2.2; }
+    svg .arrow-mG { stroke: #FFD700; } svg .arrow-mM { stroke: #00FFB2; }
+    svg .arrow-mR { stroke: #FF6B6B; } svg .arrow-mC { stroke: #00C2FF; }
+    svg .lg-f { stroke: #00C2FF; } svg .lg-s { stroke: #FFD700; }
+
     /* checklist */
     .checklist { list-style: none; margin: 22px 0 !important; }
-    .checklist li {
-        position: relative; padding-left: 36px; margin-bottom: 12px;
-    }
+    .checklist li { position: relative; padding-left: 36px; margin-bottom: 12px; }
     .checklist li::before {
-        content: '✓'; position: absolute; left: 0; top: 1px;
+        content: '\2713'; position: absolute; left: 0; top: 1px;
         width: 23px; height: 23px; border-radius: 7px;
         background: rgba(0,255,178,.1); border: 1px solid rgba(0,255,178,.35);
         color: var(--mint); font-size: 13px; font-weight: 700;
         display: flex; align-items: center; justify-content: center;
     }
 
-    /* bot spec cards */
-    .bot-spec {
-        border: 1px solid rgba(255,255,255,.1); border-radius: 16px;
-        padding: 26px 28px; margin: 26px 0; background: var(--bg-card);
-        position: relative; overflow: hidden;
-    }
+    /* strategy cards */
+    .bot-spec { border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 26px 28px; margin: 26px 0; background: var(--bg-card); position: relative; overflow: hidden; }
     .bot-spec::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--gold)); }
     .bot-spec h4 { font-size: 20px; font-weight: 900; margin-bottom: 2px; }
     .bot-spec .bot-sub { font-family: var(--font-mono); font-size: 12px; color: var(--accent, var(--gold)); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
     .bot-spec ul { list-style: none; margin: 0 !important; }
     .bot-spec li { padding-left: 24px; position: relative; margin-bottom: 9px; font-size: 15px; }
-    .bot-spec li::before { content: '◆'; position: absolute; left: 0; color: var(--accent, var(--gold)); font-size: 11px; top: 3px; }
+    .bot-spec li::before { content: '\25C6'; position: absolute; left: 0; color: var(--accent, var(--gold)); font-size: 11px; top: 3px; }
 
-    /* CTA section */
+    /* CTA */
     .cta-band {
         margin: 60px 0; padding: 40px 34px; border-radius: 20px;
-        background:
-            radial-gradient(ellipse 80% 100% at 50% 0%, rgba(255,215,0,.09), transparent),
-            var(--bg-card);
+        background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(255,215,0,.09), transparent), var(--bg-card);
         border: 1px solid var(--line); text-align: center;
     }
     .cta-band h3 { font-size: 26px; font-weight: 900; margin-bottom: 10px; }
@@ -281,19 +297,11 @@
     }
     .btn-line:hover { background: rgba(255,215,0,.07); }
 
-    /* footer / disclaimer */
-    .endnote {
-        padding: 70px 0 90px; border-top: 1px solid var(--line);
-        text-align: center; color: var(--muted); font-size: 14px;
-    }
+    /* footer */
+    .endnote { padding: 70px 0 90px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: 14px; }
     .endnote .crown-mark { margin-bottom: 18px; }
-    .endnote .brand-line {
-        font-size: 20px; font-weight: 900; letter-spacing: 8px; color: #fff; margin-bottom: 4px;
-    }
-    .endnote .tag-line {
-        font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px;
-        color: var(--gold-deep); text-transform: uppercase; margin-bottom: 26px;
-    }
+    .endnote .brand-line { font-size: 20px; font-weight: 900; letter-spacing: 8px; color: #fff; margin-bottom: 4px; }
+    .endnote .tag-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; color: var(--gold-deep); text-transform: uppercase; margin-bottom: 26px; }
     .disclaimer {
         text-align: left; border: 1px solid rgba(255,107,107,.3); border-radius: 14px;
         background: rgba(255,107,107,.04); padding: 24px 26px; margin: 34px auto 0;
@@ -301,7 +309,7 @@
     }
     .disclaimer b { color: var(--red); }
 
-    /* ============ PRINT STYLES ============ */
+    /* ============ PRINT ============ */
     @media print {
         :root {
             --bg: #ffffff; --bg-card: #fafafa; --bg-soft: #f5f5f5;
@@ -317,14 +325,51 @@
         .cover-crown svg rect { fill: #9a7d1e !important; }
         .chapter { page-break-before: always; padding: 30px 0 20px; border-top: 2px solid #d9cba0; }
         .toc { page-break-after: always; }
-        .cta-band { page-break-inside: avoid; }
+        .cta-band, .figure, .bot-spec { page-break-inside: avoid; }
+        .chart-frame { background: #fff; border-color: #ddd; padding: 10px 4px; }
         .btn-gold, .btn-line { border: 1px solid #9a7d1e; color: #000; background: none; }
         a { color: #000; text-decoration: underline; }
+        code { background: #f4f4f4; border-color: #ccc; color: #333; }
         .formula { background: #f7f7f7; color: #0a5c3c; }
         .mini-card, .bot-spec, .tbl-wrap { background: #fff; }
-        td.mono { color: #0a5c3c; }
+        td.mono { color: #0a5c3c; } td.good { color: #0a6b46; } td.warn { color: #b3373c; } td.mid { color: #7a6000; }
         .disclaimer { page-break-inside: avoid; }
-        @page { margin: 18mm 16mm; }
+        @page { margin: 16mm 14mm; }
+    }
+    @media print {
+        svg .grid { stroke: rgba(0,0,0,.12); }
+        svg .axis-txt { fill: #666; }
+        svg .cb { fill: #0a9962; stroke: #0a9962; }
+        svg .cr { fill: #cf4444; stroke: #cf4444; }
+        svg .note { fill: #222; }
+        svg .note.gold { fill: #7a6000; } svg .note.mint { fill: #0a6b46; }
+        svg .note.red { fill: #b3373c; } svg .note.cyan { fill: #0a5f86; }
+        svg .lead { stroke: #999; }
+        svg .line-emaF { stroke: #0a6f9e; } svg .line-emaS { stroke: #9a7d1e; }
+        svg .line-violet { stroke: #6a4fd0; } svg .line-gold { stroke: #9a7d1e; }
+        svg .line-dim { stroke: rgba(0,0,0,.4); }
+        svg .line-bb { stroke: rgba(90,60,190,.65); }
+        svg .area-gold { fill: rgba(154,125,30,.15); }
+        svg .zb-dim { fill: rgba(0,0,0,.03); }
+        svg .zb-cyan { fill: rgba(10,95,134,.08); }
+        svg .zb-gold { fill: rgba(154,125,30,.1); }
+        svg .zb-mint { fill: rgba(10,107,70,.07); }
+        svg .zone-s { fill: rgba(10,107,70,.08); stroke: #0a6b46; }
+        svg .zone-r { fill: rgba(179,55,60,.07); stroke: #b3373c; }
+        svg .zone-n { fill: rgba(122,96,0,.06); stroke: #9a7d1e; }
+        svg .zone-os { fill: rgba(10,107,70,.06); }
+        svg .zone-ob { fill: rgba(179,55,60,.06); }
+        svg .zone-bb { fill: rgba(106,79,208,.06); }
+        svg .zone-m { fill: rgba(10,107,70,.12); stroke: #0a6b46; }
+        svg .hline-s, svg .hline-t, svg .hline-m { stroke: #0a6b46; }
+        svg .hline-r { stroke: #b3373c; }
+        svg .hline-gold { stroke: #9a7d1e; }
+        svg .hline-w { stroke: #111; }
+        svg .mark-gold { stroke: #9a7d1e; }
+        svg .mark-mint { stroke: #0a6b46; }
+        svg .mark-red { stroke: #b3373c; }
+        svg .arrow-mG { stroke: #9a7d1e; } svg .arrow-mM { stroke: #0a6b46; }
+        svg .arrow-mR { stroke: #b3373c; } svg .arrow-mC { stroke: #0a6f9e; }
     }
 
     @media (max-width: 640px) {
@@ -336,13 +381,11 @@
 </head>
 <body>
 
-<!-- ======== PRINT BAR ======== -->
 <div class="print-bar">
     <span><b>&#9819; IMPERA eBook</b> — read online, or export as PDF for your library.</span>
     <button class="print-btn" onclick="window.print()">Save as PDF</button>
 </div>
 
-<!-- ======== COVER ======== -->
 <header class="cover">
     <div class="cover-grid"></div>
     <div class="cover-crown">
@@ -358,70 +401,33 @@
     <h1 class="cover-title">The Precision<br>Trading Playbook</h1>
     <div class="cover-sub">Trade Smarter &middot; Profit Faster</div>
     <p class="cover-desc">
-        The complete field manual behind the IMPERA strategy — market structure, the exact
-        entry model our bots are built on, professional risk management, and the trader
-        psychology that holds it all together.
+        Market structure &middot; candlestick reading &middot; six complete strategies &middot; the exact IMPERA
+        entry model &middot; professional risk management &middot; trading psychology — fully illustrated
+        with annotated charts.
     </p>
-    <div class="cover-edition"><span class="dot"></span> First Edition &middot; 2026</div>
+    <div class="cover-edition"><span class="dot"></span> Expanded Edition &middot; 2026 &middot; 12 Chart Illustrations</div>
     <div class="scroll-hint">Begin</div>
 </header>
 
 <main class="page">
 
-<!-- ======== TABLE OF CONTENTS ======== -->
 <section class="toc" id="toc">
     <div class="kicker">Contents</div>
     <h2 class="h-section">What's Inside <em>This Playbook</em></h2>
     <nav class="toc-list">
-        <a class="toc-item" href="#intro">
-            <span class="toc-num">&#9819;</span>
-            <span class="toc-name">Welcome to IMPERA</span>
-            <span class="toc-tag">Introduction</span>
-        </a>
-        <a class="toc-item" href="#ch1">
-            <span class="toc-num">01</span>
-            <span class="toc-name">The Market — What You're Actually Trading</span>
-            <span class="toc-tag">Foundations</span>
-        </a>
-        <a class="toc-item" href="#ch2">
-            <span class="toc-num">02</span>
-            <span class="toc-name">The IMPERA Philosophy — Precision Over Prediction</span>
-            <span class="toc-tag">Mindset</span>
-        </a>
-        <a class="toc-item" href="#ch3">
-            <span class="toc-num">03</span>
-            <span class="toc-name">Technical Analysis — The Six Tools That Matter</span>
-            <span class="toc-tag">Toolkit</span>
-        </a>
-        <a class="toc-item" href="#ch4">
-            <span class="toc-num">04</span>
-            <span class="toc-name">The IMPERA Strategy — The Exact Entry Model</span>
-            <span class="toc-tag">Core System</span>
-        </a>
-        <a class="toc-item" href="#ch5">
-            <span class="toc-num">05</span>
-            <span class="toc-name">Risk Management — Your Real Edge</span>
-            <span class="toc-tag">Capital</span>
-        </a>
-        <a class="toc-item" href="#ch6">
-            <span class="toc-num">06</span>
-            <span class="toc-name">Trading Psychology — Master Yourself First</span>
-            <span class="toc-tag">Discipline</span>
-        </a>
-        <a class="toc-item" href="#ch7">
-            <span class="toc-num">07</span>
-            <span class="toc-name">Automating With IMPERA Bots</span>
-            <span class="toc-tag">Execution</span>
-        </a>
-        <a class="toc-item" href="#ch8">
-            <span class="toc-num">08</span>
-            <span class="toc-name">Your First 30 Days — The Action Plan</span>
-            <span class="toc-tag">Playbook</span>
-        </a>
+        <a class="toc-item" href="#intro"><span class="toc-num">&#9819;</span><span class="toc-name">Welcome to IMPERA</span><span class="toc-tag">Introduction</span></a>
+        <a class="toc-item" href="#ch1"><span class="toc-num">01</span><span class="toc-name">Understanding the Market</span><span class="toc-tag">Foundations + 3 Charts</span></a>
+        <a class="toc-item" href="#ch2"><span class="toc-num">02</span><span class="toc-name">Reading Price Action</span><span class="toc-tag">Candles + Patterns</span></a>
+        <a class="toc-item" href="#ch3"><span class="toc-num">03</span><span class="toc-name">The Indicator Toolkit</span><span class="toc-tag">Six Tools That Matter</span></a>
+        <a class="toc-item" href="#ch4"><span class="toc-num">04</span><span class="toc-name">The Strategies Library</span><span class="toc-tag">6 Complete Strategies</span></a>
+        <a class="toc-item" href="#ch5"><span class="toc-num">05</span><span class="toc-name">The IMPERA Entry Model</span><span class="toc-tag">Core System</span></a>
+        <a class="toc-item" href="#ch6"><span class="toc-num">06</span><span class="toc-name">Risk Management</span><span class="toc-tag">Your Real Edge</span></a>
+        <a class="toc-item" href="#ch7"><span class="toc-num">07</span><span class="toc-name">Trading Psychology</span><span class="toc-tag">Master Yourself</span></a>
+        <a class="toc-item" href="#ch8"><span class="toc-num">08</span><span class="toc-name">Automating With IMPERA Bots</span><span class="toc-tag">Execution</span></a>
+        <a class="toc-item" href="#ch9"><span class="toc-num">09</span><span class="toc-name">Your First 30 Days</span><span class="toc-tag">Action Plan</span></a>
     </nav>
 </section>
 
-<!-- ======== INTRO ======== -->
 <section class="chapter" id="intro">
     <div class="ch-head"><span class="ch-num">&#9819;</span><span class="ch-label">Introduction</span></div>
     <h2 class="ch-title">Welcome to IMPERA</h2>
@@ -433,51 +439,85 @@
 
     <div class="callout mint">
         <div class="callout-title">How to use this book</div>
-        <p>Read it once end-to-end. Then work through Chapters 4–8 again slowly with charts open. Every chapter ends with rules you can act on immediately. Nothing here is theory for theory's sake.</p>
+        <p>Read it once end-to-end. Then work through Chapters 4–6 again slowly with charts open. Every chapter ends with rules you can act on immediately. Nothing here is theory for theory's sake.</p>
     </div>
 
     <div class="callout cyan">
         <div class="callout-title">Your companion resources</div>
         <ul>
             <li><strong>Free signals &amp; daily commentary:</strong> join our Telegram — <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener">@ImperaTrading</a></li>
-            <li><strong>Fully automated execution:</strong> the IMPERA Scalping, Gold and Global bots (Chapter 7)</li>
-            <li><strong>1:1 coaching:</strong> the IMPERA Mentorship, where we teach this exact strategy live</li>
+            <li><strong>Fully automated execution:</strong> the IMPERA Scalping, Gold and Global bots (Chapter 8)</li>
+            <li><strong>1:1 coaching:</strong> the IMPERA Mentorship, where we teach these exact strategies live</li>
         </ul>
     </div>
 </section>
 
-<!-- ======== CHAPTER 1 ======== -->
 <section class="chapter" id="ch1">
     <div class="ch-head"><span class="ch-num">01</span><span class="ch-label">Foundations</span></div>
-    <h2 class="ch-title">The Market — What You're Actually Trading</h2>
+    <h2 class="ch-title">Understanding the Market</h2>
     <p class="ch-lede">Before you can win in the markets, you need to understand what moves them. Spoiler: it isn't lines on a chart. It's people, liquidity and timing.</p>
 
-    <h3>The forex and gold market in one paragraph</h3>
-    <p>Forex is the world's largest market — over $7 trillion changes hands daily across currency pairs like EUR/USD, GBP/USD and USD/JPY. Gold (XAU/USD) sits at the heart of it: a safe-haven asset that reacts violently to inflation data, central bank decisions and geopolitical stress. There is no central exchange; instead, a global network of banks and brokers creates an around-the-clock market, five days a week.</p>
+    <h3>What you're actually buying and selling</h3>
+    <p>Forex is the world's largest market — over $7 trillion changes hands daily across currency pairs like EUR/USD, GBP/USD and USD/JPY. When you "buy EUR/USD" you are simultaneously buying euros and selling dollars, betting one strengthens against the other. Gold (XAU/USD) sits at the heart of it all: a safe-haven asset that reacts violently to inflation data, central bank decisions and geopolitical stress.</p>
+
+    <div class="grid3">
+        <div class="mini-card">
+            <h4>Pip</h4>
+            <p>The smallest standard price move — 0.0001 on most pairs. EUR/USD moving 1.0850 → 1.0860 moved 10 pips.</p>
+        </div>
+        <div class="mini-card">
+            <h4>Lot</h4>
+            <p>Trade size. A standard lot = 100,000 units (~£10/pip). A mini lot (0.10) ≈ £1/pip. Micro (0.01) ≈ £0.10/pip.</p>
+        </div>
+        <div class="mini-card">
+            <h4>Leverage</h4>
+            <p>Controls size with less capital. Powerful — and the fastest way to blow up if risk isn't managed per Chapter 6.</p>
+        </div>
+    </div>
+
+    <h3>Who moves the market</h3>
+    <ul>
+        <li><strong>Central banks &amp; governments:</strong> set interest rates and policy — the single biggest driver of long-term direction.</li>
+        <li><strong>Commercial &amp; investment banks:</strong> the interbank layer where enormous volume creates trends.</li>
+        <li><strong>Hedge funds &amp; institutions:</strong> move size in bursts, hunting liquidity — their footprints are the "smart money" patterns you'll learn to read.</li>
+        <li><strong>Retail traders (you):</strong> ~5% of volume. You don't move price — you ride it. That's not a weakness, it's freedom: you can choose exactly which battles to fight.</li>
+    </ul>
 
     <h3>Sessions — the rhythm of the market</h3>
-    <p>The market has a heartbeat. Volume and volatility surge during specific sessions, and die off in between. This matters more than most beginners realise:</p>
+    <p>The market runs 24/5, but it has a heartbeat. Volume and volatility surge during specific sessions and die off in between. Trading dead hours means wide spreads and random noise; trading the peaks means tight spreads and real moves.</p>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><rect class="zb-dim" x="34.0" y="30" width="179.7" height="236"/><text class="axis-txt" text-anchor="middle" x="123.8" y="20.0">Asia</text><rect class="zb-cyan" x="213.7" y="30" width="141.2" height="236"/><text class="axis-txt" text-anchor="middle" x="284.2" y="20.0">London</text><rect class="zb-gold" x="354.8" y="30" width="102.7" height="236"/><text class="axis-txt" text-anchor="middle" x="406.2" y="20.0">Overlap</text><rect class="zb-mint" x="457.5" y="30" width="115.5" height="236"/><text class="axis-txt" text-anchor="middle" x="515.2" y="20.0">New York</text><rect class="zb-dim" x="573.0" y="30" width="77.0" height="236"/><text class="axis-txt" text-anchor="middle" x="611.5" y="20.0">Late</text><polygon class="area-gold" points="34.0,239.2 40.4,238.6 46.8,237.9 53.2,237.2 59.7,236.5 66.1,235.7 72.5,235.0 78.9,234.3 85.3,233.7 91.8,233.3 98.2,232.9 104.6,232.6 111.0,232.6 117.4,232.6 123.8,232.7 130.2,233.0 136.7,233.3 143.1,233.5 149.5,233.6 155.9,233.5 162.3,233.0 168.8,231.8 175.2,229.9 181.6,226.9 188.0,222.7 194.4,217.1 200.8,209.9 207.2,201.1 213.7,190.9 220.1,179.6 226.5,167.5 232.9,155.4 239.3,143.9 245.8,133.7 252.2,125.7 258.6,120.2 265.0,117.6 271.4,118.1 277.8,121.3 284.2,126.7 290.7,133.5 297.1,141.0 303.5,148.2 309.9,154.1 316.3,158.1 322.8,159.6 329.2,158.4 335.6,154.2 342.0,147.4 348.4,138.2 354.8,127.1 361.2,114.9 367.7,102.2 374.1,89.9 380.5,78.5 386.9,68.9 393.3,61.6 399.8,57.0 406.2,55.5 412.6,57.1 419.0,61.8 425.4,69.3 431.8,79.1 438.2,90.8 444.7,103.5 451.1,116.6 457.5,129.4 463.9,141.0 470.3,150.9 476.8,158.5 483.2,163.5 489.6,165.8 496.0,165.8 502.4,163.8 508.8,160.7 515.2,157.2 521.7,154.5 528.1,153.2 534.5,154.0 540.9,157.3 547.3,162.9 553.8,170.6 560.2,179.7 566.6,189.6 573.0,199.5 579.4,208.7 585.8,216.9 592.2,223.8 598.7,229.4 605.1,233.6 611.5,236.6 617.9,238.8 624.3,240.2 630.8,241.1 637.2,241.7 643.6,242.0 650.0,242.2 650.0,266 34,266"/><polyline class="line-gold" points="34.0,239.2 40.4,238.6 46.8,237.9 53.2,237.2 59.7,236.5 66.1,235.7 72.5,235.0 78.9,234.3 85.3,233.7 91.8,233.3 98.2,232.9 104.6,232.6 111.0,232.6 117.4,232.6 123.8,232.7 130.2,233.0 136.7,233.3 143.1,233.5 149.5,233.6 155.9,233.5 162.3,233.0 168.8,231.8 175.2,229.9 181.6,226.9 188.0,222.7 194.4,217.1 200.8,209.9 207.2,201.1 213.7,190.9 220.1,179.6 226.5,167.5 232.9,155.4 239.3,143.9 245.8,133.7 252.2,125.7 258.6,120.2 265.0,117.6 271.4,118.1 277.8,121.3 284.2,126.7 290.7,133.5 297.1,141.0 303.5,148.2 309.9,154.1 316.3,158.1 322.8,159.6 329.2,158.4 335.6,154.2 342.0,147.4 348.4,138.2 354.8,127.1 361.2,114.9 367.7,102.2 374.1,89.9 380.5,78.5 386.9,68.9 393.3,61.6 399.8,57.0 406.2,55.5 412.6,57.1 419.0,61.8 425.4,69.3 431.8,79.1 438.2,90.8 444.7,103.5 451.1,116.6 457.5,129.4 463.9,141.0 470.3,150.9 476.8,158.5 483.2,163.5 489.6,165.8 496.0,165.8 502.4,163.8 508.8,160.7 515.2,157.2 521.7,154.5 528.1,153.2 534.5,154.0 540.9,157.3 547.3,162.9 553.8,170.6 560.2,179.7 566.6,189.6 573.0,199.5 579.4,208.7 585.8,216.9 592.2,223.8 598.7,229.4 605.1,233.6 611.5,236.6 617.9,238.8 624.3,240.2 630.8,241.1 637.2,241.7 643.6,242.0 650.0,242.2" fill="none" stroke-width="2.6"/><text class="axis-txt" text-anchor="middle" x="34.0" y="288.0">00:00 GMT</text><text class="axis-txt" text-anchor="middle" x="188.0" y="288.0">06:00 GMT</text><text class="axis-txt" text-anchor="middle" x="342.0" y="288.0">12:00 GMT</text><text class="axis-txt" text-anchor="middle" x="496.0" y="288.0">18:00 GMT</text><text class="axis-txt" text-anchor="middle" x="650.0" y="288.0">24:00 GMT</text><text class="note mint" text-anchor="middle" x="406.2" y="250.0">Peak liquidity — IMPERA bots trade here</text></svg></div><figcaption>Figure 1 &#8212; The trading day: volatility by session. London/New York is where the money moves.</figcaption></figure>
 
     <div class="tbl-wrap">
         <table>
             <thead><tr><th>Session</th><th>Time (GMT)</th><th>Character</th><th>IMPERA Use</th></tr></thead>
             <tbody>
                 <tr><td><strong>Asian</strong></td><td class="mono">00:00 – 08:00</td><td>Calm, ranging, low volume</td><td>Avoid scalping; ranges build</td></tr>
-                <tr><td><strong>London</strong></td><td class="mono">08:00 – 16:00</td><td>Highest FX volume, strong trends</td><td>Primary trading window</td></tr>
+                <tr><td><strong>London</strong></td><td class="mono">08:00 – 16:00</td><td>Highest FX volume, strong trends</td><td>Primary window</td></tr>
                 <tr><td><strong>New York</strong></td><td class="mono">13:00 – 21:00</td><td>News-driven bursts, gold volatility</td><td>Secondary window</td></tr>
-                <tr><td><strong>London/NY overlap</strong></td><td class="mono">13:00 – 16:00</td><td>Peak liquidity, tightest spreads</td><td>Best conditions of the day</td></tr>
+                <tr><td><strong>Overlap</strong></td><td class="mono">13:00 – 16:00</td><td>Peak liquidity, tightest spreads</td><td>Best conditions of the day</td></tr>
             </tbody>
         </table>
     </div>
 
-    <p>This is why every IMPERA system ships with a <strong>session filter locked to London + New York</strong>. Trading outside these windows means wider spreads, random noise and false signals. The pros simply don't do it.</p>
+    <p>This is why every IMPERA system ships with a <strong>session filter locked to London + New York</strong>. The pros simply don't trade outside these windows.</p>
 
-    <h3>What actually moves prices</h3>
+    <h3>Market structure — how trends are built</h3>
+    <p>Every trend tells the same story in the same language: an uptrend is a sequence of <strong>higher highs and higher lows (HH/HL)</strong>; a downtrend is lower highs and lower lows (LH/LL). As long as each pullback holds above the last higher low, the trend is intact. When price breaks <em>below</em> the last higher low, structure has shifted — that's your cue to stand down or flip bias. Reading structure first is what separates systematic traders from gamblers staring at indicators.</p>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="261.8" x2="650" y2="261.8"/><text class="axis-txt" x="658" y="265.8">100</text><line class="grid" x1="34" y1="208.2" x2="650" y2="208.2"/><text class="axis-txt" x="658" y="212.2">110</text><line class="grid" x1="34" y1="154.6" x2="650" y2="154.6"/><text class="axis-txt" x="658" y="158.6">120</text><line class="grid" x1="34" y1="101.0" x2="650" y2="101.0"/><text class="axis-txt" x="658" y="105.0">130</text><line class="grid" x1="34" y1="47.4" x2="650" y2="47.4"/><text class="axis-txt" x="658" y="51.4">140</text><line class="cb" x1="197.7" y1="237.9" x2="197.7" y2="269.7" stroke-width="1.5"/><rect class="cb" x="194.0" y="245.8" width="7.5" height="16.1" rx="1"/><line class="cb" x1="208.8" y1="221.5" x2="208.8" y2="253.6" stroke-width="1.5"/><rect class="cb" x="205.1" y="229.7" width="7.5" height="16.1" rx="1"/><line class="cb" x1="219.9" y1="205.1" x2="219.9" y2="237.6" stroke-width="1.5"/><rect class="cb" x="216.2" y="213.6" width="7.5" height="16.1" rx="1"/><line class="cb" x1="231.0" y1="189.5" x2="231.0" y2="221.5" stroke-width="1.5"/><rect class="cb" x="227.2" y="197.5" width="7.5" height="16.1" rx="1"/><line class="cr" x1="242.1" y1="191.2" x2="242.1" y2="215.2" stroke-width="1.5"/><rect class="cr" x="238.4" y="197.5" width="7.5" height="11.6" rx="1"/><line class="cr" x1="253.2" y1="203.3" x2="253.2" y2="226.8" stroke-width="1.5"/><rect class="cr" x="249.5" y="209.1" width="7.5" height="11.6" rx="1"/><line class="cr" x1="264.3" y1="214.6" x2="264.3" y2="238.4" stroke-width="1.5"/><rect class="cr" x="260.6" y="220.7" width="7.5" height="11.6" rx="1"/><line class="cb" x1="275.4" y1="210.6" x2="275.4" y2="239.8" stroke-width="1.5"/><rect class="cb" x="271.7" y="217.9" width="7.5" height="14.5" rx="1"/><line class="cb" x1="286.5" y1="195.8" x2="286.5" y2="225.4" stroke-width="1.5"/><rect class="cb" x="282.8" y="203.4" width="7.5" height="14.5" rx="1"/><line class="cb" x1="297.6" y1="181.8" x2="297.6" y2="210.9" stroke-width="1.5"/><rect class="cb" x="293.9" y="188.9" width="7.5" height="14.5" rx="1"/><line class="cb" x1="308.7" y1="167.0" x2="308.7" y2="196.4" stroke-width="1.5"/><rect class="cb" x="305.0" y="174.5" width="7.5" height="14.5" rx="1"/><line class="cb" x1="319.8" y1="152.2" x2="319.8" y2="181.9" stroke-width="1.5"/><rect class="cb" x="316.1" y="160.0" width="7.5" height="14.5" rx="1"/><line class="cr" x1="330.9" y1="152.7" x2="330.9" y2="180.6" stroke-width="1.5"/><rect class="cr" x="327.1" y="160.0" width="7.5" height="13.4" rx="1"/><line class="cr" x1="342.0" y1="166.6" x2="342.0" y2="194.0" stroke-width="1.5"/><rect class="cr" x="338.2" y="173.4" width="7.5" height="13.4" rx="1"/><line class="cr" x1="353.1" y1="179.6" x2="353.1" y2="207.4" stroke-width="1.5"/><rect class="cr" x="349.4" y="186.8" width="7.5" height="13.4" rx="1"/><line class="cb" x1="364.2" y1="175.1" x2="364.2" y2="209.0" stroke-width="1.5"/><rect class="cb" x="360.5" y="183.6" width="7.5" height="16.6" rx="1"/><line class="cb" x1="375.3" y1="158.2" x2="375.3" y2="192.3" stroke-width="1.5"/><rect class="cb" x="371.6" y="167.0" width="7.5" height="16.6" rx="1"/><line class="cb" x1="386.4" y1="142.1" x2="386.4" y2="175.7" stroke-width="1.5"/><rect class="cb" x="382.6" y="150.4" width="7.5" height="16.6" rx="1"/><line class="cb" x1="397.5" y1="125.1" x2="397.5" y2="159.1" stroke-width="1.5"/><rect class="cb" x="393.8" y="133.7" width="7.5" height="16.6" rx="1"/><line class="cb" x1="408.6" y1="109.0" x2="408.6" y2="142.5" stroke-width="1.5"/><rect class="cb" x="404.9" y="117.1" width="7.5" height="16.6" rx="1"/><line class="cr" x1="419.7" y1="111.3" x2="419.7" y2="134.6" stroke-width="1.5"/><rect class="cr" x="416.0" y="117.1" width="7.5" height="11.6" rx="1"/><line class="cr" x1="430.8" y1="122.5" x2="430.8" y2="146.2" stroke-width="1.5"/><rect class="cr" x="427.1" y="128.7" width="7.5" height="11.6" rx="1"/><line class="cr" x1="441.9" y1="133.8" x2="441.9" y2="157.8" stroke-width="1.5"/><rect class="cr" x="438.1" y="140.3" width="7.5" height="11.6" rx="1"/><line class="cb" x1="453.0" y1="116.8" x2="453.0" y2="163.3" stroke-width="1.5"/><rect class="cb" x="449.2" y="128.5" width="7.5" height="23.4" rx="1"/><line class="cb" x1="464.1" y1="93.9" x2="464.1" y2="139.9" stroke-width="1.5"/><rect class="cb" x="460.4" y="105.1" width="7.5" height="23.4" rx="1"/><line class="cb" x1="475.2" y1="70.1" x2="475.2" y2="116.4" stroke-width="1.5"/><rect class="cb" x="471.5" y="81.6" width="7.5" height="23.5" rx="1"/><line class="cb" x1="486.3" y1="46.3" x2="486.3" y2="93.0" stroke-width="1.5"/><rect class="cb" x="482.5" y="58.2" width="7.5" height="23.5" rx="1"/><polyline class="line-emaS" points="197.7,245.8 208.8,244.3 219.9,241.5 231.0,237.5 242.1,234.9 253.2,233.6 264.3,233.5 275.4,232.1 286.5,229.5 297.6,225.8 308.7,221.1 319.8,215.6 330.9,211.7 342.0,209.5 353.1,208.6 364.2,206.4 375.3,202.8 386.4,198.0 397.5,192.2 408.6,185.3 419.7,180.2 430.8,176.6 441.9,174.3 453.0,170.2 464.1,164.3 475.2,156.7 486.3,147.8" fill="none" stroke-width="2.4"/><text class="note mint" text-anchor="middle" x="4.0" y="185.5">HH</text><text class="note mint" text-anchor="middle" x="12.0" y="148.0">HH</text><text class="note mint" text-anchor="middle" x="20.0" y="105.1">HH</text><text class="note cyan" text-anchor="middle" x="7.0" y="250.4">HL</text><text class="note cyan" text-anchor="middle" x="15.0" y="218.2">HL</text><text class="note cyan" text-anchor="middle" x="23.0" y="170.0">HL</text><line x1="453.0" y1="149.3" x2="486.3" y2="66.2" marker-end="url(#mM)" stroke-width="2.2" class="arrow-mM"/><text class="note gold" text-anchor="end" x="26.0" y="44.2">Higher highs + higher lows = uptrend</text></svg></div><figcaption>Figure 2 &#8212; Market structure: higher highs and higher lows define an uptrend.</figcaption></figure>
+
+    <h3>Support &amp; resistance — where price remembers</h3>
+    <p>Horizontal zones where price repeatedly reversed act as magnets and walls. Support below attracts buyers; resistance above attracts sellers. Two professional refinements:</p>
     <ul>
-        <li><strong>Liquidity:</strong> price gravitates toward pools of resting orders (stops). Big players hunt these zones — which is exactly why stops belong in logical places, not arbitrary ones.</li>
-        <li><strong>Data releases:</strong> CPI, NFP, FOMC and rate decisions create violent moves. Manual traders should stand aside; automated systems manage exposure with spread filters.</li>
-        <li><strong>Sentiment:</strong> risk-on days lift AUD, NZD and equities; risk-off days lift USD, CHF and gold. Know the mood before you take a trade.</li>
+        <li><strong>Zones, not lines:</strong> draw them as areas (wicks included), because institutions scale in across a range, not at one magic number.</li>
+        <li><strong>Role flipping:</strong> when resistance breaks convincingly, it often becomes new support — the retest of a broken level is one of the highest-probability entries in trading (Strategy 2, Chapter 4).</li>
     </ul>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="249.3" x2="650" y2="249.3"/><text class="axis-txt" x="658" y="253.3">100</text><line class="grid" x1="34" y1="193.5" x2="650" y2="193.5"/><text class="axis-txt" x="658" y="197.5">105</text><line class="grid" x1="34" y1="137.7" x2="650" y2="137.7"/><text class="axis-txt" x="658" y="141.7">110</text><line class="cr" x1="225.4" y1="194.8" x2="225.4" y2="233.5" stroke-width="1.5"/><rect class="cr" x="221.7" y="204.7" width="7.5" height="19.0" rx="1"/><line class="cr" x1="236.5" y1="213.1" x2="236.5" y2="252.5" stroke-width="1.5"/><rect class="cr" x="232.8" y="223.7" width="7.5" height="19.0" rx="1"/><line class="cb" x1="247.6" y1="185.2" x2="247.6" y2="261.4" stroke-width="1.5"/><rect class="cb" x="243.9" y="204.7" width="7.5" height="38.0" rx="1"/><line class="cb" x1="258.8" y1="148.3" x2="258.8" y2="223.4" stroke-width="1.5"/><rect class="cb" x="255.0" y="166.7" width="7.5" height="38.0" rx="1"/><line class="cr" x1="269.8" y1="149.4" x2="269.8" y2="218.9" stroke-width="1.5"/><rect class="cr" x="266.1" y="166.7" width="7.5" height="34.6" rx="1"/><line class="cr" x1="280.9" y1="183.4" x2="280.9" y2="253.5" stroke-width="1.5"/><rect class="cr" x="277.2" y="201.3" width="7.5" height="34.6" rx="1"/><line class="cb" x1="292.0" y1="187.1" x2="292.0" y2="252.6" stroke-width="1.5"/><rect class="cb" x="288.3" y="204.1" width="7.5" height="31.8" rx="1"/><line class="cb" x1="303.1" y1="156.3" x2="303.1" y2="220.8" stroke-width="1.5"/><rect class="cb" x="299.4" y="172.3" width="7.5" height="31.8" rx="1"/><line class="cr" x1="314.2" y1="157.0" x2="314.2" y2="217.9" stroke-width="1.5"/><rect class="cr" x="310.5" y="172.3" width="7.5" height="29.6" rx="1"/><line class="cr" x1="325.3" y1="185.9" x2="325.3" y2="247.5" stroke-width="1.5"/><rect class="cr" x="321.6" y="201.9" width="7.5" height="29.6" rx="1"/><line class="cb" x1="336.4" y1="191.3" x2="336.4" y2="244.9" stroke-width="1.5"/><rect class="cb" x="332.7" y="204.7" width="7.5" height="26.8" rx="1"/><line class="cb" x1="347.5" y1="163.8" x2="347.5" y2="218.1" stroke-width="1.5"/><rect class="cb" x="343.8" y="177.9" width="7.5" height="26.8" rx="1"/><line class="cr" x1="358.6" y1="165.0" x2="358.6" y2="213.5" stroke-width="1.5"/><rect class="cr" x="354.9" y="177.9" width="7.5" height="23.4" rx="1"/><line class="cr" x1="369.8" y1="189.4" x2="369.8" y2="237.0" stroke-width="1.5"/><rect class="cr" x="366.0" y="201.3" width="7.5" height="23.5" rx="1"/><line class="cb" x1="380.9" y1="163.2" x2="380.9" y2="245.4" stroke-width="1.5"/><rect class="cb" x="377.1" y="183.4" width="7.5" height="41.3" rx="1"/><line class="cb" x1="391.9" y1="121.2" x2="391.9" y2="204.1" stroke-width="1.5"/><rect class="cb" x="388.2" y="142.1" width="7.5" height="41.3" rx="1"/><line class="cb" x1="403.0" y1="126.5" x2="403.0" y2="148.5" stroke-width="1.5"/><rect class="cb" x="399.3" y="133.2" width="7.5" height="8.9" rx="1"/><line class="cb" x1="414.1" y1="118.6" x2="414.1" y2="139.6" stroke-width="1.5"/><rect class="cb" x="410.4" y="124.3" width="7.5" height="8.9" rx="1"/><line class="cb" x1="425.2" y1="109.0" x2="425.2" y2="130.6" stroke-width="1.5"/><rect class="cb" x="421.5" y="115.3" width="7.5" height="8.9" rx="1"/><line class="cb" x1="436.4" y1="99.8" x2="436.4" y2="122.2" stroke-width="1.5"/><rect class="cb" x="432.6" y="106.0" width="7.5" height="9.3" rx="1"/><line class="cb" x1="447.4" y1="89.9" x2="447.4" y2="112.9" stroke-width="1.5"/><rect class="cb" x="443.7" y="96.7" width="7.5" height="9.3" rx="1"/><line class="cb" x1="458.5" y1="81.6" x2="458.5" y2="103.6" stroke-width="1.5"/><rect class="cb" x="454.8" y="87.4" width="7.5" height="9.3" rx="1"/><rect class="zone-s" x="34.0" y="235.9" width="363.5" height="10.1"/><rect class="zone-r" x="34.0" y="164.5" width="363.5" height="11.2"/><line class="hline-s" x1="34.0" y1="241.0" x2="650.0" y2="241.0"/><text class="note mint" text-anchor="end" x="242.1" y="234.0">SUPPORT</text><line class="hline-r" x1="34.0" y1="170.1" x2="650.0" y2="170.1"/><text class="note red" text-anchor="end" x="242.1" y="163.1">RESISTANCE</text><line x1="394.2" y1="154.4" x2="414.1" y2="145.5" marker-end="url(#mM)" stroke-width="2" class="arrow-mM"/><text class="note gold" text-anchor="end" x="21.0" y="84.1">Break: old ceiling becomes new floor</text></svg></div><figcaption>Figure 3 &#8212; Support and resistance: zones price remembers.</figcaption></figure>
+
+    <h3>Liquidity — the invisible hand</h3>
+    <p>Beneath obvious levels sit clusters of stop-losses. Big players hunt those pools to fill size, which is why price often spikes through a level before reversing violently ("stop hunt"). Practical consequences: place stops beyond the zone plus a buffer, never exactly at it — and expect fakeouts at obvious levels rather than being surprised by them.</p>
 
     <div class="callout red">
         <div class="callout-title">Hard truth</div>
@@ -485,77 +525,92 @@
     </div>
 </section>
 
-<!-- ======== CHAPTER 2 ======== -->
 <section class="chapter" id="ch2">
-    <div class="ch-head"><span class="ch-num">02</span><span class="ch-label">Mindset</span></div>
-    <h2 class="ch-title">The IMPERA Philosophy — Precision Over Prediction</h2>
-    <p class="ch-lede">Amateurs try to be right. Professionals try to be consistent. Everything we build follows one principle: precision of execution beats accuracy of opinion.</p>
+    <div class="ch-head"><span class="ch-num">02</span><span class="ch-label">Price Action</span></div>
+    <h2 class="ch-title">Reading Price Action</h2>
+    <p class="ch-lede">Indicators lag; candles tell you what already happened right now. Learn to read raw price and every indicator becomes a confirmation, not a crutch.</p>
 
-    <p>Ask a losing trader what they're working on and they'll say "better predictions." Ask a winning trader and they'll talk about <strong>execution quality</strong>: better entries, tighter risk, cleaner process. The difference is fundamental. You cannot control where price goes next. You can completely control whether you follow your rules.</p>
+    <h3>Anatomy of a candle</h3>
+    <p>Each candle compresses a battle into four numbers: open, high, low, close. The body shows who dominated; the wicks show where price was rejected. Long upper wick = buyers pushed up and got slammed. Long lower wick = sellers pushed down and got bought. That's supply and demand, visible in a single bar.</p>
 
-    <h3>The four pillars</h3>
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 300" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="cb" x1="195.0" y1="52" x2="195.0" y2="252" stroke-width="2.4"/><rect class="cb" x="150" y="120" width="90" height="104" rx="2"/><line class="cr" x1="525.0" y1="48" x2="525.0" y2="248" stroke-width="2.4"/><rect class="cr" x="480" y="76" width="90" height="104" rx="2"/><line class="lead" x1="195.0" y1="52" x2="130" y2="52"/><text class="note" x="124" y="56" text-anchor="end">HIGH</text><line class="lead" x1="195.0" y1="252" x2="130" y2="252"/><text class="note" x="124" y="256" text-anchor="end">LOW</text><line class="lead" x1="240" y1="224" x2="286" y2="224"/><text class="note mint" x="292" y="228">CLOSE</text><line class="lead" x1="150" y1="120" x2="104" y2="120"/><text class="note" x="98" y="124" text-anchor="end">OPEN</text><line class="lead" x1="480" y1="180" x2="434" y2="180"/><text class="note" x="428" y="184" text-anchor="end">OPEN</text><line class="lead" x1="525.0" y1="48" x2="610" y2="48"/><text class="note red" x="616" y="52">HIGH</text><line class="lead" x1="570" y1="76" x2="616" y2="76"/><text class="note mint" x="622" y="80">CLOSE</text><line class="lead" x1="525.0" y1="248" x2="610" y2="248"/><text class="note" x="616" y="252">LOW</text><line class="lead" x1="195.0" y1="172" x2="296" y2="172"/><text class="note gold" x="302" y="176">BODY = open &#8594; close</text><line class="lead" x1="525.0" y1="128" x2="420" y2="128"/><text class="note gold" x="302" y="118">WICKS = full high&#8211;low range</text><text class="note mint" text-anchor="middle" x="195.0" y="288.0">BULLISH &#8212; buyers won</text><text class="note red" text-anchor="middle" x="525.0" y="288.0">BEARISH &#8212; sellers won</text></svg></div><figcaption>Figure 4 &#8212; Anatomy of a candlestick.</figcaption></figure>
+
+    <h3>The candles worth memorising</h3>
+    <ul>
+        <li><strong>Engulfing candle:</strong> body completely swallows the previous candle's body. Momentum handover — strongest when it appears at a key level after a pullback.</li>
+        <li><strong>Pin bar (hammer/shooting star):</strong> tiny body, long tail. Price probed a level and was emphatically rejected. The tail points at the level that defended.</li>
+        <li><strong>Inside bar:</strong> entire range within the previous candle. Compression — the coil before a spring (feeds Strategy 2).</li>
+        <li><strong>Doji:</strong> open equals close. Indecision. Meaningless alone; meaningful at extremes of a trend.</li>
+    </ul>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:30px 0;">
+        <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 232 240" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="cr" x1="68.0" y1="56.3" x2="68.0" y2="91.9" stroke-width="1.5"/><rect class="cr" x="62.5" y="65.6" width="11" height="17.0" rx="1"/><line class="cr" x1="84.0" y1="72.5" x2="84.0" y2="108.9" stroke-width="1.5"/><rect class="cr" x="78.5" y="82.6" width="11" height="17.0" rx="1"/><line class="cr" x1="100.0" y1="90.0" x2="100.0" y2="123.3" stroke-width="1.5"/><rect class="cr" x="94.5" y="99.6" width="11" height="15.0" rx="1"/><line class="cr" x1="116.0" y1="106.2" x2="116.0" y2="138.3" stroke-width="1.5"/><rect class="cr" x="110.5" y="114.6" width="11" height="15.0" rx="1"/><line class="cr" x1="132.0" y1="117.7" x2="132.0" y2="163.5" stroke-width="1.5"/><rect class="cr" x="126.5" y="129.5" width="11" height="21.8" rx="1"/><line class="cr" x1="148.0" y1="138.2" x2="148.0" y2="185.7" stroke-width="1.5"/><rect class="cr" x="142.5" y="151.3" width="11" height="21.8" rx="1"/><line class="cb" x1="164.0" y1="148.6" x2="164.0" y2="186.6" stroke-width="1.5"/><rect class="cb" x="158.5" y="152.6" width="11" height="20.4" rx="1"/><text class="note mint" text-anchor="middle" x="116.0" y="32.0">BULLISH ENGULFING</text><text class="axis-txt" text-anchor="middle" x="116.0" y="228.0">Buyers erase the whole prior candle</text></svg></div><figcaption>Fig 5a &#8212; Bullish engulfing</figcaption></figure>
+        <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 232 240" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="cb" x1="60.0" y1="68.6" x2="60.0" y2="92.5" stroke-width="1.5"/><rect class="cb" x="54.5" y="75.1" width="11" height="10.9" rx="1"/><line class="cb" x1="76.0" y1="56.9" x2="76.0" y2="81.6" stroke-width="1.5"/><rect class="cb" x="70.5" y="64.2" width="11" height="10.9" rx="1"/><line class="cr" x1="92.0" y1="57.1" x2="92.0" y2="80.1" stroke-width="1.5"/><rect class="cr" x="86.5" y="64.2" width="11" height="9.5" rx="1"/><line class="cr" x1="108.0" y1="67.8" x2="108.0" y2="89.6" stroke-width="1.5"/><rect class="cr" x="102.5" y="73.8" width="11" height="9.5" rx="1"/><line class="cb" x1="124.0" y1="73.8" x2="124.0" y2="164.9" stroke-width="1.5"/><rect class="cb" x="118.5" y="77.8" width="11" height="5.4" rx="1"/><line class="cb" x1="140.0" y1="63.1" x2="140.0" y2="83.6" stroke-width="1.5"/><rect class="cb" x="134.5" y="68.8" width="11" height="9.1" rx="1"/><line class="cb" x1="156.0" y1="53.2" x2="156.0" y2="74.5" stroke-width="1.5"/><rect class="cb" x="150.5" y="59.7" width="11" height="9.1" rx="1"/><line class="cb" x1="172.0" y1="43.3" x2="172.0" y2="65.4" stroke-width="1.5"/><rect class="cb" x="166.5" y="50.6" width="11" height="9.1" rx="1"/><circle class="mark-mint" cx="124.0" cy="126.8" r="13"/><text class="note mint" text-anchor="middle" x="116.0" y="32.0">PIN BAR REJECTION</text><text class="axis-txt" text-anchor="middle" x="116.0" y="228.0">Long tail = level defended</text></svg></div><figcaption>Fig 5b &#8212; Pin bar rejection</figcaption></figure>
+        <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 232 240" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="cb" x1="41.0" y1="145.2" x2="41.0" y2="196.8" stroke-width="1.5"/><rect class="cb" x="36.8" y="158.2" width="8.5" height="25.5" rx="1"/><line class="cb" x1="53.5" y1="119.0" x2="53.5" y2="171.3" stroke-width="1.5"/><rect class="cb" x="49.2" y="132.8" width="8.5" height="25.5" rx="1"/><line class="cb" x1="66.0" y1="92.7" x2="66.0" y2="145.8" stroke-width="1.5"/><rect class="cb" x="61.8" y="107.2" width="8.5" height="25.5" rx="1"/><line class="cr" x1="78.5" y1="94.5" x2="78.5" y2="141.5" stroke-width="1.5"/><rect class="cr" x="74.2" y="107.2" width="8.5" height="22.3" rx="1"/><line class="cr" x1="91.0" y1="118.0" x2="91.0" y2="163.8" stroke-width="1.5"/><rect class="cr" x="86.8" y="129.6" width="8.5" height="22.3" rx="1"/><line class="cb" x1="103.5" y1="125.9" x2="103.5" y2="161.6" stroke-width="1.5"/><rect class="cb" x="99.2" y="135.3" width="8.5" height="16.6" rx="1"/><line class="cb" x1="116.0" y1="108.6" x2="116.0" y2="145.1" stroke-width="1.5"/><rect class="cb" x="111.8" y="118.7" width="8.5" height="16.6" rx="1"/><line class="cb" x1="128.5" y1="93.2" x2="128.5" y2="128.5" stroke-width="1.5"/><rect class="cb" x="124.2" y="102.1" width="8.5" height="16.6" rx="1"/><line class="cr" x1="141.0" y1="89.3" x2="141.0" y2="136.3" stroke-width="1.5"/><rect class="cr" x="136.8" y="102.1" width="8.5" height="21.7" rx="1"/><line class="cr" x1="153.5" y1="112.2" x2="153.5" y2="157.9" stroke-width="1.5"/><rect class="cr" x="149.2" y="123.8" width="8.5" height="21.7" rx="1"/><line class="cr" x1="166.0" y1="135.6" x2="166.0" y2="173.2" stroke-width="1.5"/><rect class="cr" x="161.8" y="145.5" width="8.5" height="17.0" rx="1"/><line class="cr" x1="178.5" y1="151.8" x2="178.5" y2="190.2" stroke-width="1.5"/><rect class="cr" x="174.2" y="162.5" width="8.5" height="17.0" rx="1"/><line class="cr" x1="191.0" y1="169.9" x2="191.0" y2="207.2" stroke-width="1.5"/><rect class="cr" x="186.8" y="179.5" width="8.5" height="17.0" rx="1"/><line class="hline-r" x1="20.0" y1="104.7" x2="210.0" y2="104.7"/><line class="hline-s" x1="55.0" y1="149.3" x2="200.0" y2="149.3"/><text class="note red" text-anchor="middle" x="116.0" y="32.0">DOUBLE TOP</text><text class="axis-txt" text-anchor="middle" x="116.0" y="228.0">Two failed pushes = reversal risk</text></svg></div><figcaption>Fig 5c &#8212; Double top</figcaption></figure>
+    </div>
+
+    <h3>Classic chart patterns that actually matter</h3>
     <div class="grid2">
         <div class="mini-card">
-            <h4>1. Rules Before Trades</h4>
-            <p>If a setup doesn't match the written criteria, it doesn't exist. No "it looks like it might work." Either the checklist passes or you stay flat.</p>
+            <h4>Double Top / Bottom</h4>
+            <p>Two failed pushes at the same zone. Signals exhaustion — enter on neckline break, target the pattern's height.</p>
         </div>
         <div class="mini-card">
-            <h4>2. Risk Is Fixed, Outcomes Are Not</h4>
-            <p>Risk per trade is chosen calmly in advance — never emotionally mid-trade. The market decides winners; you decide exposure.</p>
+            <h4>Head &amp; Shoulders</h4>
+            <p>Three peaks, middle tallest. The most reliable topping structure — again, confirmed by the break of its neckline.</p>
         </div>
         <div class="mini-card">
-            <h4>3. Process Over Outcome</h4>
-            <p>A losing trade taken by the rules is a good trade. A winning trade taken on impulse is a bad trade wearing a disguise.</p>
+            <h4>Triangles &amp; Flags</h4>
+            <p>Compression patterns. Volatility contracts while energy builds; resolve in the trend direction more often than not.</p>
         </div>
         <div class="mini-card">
-            <h4>4. Automate What Works</h4>
-            <p>Once an edge is proven, remove human error from the loop entirely. This is precisely why IMPERA exists as a systems company.</p>
+            <h4>Break of Structure (BOS)</h4>
+            <p>Not a "pattern" but the king signal: price violating the last swing point confirms trend continuation or reversal.</p>
         </div>
     </div>
 
-    <h3>Why the edge is mathematical, not mystical</h3>
-    <p>An edge simply means: over many trades, your average win outweighs your average loss after costs. Example — the IMPERA scalping model targets roughly 1:0.75 reward-to-risk with a high hit-rate profile. At those numbers you remain firmly profitable even winning barely more than half your trades. You do not need to be right often. You need your <em>sizing, exits and frequency</em> to be correct.</p>
+    <h3>Technique: multi-timeframe reading</h3>
+    <p>Professionals never analyse on one timeframe. The IMPERA method stacks three:</p>
+    <ol>
+        <li><strong>H1 — Bias:</strong> which direction does structure and the EMA trend point? This decides long-only or short-only.</li>
+        <li><strong>M15 — Setup:</strong> where is a logical level forming against that bias? Mark the zone.</li>
+        <li><strong>M5 — Trigger:</strong> drop down and wait for the precise trigger candle inside the zone. Enter there, with a tight, logical stop.</li>
+    </ol>
 
-    <div class="formula">
-        Expectancy = (Win% × AvgWin) − (Loss% × AvgLoss)<br>
-        <span class="cm">// e.g. 55% × £150 − 45% × £100 = +£37.50 per trade</span><br>
-        <span class="cm">// A positive number, repeated hundreds of times, is the whole business model.</span>
-    </div>
-
-    <div class="callout">
+    <div class="callout cyan">
         <div class="callout-title">IMPERA Rule</div>
-        <p>Stop asking "will this trade win?" Start asking "does this trade match my system?" One question destroys accounts; the other builds them.</p>
+        <p>Highest timeframe wins the argument. If M5 looks bullish but H1 structure says bearish, there is no trade. Alignment across timeframes <em>is</em> the setup.</p>
     </div>
 </section>
 
-<!-- ======== CHAPTER 3 ======== -->
 <section class="chapter" id="ch3">
     <div class="ch-head"><span class="ch-num">03</span><span class="ch-label">Toolkit</span></div>
-    <h2 class="ch-title">Technical Analysis — The Six Tools That Matter</h2>
-    <p class="ch-lede">These six indicators are the complete toolkit inside IMPERA systems. Learn these deeply and ignore almost everything else.</p>
+    <h2 class="ch-title">The Indicator Toolkit</h2>
+    <p class="ch-lede">These six tools are the complete arsenal inside IMPERA systems. Each describes either trend, momentum or volatility. Learn these deeply; ignore almost everything else.</p>
 
     <h3>1. Exponential Moving Averages (EMA)</h3>
-    <p>The EMA weights recent price more heavily, making it responsive to fresh momentum. IMPERA systems use two: a <strong>fast EMA (8)</strong> and a <strong>slow EMA (21)</strong>. When the fast crosses above the slow, short-term momentum has flipped bullish; below, bearish. On higher timeframes, EMAs double as dynamic support/resistance and trend filters.</p>
-    <ul>
-        <li>Price above rising EMAs → look for longs only</li>
-        <li>Price below falling EMAs → look for shorts only</li>
-        <li>EMAs flat and tangled → no-trade zone; stand down</li>
-    </ul>
+    <p>The EMA weights recent price more heavily, making it responsive to fresh momentum. IMPERA systems use two: a <strong>fast EMA (8)</strong> and a <strong>slow EMA (21)</strong>. When fast crosses above slow, short-term momentum has flipped bullish; below, bearish. On higher timeframes EMAs double as dynamic support/resistance — pullbacks into the rising 21 EMA are prime trend-continuation entries.</p>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="244.6" x2="650" y2="244.6"/><text class="axis-txt" x="658" y="248.6">105</text><line class="grid" x1="34" y1="174.1" x2="650" y2="174.1"/><text class="axis-txt" x="658" y="178.1">115</text><line class="grid" x1="34" y1="103.6" x2="650" y2="103.6"/><text class="axis-txt" x="658" y="107.6">125</text><line class="cr" x1="197.7" y1="145.8" x2="197.7" y2="174.2" stroke-width="1.5"/><rect class="cr" x="194.0" y="152.9" width="7.5" height="14.1" rx="1"/><line class="cr" x1="208.8" y1="159.4" x2="208.8" y2="188.4" stroke-width="1.5"/><rect class="cr" x="205.1" y="167.1" width="7.5" height="14.1" rx="1"/><line class="cr" x1="219.9" y1="173.1" x2="219.9" y2="202.5" stroke-width="1.5"/><rect class="cr" x="216.2" y="181.2" width="7.5" height="14.1" rx="1"/><line class="cr" x1="231.0" y1="187.9" x2="231.0" y2="216.6" stroke-width="1.5"/><rect class="cr" x="227.2" y="195.3" width="7.5" height="14.1" rx="1"/><line class="cr" x1="242.1" y1="203.9" x2="242.1" y2="223.2" stroke-width="1.5"/><rect class="cr" x="238.4" y="209.4" width="7.5" height="8.8" rx="1"/><line class="cr" x1="253.2" y1="213.4" x2="253.2" y2="232.0" stroke-width="1.5"/><rect class="cr" x="249.5" y="218.2" width="7.5" height="8.8" rx="1"/><line class="cr" x1="264.3" y1="221.8" x2="264.3" y2="240.8" stroke-width="1.5"/><rect class="cr" x="260.6" y="227.0" width="7.5" height="8.8" rx="1"/><line class="cr" x1="275.4" y1="230.2" x2="275.4" y2="249.7" stroke-width="1.5"/><rect class="cr" x="271.7" y="235.8" width="7.5" height="8.8" rx="1"/><line class="cr" x1="286.5" y1="241.4" x2="286.5" y2="253.1" stroke-width="1.5"/><rect class="cr" x="282.8" y="244.6" width="7.5" height="4.9" rx="1"/><line class="cr" x1="297.6" y1="245.9" x2="297.6" y2="258.0" stroke-width="1.5"/><rect class="cr" x="293.9" y="249.6" width="7.5" height="4.9" rx="1"/><line class="cb" x1="308.7" y1="249.7" x2="308.7" y2="256.9" stroke-width="1.5"/><rect class="cb" x="305.0" y="252.4" width="7.5" height="2.1" rx="1"/><line class="cb" x1="319.8" y1="248.3" x2="319.8" y2="254.8" stroke-width="1.5"/><rect class="cb" x="316.1" y="250.3" width="7.5" height="2.1" rx="1"/><line class="cb" x1="330.9" y1="232.9" x2="330.9" y2="257.0" stroke-width="1.5"/><rect class="cb" x="327.1" y="239.2" width="7.5" height="11.1" rx="1"/><line class="cb" x1="342.0" y1="221.4" x2="342.0" y2="245.9" stroke-width="1.5"/><rect class="cb" x="338.2" y="228.1" width="7.5" height="11.1" rx="1"/><line class="cb" x1="353.1" y1="210.9" x2="353.1" y2="234.7" stroke-width="1.5"/><rect class="cb" x="349.4" y="217.0" width="7.5" height="11.1" rx="1"/><line class="cb" x1="364.2" y1="199.4" x2="364.2" y2="223.6" stroke-width="1.5"/><rect class="cb" x="360.5" y="205.8" width="7.5" height="11.1" rx="1"/><line class="cb" x1="375.3" y1="188.4" x2="375.3" y2="211.8" stroke-width="1.5"/><rect class="cb" x="371.6" y="194.4" width="7.5" height="11.5" rx="1"/><line class="cb" x1="386.4" y1="176.5" x2="386.4" y2="200.4" stroke-width="1.5"/><rect class="cb" x="382.6" y="182.9" width="7.5" height="11.5" rx="1"/><line class="cb" x1="397.5" y1="164.6" x2="397.5" y2="188.9" stroke-width="1.5"/><rect class="cb" x="393.8" y="171.5" width="7.5" height="11.5" rx="1"/><line class="cb" x1="408.6" y1="153.8" x2="408.6" y2="177.5" stroke-width="1.5"/><rect class="cb" x="404.9" y="160.0" width="7.5" height="11.5" rx="1"/><line class="cb" x1="419.7" y1="138.1" x2="419.7" y2="167.4" stroke-width="1.5"/><rect class="cb" x="416.0" y="145.9" width="7.5" height="14.1" rx="1"/><line class="cb" x1="430.8" y1="124.6" x2="430.8" y2="153.3" stroke-width="1.5"/><rect class="cb" x="427.1" y="131.8" width="7.5" height="14.1" rx="1"/><line class="cb" x1="441.9" y1="110.1" x2="441.9" y2="139.2" stroke-width="1.5"/><rect class="cb" x="438.1" y="117.7" width="7.5" height="14.1" rx="1"/><line class="cb" x1="453.0" y1="95.5" x2="453.0" y2="125.1" stroke-width="1.5"/><rect class="cb" x="449.2" y="103.6" width="7.5" height="14.1" rx="1"/><line class="cb" x1="464.1" y1="82.1" x2="464.1" y2="111.2" stroke-width="1.5"/><rect class="cb" x="460.4" y="89.5" width="7.5" height="14.1" rx="1"/><line class="cb" x1="475.2" y1="67.5" x2="475.2" y2="97.1" stroke-width="1.5"/><rect class="cb" x="471.5" y="75.4" width="7.5" height="14.1" rx="1"/><line class="cb" x1="486.3" y1="54.1" x2="486.3" y2="83.0" stroke-width="1.5"/><rect class="cb" x="482.5" y="61.3" width="7.5" height="14.1" rx="1"/><polyline class="line-emaF" points="197.7,167.1 208.8,170.2 219.9,175.8 231.0,183.2 242.1,191.0 253.2,199.0 264.3,207.2 275.4,215.5 286.5,223.1 297.6,230.1 308.7,235.0 319.8,238.4 330.9,238.6 342.0,236.2 353.1,232.0 364.2,226.2 375.3,219.1 386.4,211.1 397.5,202.3 408.6,192.9 419.7,182.4 430.8,171.2 441.9,159.3 453.0,146.9 464.1,134.1 475.2,121.1 486.3,107.8" fill="none" stroke-width="2.4"/><polyline class="line-emaS" points="197.7,167.1 208.8,168.3 219.9,170.8 231.0,174.3 242.1,178.3 253.2,182.7 264.3,187.5 275.4,192.7 286.5,197.9 297.6,203.0 308.7,207.5 319.8,211.4 330.9,213.9 342.0,215.2 353.1,215.4 364.2,214.5 375.3,212.7 386.4,210.0 397.5,206.5 408.6,202.2 419.7,197.1 430.8,191.2 441.9,184.5 453.0,177.1 464.1,169.2 475.2,160.6 486.3,151.6" fill="none" stroke-width="2.4"/><circle class="mark-gold" cx="397.5" cy="202.3" r="10"/><text class="note gold" text-anchor="middle" x="18.0" y="238.3">EMA 8 crosses EMA 21</text><line x1="325.4" y1="262.3" x2="347.6" y2="234.1" marker-end="url(#mM)" stroke-width="2.2" class="arrow-mM"/><text class="note cyan" text-anchor="end" x="27.0" y="57.7">Momentum flips with the cross</text><line class="lg-f" x1="560" y1="44" x2="592" y2="44" stroke-width="3"/><text class="axis-txt" x="598" y="48">EMA 8 fast</text><line class="lg-s" x1="560" y1="64" x2="592" y2="64" stroke-width="3"/><text class="axis-txt" x="598" y="68">EMA 21 slow</text></svg></div><figcaption>Figure 6 &#8212; EMA 8/21 crossover: the trigger inside every IMPERA scalping signal.</figcaption></figure>
 
     <h3>2. Relative Strength Index (RSI)</h3>
-    <p>RSI measures momentum on a 0–100 scale. Above <strong>65–70</strong>, buyers are stretched; below <strong>30–35</strong>, sellers are exhausted. Crucially, IMPERA uses RSI as a <strong>confirmation filter</strong>, not a standalone signal: a bullish EMA crossover is only taken when RSI shows room to run or oversold conditions turning up — filtering out exhausted entries into overextended moves.</p>
+    <p>RSI measures momentum on a 0–100 scale. Above <strong>65–70</strong>, buyers are stretched; below <strong>30–35</strong>, sellers are exhausted. Crucially, IMPERA uses RSI as a <strong>confirmation filter</strong>, not a standalone signal: a bullish crossover is only taken when RSI shows room to run or oversold conditions turning up — filtering out exhausted entries into overextended moves.</p>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 380" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="306.1" x2="650" y2="306.1"/><text class="axis-txt" x="658" y="310.1">100</text><line class="grid" x1="34" y1="211.4" x2="650" y2="211.4"/><text class="axis-txt" x="658" y="215.4">110</text><line class="grid" x1="34" y1="116.7" x2="650" y2="116.7"/><text class="axis-txt" x="658" y="120.7">120</text><line class="cb" x1="214.4" y1="244.6" x2="214.4" y2="326.0" stroke-width="1.5"/><rect class="cb" x="210.6" y="264.4" width="7.5" height="41.7" rx="1"/><line class="cb" x1="225.5" y1="202.3" x2="225.5" y2="284.3" stroke-width="1.5"/><rect class="cb" x="221.7" y="222.8" width="7.5" height="41.7" rx="1"/><line class="cb" x1="236.6" y1="160.1" x2="236.6" y2="242.7" stroke-width="1.5"/><rect class="cb" x="232.8" y="181.1" width="7.5" height="41.7" rx="1"/><line class="cb" x1="247.7" y1="119.3" x2="247.7" y2="201.0" stroke-width="1.5"/><rect class="cb" x="243.9" y="139.4" width="7.5" height="41.7" rx="1"/><line class="cb" x1="258.8" y1="77.0" x2="258.8" y2="159.3" stroke-width="1.5"/><rect class="cb" x="255.0" y="97.8" width="7.5" height="41.7" rx="1"/><line class="cr" x1="269.9" y1="68.8" x2="269.9" y2="186.2" stroke-width="1.5"/><rect class="cr" x="266.1" y="97.8" width="7.5" height="60.0" rx="1"/><line class="cr" x1="281.0" y1="129.6" x2="281.0" y2="246.1" stroke-width="1.5"/><rect class="cr" x="277.2" y="157.7" width="7.5" height="60.0" rx="1"/><line class="cr" x1="292.1" y1="189.0" x2="292.1" y2="306.1" stroke-width="1.5"/><rect class="cr" x="288.3" y="217.7" width="7.5" height="60.0" rx="1"/><line class="cb" x1="303.2" y1="218.6" x2="303.2" y2="297.3" stroke-width="1.5"/><rect class="cb" x="299.4" y="237.9" width="7.5" height="39.8" rx="1"/><line class="cb" x1="314.2" y1="178.3" x2="314.2" y2="257.5" stroke-width="1.5"/><rect class="cb" x="310.5" y="198.2" width="7.5" height="39.8" rx="1"/><line class="cb" x1="325.4" y1="139.3" x2="325.4" y2="217.8" stroke-width="1.5"/><rect class="cb" x="321.6" y="158.4" width="7.5" height="39.8" rx="1"/><line class="cb" x1="336.5" y1="99.0" x2="336.5" y2="178.0" stroke-width="1.5"/><rect class="cb" x="332.7" y="118.6" width="7.5" height="39.8" rx="1"/><line class="cb" x1="347.6" y1="58.7" x2="347.6" y2="138.2" stroke-width="1.5"/><rect class="cb" x="343.8" y="78.8" width="7.5" height="39.8" rx="1"/><line class="cr" x1="358.6" y1="48.1" x2="358.6" y2="172.4" stroke-width="1.5"/><rect class="cr" x="354.9" y="78.8" width="7.5" height="63.1" rx="1"/><line class="cr" x1="369.8" y1="112.1" x2="369.8" y2="235.5" stroke-width="1.5"/><rect class="cr" x="366.0" y="142.0" width="7.5" height="63.1" rx="1"/><line class="cr" x1="380.9" y1="174.7" x2="380.9" y2="298.6" stroke-width="1.5"/><rect class="cr" x="377.1" y="205.1" width="7.5" height="63.1" rx="1"/><line class="cb" x1="392.0" y1="206.1" x2="392.0" y2="289.3" stroke-width="1.5"/><rect class="cb" x="388.2" y="226.6" width="7.5" height="41.7" rx="1"/><line class="cb" x1="403.1" y1="163.9" x2="403.1" y2="247.6" stroke-width="1.5"/><rect class="cb" x="399.3" y="184.9" width="7.5" height="41.7" rx="1"/><line class="cb" x1="414.1" y1="123.1" x2="414.1" y2="205.9" stroke-width="1.5"/><rect class="cb" x="410.4" y="143.2" width="7.5" height="41.7" rx="1"/><line class="cb" x1="425.2" y1="80.8" x2="425.2" y2="164.2" stroke-width="1.5"/><rect class="cb" x="421.5" y="101.6" width="7.5" height="41.7" rx="1"/><line class="cb" x1="436.4" y1="40.0" x2="436.4" y2="122.6" stroke-width="1.5"/><rect class="cb" x="432.6" y="59.9" width="7.5" height="41.7" rx="1"/><line class="cr" x1="447.5" y1="47.4" x2="447.5" y2="97.6" stroke-width="1.5"/><rect class="cr" x="443.7" y="59.9" width="7.5" height="25.3" rx="1"/><line class="cr" x1="458.6" y1="72.1" x2="458.6" y2="122.9" stroke-width="1.5"/><rect class="cr" x="454.8" y="85.1" width="7.5" height="25.3" rx="1"/><line class="cr" x1="469.6" y1="96.8" x2="469.6" y2="148.1" stroke-width="1.5"/><rect class="cr" x="465.9" y="110.4" width="7.5" height="25.3" rx="1"/><text class="axis-txt" text-anchor="start" x="34.0" y="16.0">PRICE</text><rect class="zone-os" x="34" y="348.0" width="616" height="0.0"/><rect class="zone-ob" x="34" y="236.0" width="616" height="22.4"/><line class="grid" x1="34" y1="348.0" x2="650" y2="348.0"/><text class="axis-txt" text-anchor="start" x="658.0" y="352.0">30</text><line class="grid" x1="34" y1="303.2" x2="650" y2="303.2"/><text class="axis-txt" text-anchor="start" x="658.0" y="307.2">50</text><line class="grid" x1="34" y1="258.4" x2="650" y2="258.4"/><text class="axis-txt" text-anchor="start" x="658.0" y="262.4">70</text><polyline class="line-violet" points="269.9,250.5 281.0,291.4 292.1,320.8 303.2,299.5 314.2,281.0 325.4,265.3 336.5,251.9 347.6,240.8 358.6,287.4 369.8,319.4 380.9,342.2 392.0,317.4 403.1,295.9 414.1,277.5 425.2,262.0 436.4,249.0 447.5,269.3 458.6,288.6 469.6,306.6" fill="none" stroke-width="2.2"/><circle class="mark-mint" cx="380.9" cy="268.2" r="9"/><text class="note mint" text-anchor="start" x="15.0" y="292.2">Dip: momentum exhausts &#8594; longs</text><circle class="mark-red" cx="347.6" cy="78.8" r="9"/><text class="note red" text-anchor="end" x="12.0" y="64.8">Top: overextended &#8594; fade or wait</text><text class="axis-txt" text-anchor="start" x="34.0" y="228.0">RSI 14 &#8212; momentum gauge</text></svg></div><figcaption>Figure 7 &#8212; RSI: momentum stretched too far tends to snap back.</figcaption></figure>
 
     <h3>3. MACD</h3>
-    <p>The Moving Average Convergence Divergence tracks momentum shifts via the gap between two EMAs. Rising histogram = building bullish momentum; falling = bearish. Inside the Gold Bot, MACD confirms trend health on H1 while entries trigger on M15 — a classic multi-timeframe confirmation structure.</p>
+    <p>The Moving Average Convergence Divergence tracks momentum shifts via the gap between two EMAs. Rising histogram = building bullish pressure; falling = bearish. Inside the Gold Bot, MACD confirms trend health on H1 while entries trigger on M15 — classic multi-timeframe confirmation.</p>
 
     <h3>4. Stochastic Oscillator</h3>
-    <p>Stochastic locates price within its recent range. Readings under 20 signal oversold; above 80, overbought. Paired with MACD in the Gold Bot, it catches reversal rotations within trending days — buying dips in uptrends rather than tops blindly.</p>
+    <p>Stochastic locates close price within its recent range: under 20 oversold, above 80 overbought. Paired with MACD in the Gold Bot, it times reversal rotations within trending days — buying dips in uptrends instead of blindly calling tops.</p>
 
     <h3>5. Average True Range (ATR)</h3>
-    <p>ATR answers the most important question in trading: <strong>"how far does this instrument normally move?"</strong> It converts volatility into numbers, letting stops breathe with market conditions instead of sitting at fixed distances that noise routinely clips. The Gold Bot sets both stop-loss <em>and</em> take-profit as multiples of ATR — wider stops in wild markets, tighter in calm ones, identical logic throughout.</p>
+    <p>ATR answers the most important question in trading: <strong>"how far does this instrument normally move?"</strong> It converts volatility into numbers, letting stops breathe with market conditions instead of sitting at fixed distances noise routinely clips. The Gold Bot sets both SL and TP as multiples of ATR — wider in wild markets, tighter in calm ones, identical logic throughout.</p>
 
     <h3>6. Bollinger Bands</h3>
-    <p>Bands expand and contract with volatility. Squeezes precede explosions; rides along the band confirm strong trends. The Global Bot uses band breakouts as a third independent strategy — capturing the moment a compressed range finally resolves.</p>
+    <p>Bands expand and contract with volatility. Squeezes precede explosions; rides along the band confirm strong trends. The Global Bot uses band breakouts as an independent third strategy — capturing the moment a compressed range resolves.</p>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="238.2" x2="650" y2="238.2"/><text class="axis-txt" x="658" y="242.2">105</text><line class="grid" x1="34" y1="182.3" x2="650" y2="182.3"/><text class="axis-txt" x="658" y="186.3">110</text><line class="grid" x1="34" y1="126.5" x2="650" y2="126.5"/><text class="axis-txt" x="658" y="130.5">115</text><line class="grid" x1="34" y1="70.7" x2="650" y2="70.7"/><text class="axis-txt" x="658" y="74.7">120</text><line class="cr" x1="231.0" y1="222.4" x2="231.0" y2="233.1" stroke-width="1.5"/><rect class="cr" x="227.2" y="224.8" width="7.5" height="6.0" rx="1"/><line class="cr" x1="242.1" y1="227.6" x2="242.1" y2="239.1" stroke-width="1.5"/><rect class="cr" x="238.3" y="230.7" width="7.5" height="6.0" rx="1"/><line class="cr" x1="253.2" y1="232.9" x2="253.2" y2="245.0" stroke-width="1.5"/><rect class="cr" x="249.4" y="236.7" width="7.5" height="6.0" rx="1"/><line class="cb" x1="264.3" y1="232.4" x2="264.3" y2="245.5" stroke-width="1.5"/><rect class="cb" x="260.6" y="235.9" width="7.5" height="6.7" rx="1"/><line class="cb" x1="275.4" y1="226.7" x2="275.4" y2="238.8" stroke-width="1.5"/><rect class="cb" x="271.6" y="229.2" width="7.5" height="6.7" rx="1"/><line class="cr" x1="286.5" y1="226.8" x2="286.5" y2="236.1" stroke-width="1.5"/><rect class="cr" x="282.8" y="229.2" width="7.5" height="4.1" rx="1"/><line class="cr" x1="297.6" y1="230.2" x2="297.6" y2="240.2" stroke-width="1.5"/><rect class="cr" x="293.9" y="233.3" width="7.5" height="4.1" rx="1"/><line class="cr" x1="308.7" y1="235.3" x2="308.7" y2="244.3" stroke-width="1.5"/><rect class="cr" x="304.9" y="237.4" width="7.5" height="4.1" rx="1"/><line class="cb" x1="319.8" y1="233.6" x2="319.8" y2="244.7" stroke-width="1.5"/><rect class="cb" x="316.1" y="237.1" width="7.5" height="4.5" rx="1"/><line class="cb" x1="330.9" y1="230.1" x2="330.9" y2="240.2" stroke-width="1.5"/><rect class="cb" x="327.1" y="232.6" width="7.5" height="4.5" rx="1"/><line class="cr" x1="342.0" y1="230.2" x2="342.0" y2="237.5" stroke-width="1.5"/><rect class="cr" x="338.2" y="232.6" width="7.5" height="1.9" rx="1"/><line class="cr" x1="353.1" y1="231.4" x2="353.1" y2="239.3" stroke-width="1.5"/><rect class="cr" x="349.4" y="234.4" width="7.5" height="1.9" rx="1"/><line class="cr" x1="364.2" y1="234.3" x2="364.2" y2="241.2" stroke-width="1.5"/><rect class="cr" x="360.4" y="236.3" width="7.5" height="1.9" rx="1"/><line class="cb" x1="375.3" y1="234.2" x2="375.3" y2="239.9" stroke-width="1.5"/><rect class="cb" x="371.5" y="235.9" width="7.5" height="2.2" rx="1"/><line class="cb" x1="386.4" y1="231.3" x2="386.4" y2="237.7" stroke-width="1.5"/><rect class="cb" x="382.6" y="233.7" width="7.5" height="2.2" rx="1"/><line class="cb" x1="397.5" y1="180.8" x2="397.5" y2="249.8" stroke-width="1.5"/><rect class="cb" x="393.8" y="196.8" width="7.5" height="36.8" rx="1"/><line class="cb" x1="408.6" y1="143.2" x2="408.6" y2="212.9" stroke-width="1.5"/><rect class="cb" x="404.9" y="160.0" width="7.5" height="36.8" rx="1"/><line class="cb" x1="419.7" y1="114.7" x2="419.7" y2="174.0" stroke-width="1.5"/><rect class="cb" x="415.9" y="129.3" width="7.5" height="30.7" rx="1"/><line class="cb" x1="430.8" y1="85.0" x2="430.8" y2="143.2" stroke-width="1.5"/><rect class="cb" x="427.0" y="98.6" width="7.5" height="30.7" rx="1"/><line class="cb" x1="441.9" y1="77.4" x2="441.9" y2="106.2" stroke-width="1.5"/><rect class="cb" x="438.1" y="84.6" width="7.5" height="14.0" rx="1"/><line class="cb" x1="453.0" y1="62.7" x2="453.0" y2="92.2" stroke-width="1.5"/><rect class="cb" x="449.2" y="70.7" width="7.5" height="14.0" rx="1"/><polygon class="zone-bb" points="231.0,230.7 242.1,228.0 253.2,227.4 264.3,228.5 275.4,226.0 286.5,226.4 297.6,227.2 308.7,227.5 319.8,228.1 330.9,227.9 342.0,228.1 353.1,228.5 364.2,229.6 375.3,229.5 386.4,229.8 397.5,211.2 408.6,183.0 419.7,151.1 430.8,116.1 441.9,85.6 453.0,57.6 453.0,300.9 441.9,300.7 430.8,296.3 419.7,284.4 408.6,269.9 397.5,253.2 386.4,241.1 375.3,242.9 364.2,243.0 353.1,242.8 342.0,243.1 330.9,243.5 319.8,244.0 308.7,244.4 297.6,243.1 286.5,243.1 275.4,244.1 264.3,244.5 253.2,245.9 242.1,239.4 231.0,230.7"/><polyline class="line-dim" points="231.0,230.7 242.1,233.7 253.2,236.7 264.3,236.5 275.4,235.0 286.5,234.8 297.6,235.1 308.7,235.9 319.8,236.1 330.9,235.7 342.0,235.6 353.1,235.7 364.2,236.3 375.3,236.2 386.4,235.5 397.5,232.2 408.6,226.4 419.7,217.8 430.8,206.2 441.9,193.1 453.0,179.3" fill="none" stroke-width="1.6"/><polyline class="line-bb" points="231.0,230.7 242.1,228.0 253.2,227.4 264.3,228.5 275.4,226.0 286.5,226.4 297.6,227.2 308.7,227.5 319.8,228.1 330.9,227.9 342.0,228.1 353.1,228.5 364.2,229.6 375.3,229.5 386.4,229.8 397.5,211.2 408.6,183.0 419.7,151.1 430.8,116.1 441.9,85.6 453.0,57.6" fill="none" stroke-width="1.8"/><polyline class="line-bb" points="231.0,230.7 242.1,239.4 253.2,245.9 264.3,244.5 275.4,244.1 286.5,243.1 297.6,243.1 308.7,244.4 319.8,244.0 330.9,243.5 342.0,243.1 353.1,242.8 364.2,243.0 375.3,242.9 386.4,241.1 397.5,253.2 408.6,269.9 419.7,284.4 430.8,296.3 441.9,300.7 453.0,300.9" fill="none" stroke-width="1.8"/><text class="note gold" text-anchor="middle" x="6.0" y="280.6">SQUEEZE &#8212; volatility contracts</text><line x1="397.5" y1="193.5" x2="419.7" y2="137.7" marker-end="url(#mM)" stroke-width="2.2" class="arrow-mM"/><text class="note mint" text-anchor="end" x="21.0" y="39.4">EXPANSION &#8212; ride the break</text></svg></div><figcaption>Figure 8 &#8212; Bollinger squeeze: compression precedes expansion.</figcaption></figure>
 
     <div class="callout cyan">
         <div class="callout-title">Why only six?</div>
@@ -563,35 +618,119 @@
     </div>
 </section>
 
-<!-- ======== CHAPTER 4 ======== -->
 <section class="chapter" id="ch4">
-    <div class="ch-head"><span class="ch-num">04</span><span class="ch-label">Core System</span></div>
-    <h2 class="ch-title">The IMPERA Strategy — The Exact Entry Model</h2>
-    <p class="ch-lede">No secrets held back. These are the precise entry, exit and management rules our own systems execute — the same model taught step-by-step in the mentorship.</p>
+    <div class="ch-head"><span class="ch-num">04</span><span class="ch-label">Strategies Library</span></div>
+    <h2 class="ch-title">The Strategies Library</h2>
+    <p class="ch-lede">Six battle-tested ways to extract profit from the same market. Each fits a different personality and schedule — pick one primary, master it, then expand.</p>
+
+    <h3>Strategy 1 · Trend-Pullback Continuation</h3>
+    <p><strong>The idea:</strong> trends persist far longer than expected. Don't chase the move — buy the discount. In an established uptrend (HH/HL + rising EMA 21), wait for price to pull back into the EMA zone or a prior breakout level, then enter on the first bullish trigger candle. Stop below the pullback swing; targets at prior highs or 2×ATR.</p>
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="264.2" x2="650" y2="264.2"/><text class="axis-txt" x="658" y="268.2">100</text><line class="grid" x1="34" y1="189.8" x2="650" y2="189.8"/><text class="axis-txt" x="658" y="193.8">110</text><line class="grid" x1="34" y1="115.3" x2="650" y2="115.3"/><text class="axis-txt" x="658" y="119.3">120</text><line class="grid" x1="34" y1="40.9" x2="650" y2="40.9"/><text class="axis-txt" x="658" y="44.9">130</text><line class="cb" x1="247.7" y1="236.3" x2="247.7" y2="273.5" stroke-width="1.5"/><rect class="cb" x="243.9" y="245.6" width="7.5" height="18.6" rx="1"/><line class="cb" x1="258.8" y1="217.3" x2="258.8" y2="254.9" stroke-width="1.5"/><rect class="cb" x="255.0" y="227.0" width="7.5" height="18.6" rx="1"/><line class="cb" x1="269.9" y1="198.2" x2="269.9" y2="236.3" stroke-width="1.5"/><rect class="cb" x="266.1" y="208.4" width="7.5" height="18.6" rx="1"/><line class="cb" x1="280.9" y1="180.3" x2="280.9" y2="217.7" stroke-width="1.5"/><rect class="cb" x="277.2" y="189.8" width="7.5" height="18.6" rx="1"/><line class="cr" x1="292.1" y1="183.2" x2="292.1" y2="207.1" stroke-width="1.5"/><rect class="cr" x="288.3" y="189.8" width="7.5" height="11.2" rx="1"/><line class="cr" x1="303.1" y1="195.0" x2="303.1" y2="218.3" stroke-width="1.5"/><rect class="cr" x="299.4" y="200.9" width="7.5" height="11.2" rx="1"/><line class="cr" x1="314.2" y1="209.0" x2="314.2" y2="219.9" stroke-width="1.5"/><rect class="cr" x="310.5" y="212.1" width="7.5" height="4.5" rx="1"/><line class="cb" x1="325.4" y1="180.2" x2="325.4" y2="228.9" stroke-width="1.5"/><rect class="cb" x="321.6" y="192.8" width="7.5" height="23.8" rx="1"/><line class="cb" x1="336.4" y1="157.1" x2="336.4" y2="205.0" stroke-width="1.5"/><rect class="cb" x="332.7" y="168.9" width="7.5" height="23.8" rx="1"/><line class="cb" x1="347.6" y1="132.8" x2="347.6" y2="181.2" stroke-width="1.5"/><rect class="cb" x="343.8" y="145.1" width="7.5" height="23.8" rx="1"/><line class="cr" x1="358.6" y1="140.4" x2="358.6" y2="157.7" stroke-width="1.5"/><rect class="cr" x="354.9" y="145.1" width="7.5" height="7.4" rx="1"/><line class="cr" x1="369.8" y1="147.4" x2="369.8" y2="165.1" stroke-width="1.5"/><rect class="cr" x="366.0" y="152.6" width="7.5" height="7.4" rx="1"/><line class="cr" x1="380.9" y1="155.5" x2="380.9" y2="172.6" stroke-width="1.5"/><rect class="cr" x="377.1" y="160.0" width="7.5" height="7.4" rx="1"/><line class="cr" x1="391.9" y1="164.5" x2="391.9" y2="174.8" stroke-width="1.5"/><rect class="cr" x="388.2" y="167.4" width="7.5" height="4.5" rx="1"/><line class="cb" x1="403.1" y1="133.6" x2="403.1" y2="184.4" stroke-width="1.5"/><rect class="cb" x="399.3" y="146.6" width="7.5" height="25.3" rx="1"/><line class="cb" x1="414.1" y1="109.0" x2="414.1" y2="159.1" stroke-width="1.5"/><rect class="cb" x="410.4" y="121.3" width="7.5" height="25.3" rx="1"/><line class="cb" x1="425.2" y1="83.2" x2="425.2" y2="133.8" stroke-width="1.5"/><rect class="cb" x="421.5" y="96.0" width="7.5" height="25.3" rx="1"/><line class="cb" x1="436.4" y1="57.5" x2="436.4" y2="108.5" stroke-width="1.5"/><rect class="cb" x="432.6" y="70.7" width="7.5" height="25.3" rx="1"/><polyline class="line-emaS" points="247.7,245.6 258.8,243.9 269.9,240.7 280.9,236.1 292.1,232.9 303.1,231.0 314.2,229.7 325.4,226.3 336.4,221.1 347.6,214.2 358.6,208.6 369.8,204.2 380.9,200.8 391.9,198.2 403.1,193.5 414.1,186.9 425.2,178.7 436.4,168.9" fill="none" stroke-width="2.4"/><circle class="mark-mint" cx="314.2" cy="219.9" r="10"/><text class="note mint" text-anchor="middle" x="6.0" y="245.9">Pullback taps rising EMA 21</text><line x1="318.7" y1="209.1" x2="340.9" y2="174.9" marker-end="url(#mM)" stroke-width="2" class="arrow-mM"/><text class="note gold" text-anchor="end" x="23.0" y="48.3">Enter on dips &#8212; never chase peaks</text></svg></div><figcaption>Figure 9 &#8212; Strategy 1 &#183; Trend-pullback continuation.</figcaption></figure>
+    <ul>
+        <li><strong>Best on:</strong> EUR/USD, GBP/USD, XAU/USD during London/NY</li>
+        <li><strong>Killer filter:</strong> only take pullbacks against no more than 3 consecutive counter-candles — deeper than that, structure may be rolling over</li>
+    </ul>
+
+    <h3>Strategy 2 · Breakout &amp; Retest</h3>
+    <p><strong>The idea:</strong> volatility cycles between compression and expansion (Bollinger squeeze, inside bars, tight ranges). When price finally breaks a well-tested boundary with momentum, two entries exist: the aggressive break itself, or the patient retest — waiting for price to return to the broken level, hold, and continue. The retest entry offers tighter stops and filters most fakeouts. Target: measured move = box height projected from the break.</p>
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="254.3" x2="650" y2="254.3"/><text class="axis-txt" x="658" y="258.3">100</text><line class="grid" x1="34" y1="204.7" x2="650" y2="204.7"/><text class="axis-txt" x="658" y="208.7">105</text><line class="grid" x1="34" y1="155.0" x2="650" y2="155.0"/><text class="axis-txt" x="658" y="159.0">110</text><line class="grid" x1="34" y1="105.4" x2="650" y2="105.4"/><text class="axis-txt" x="658" y="109.4">115</text><line class="grid" x1="34" y1="55.8" x2="650" y2="55.8"/><text class="axis-txt" x="658" y="59.8">120</text><line class="cb" x1="240.0" y1="206.1" x2="240.0" y2="231.1" stroke-width="1.5"/><rect class="cb" x="236.5" y="212.6" width="7" height="11.9" rx="1"/><line class="cb" x1="250.2" y1="193.5" x2="250.2" y2="219.2" stroke-width="1.5"/><rect class="cb" x="246.7" y="200.7" width="7" height="11.9" rx="1"/><line class="cr" x1="260.4" y1="188.6" x2="260.4" y2="234.6" stroke-width="1.5"/><rect class="cr" x="256.9" y="200.7" width="7" height="22.3" rx="1"/><line class="cr" x1="270.6" y1="211.8" x2="270.6" y2="256.9" stroke-width="1.5"/><rect class="cr" x="267.1" y="223.0" width="7" height="22.3" rx="1"/><line class="cb" x1="280.8" y1="215.1" x2="280.8" y2="256.1" stroke-width="1.5"/><rect class="cb" x="277.3" y="225.5" width="7" height="19.9" rx="1"/><line class="cb" x1="291.0" y1="194.6" x2="291.0" y2="236.2" stroke-width="1.5"/><rect class="cb" x="287.5" y="205.7" width="7" height="19.9" rx="1"/><line class="cr" x1="301.2" y1="195.2" x2="301.2" y2="233.7" stroke-width="1.5"/><rect class="cr" x="297.7" y="205.7" width="7" height="17.9" rx="1"/><line class="cr" x1="311.4" y1="214.0" x2="311.4" y2="251.5" stroke-width="1.5"/><rect class="cr" x="307.9" y="223.5" width="7" height="17.9" rx="1"/><line class="cb" x1="321.6" y1="215.9" x2="321.6" y2="251.1" stroke-width="1.5"/><rect class="cb" x="318.1" y="225.0" width="7" height="16.4" rx="1"/><line class="cb" x1="331.8" y1="198.9" x2="331.8" y2="234.8" stroke-width="1.5"/><rect class="cb" x="328.3" y="208.6" width="7" height="16.4" rx="1"/><line class="cb" x1="342.0" y1="157.0" x2="342.0" y2="210.6" stroke-width="1.5"/><rect class="cb" x="338.5" y="161.0" width="7" height="47.6" rx="1"/><line class="cr" x1="352.2" y1="151.1" x2="352.2" y2="178.9" stroke-width="1.5"/><rect class="cr" x="348.7" y="161.0" width="7" height="11.9" rx="1"/><line class="cr" x1="362.4" y1="166.9" x2="362.4" y2="190.8" stroke-width="1.5"/><rect class="cr" x="358.9" y="172.9" width="7" height="12.9" rx="1"/><line class="cb" x1="372.6" y1="180.8" x2="372.6" y2="192.8" stroke-width="1.5"/><rect class="cb" x="369.1" y="182.8" width="7" height="3.0" rx="1"/><line class="cb" x1="382.8" y1="158.6" x2="382.8" y2="191.2" stroke-width="1.5"/><rect class="cb" x="379.3" y="166.9" width="7" height="15.9" rx="1"/><line class="cb" x1="393.0" y1="142.1" x2="393.0" y2="175.3" stroke-width="1.5"/><rect class="cb" x="389.5" y="151.1" width="7" height="15.9" rx="1"/><line class="cb" x1="403.2" y1="125.7" x2="403.2" y2="159.4" stroke-width="1.5"/><rect class="cb" x="399.7" y="135.2" width="7" height="15.9" rx="1"/><line class="cb" x1="413.4" y1="104.3" x2="413.4" y2="145.6" stroke-width="1.5"/><rect class="cb" x="409.9" y="115.3" width="7" height="19.9" rx="1"/><line class="cb" x1="423.6" y1="85.4" x2="423.6" y2="125.8" stroke-width="1.5"/><rect class="cb" x="420.1" y="95.5" width="7" height="19.9" rx="1"/><line class="cb" x1="433.8" y1="76.7" x2="433.8" y2="102.6" stroke-width="1.5"/><rect class="cb" x="430.3" y="83.6" width="7" height="11.9" rx="1"/><line class="cb" x1="444.0" y1="64.2" x2="444.0" y2="90.7" stroke-width="1.5"/><rect class="cb" x="440.5" y="71.7" width="7" height="11.9" rx="1"/><rect class="zone-n" x="34.0" y="196.7" width="308.0" height="51.6"/><line class="hline-gold" x1="347.1" y1="26.0" x2="347.1" y2="294.0" stroke-dasharray="5 5"/><text class="note gold" text-anchor="middle" x="5.0" y="268.2">COMPRESSION</text><text class="note mint" text-anchor="start" x="11.8" y="113.3">BREAKOUT</text><circle class="mark-gold" cx="372.6" cy="188.8" r="9"/><text class="note gold" text-anchor="middle" x="13.0" y="218.6">Retest holds &#8594; entry</text><line class="hline-t" x1="377.7" y1="137.2" x2="650.0" y2="137.2"/><text class="note mint" text-anchor="end" x="644.0" y="122.2">TP = 1x box height</text></svg></div><figcaption>Figure 11 &#8212; Strategy 2 &#183; Breakout and retest entry.</figcaption></figure>
+    <ul>
+        <li><strong>Best on:</strong> indices, XAU/USD, post-consolidation sessions</li>
+        <li><strong>Killer filter:</strong> skip if the breakout candle closes in the lower third of its range — weak conviction</li>
+    </ul>
+
+    <h3>Strategy 3 · Range Fading (Mean Reversion)</h3>
+    <p><strong>The idea:</strong> markets range far more than they trend — especially Asian hours and quiet Fridays. When price ping-pongs between clear horizontal boundaries, sell strength at the ceiling and buy weakness at the floor, exiting near the middle. Stochastic oversold/overbought adds timing precision. The moment a clean break occurs, flip bias or stand down.</p>
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 330" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="34" y1="269.6" x2="650" y2="269.6"/><text class="axis-txt" x="658" y="273.6">95</text><line class="grid" x1="34" y1="208.7" x2="650" y2="208.7"/><text class="axis-txt" x="658" y="212.7">100</text><line class="grid" x1="34" y1="147.8" x2="650" y2="147.8"/><text class="axis-txt" x="658" y="151.8">105</text><line class="grid" x1="34" y1="86.9" x2="650" y2="86.9"/><text class="axis-txt" x="658" y="90.9">110</text><line class="cb" x1="269.9" y1="139.4" x2="269.9" y2="215.3" stroke-width="1.5"/><rect class="cb" x="266.1" y="158.2" width="7.5" height="38.4" rx="1"/><line class="cb" x1="281.0" y1="100.3" x2="281.0" y2="176.9" stroke-width="1.5"/><rect class="cb" x="277.2" y="119.8" width="7.5" height="38.4" rx="1"/><line class="cr" x1="292.1" y1="99.7" x2="292.1" y2="178.2" stroke-width="1.5"/><rect class="cr" x="288.3" y="119.8" width="7.5" height="39.0" rx="1"/><line class="cr" x1="303.2" y1="139.8" x2="303.2" y2="217.1" stroke-width="1.5"/><rect class="cr" x="299.4" y="158.8" width="7.5" height="39.0" rx="1"/><line class="cb" x1="314.2" y1="143.8" x2="314.2" y2="216.1" stroke-width="1.5"/><rect class="cb" x="310.5" y="161.8" width="7.5" height="35.9" rx="1"/><line class="cb" x1="325.4" y1="107.2" x2="325.4" y2="180.2" stroke-width="1.5"/><rect class="cb" x="321.6" y="125.9" width="7.5" height="35.9" rx="1"/><line class="cr" x1="336.5" y1="107.9" x2="336.5" y2="177.0" stroke-width="1.5"/><rect class="cr" x="332.7" y="125.9" width="7.5" height="33.5" rx="1"/><line class="cr" x1="347.6" y1="142.5" x2="347.6" y2="210.5" stroke-width="1.5"/><rect class="cr" x="343.8" y="159.4" width="7.5" height="33.5" rx="1"/><line class="cb" x1="358.7" y1="144.8" x2="358.7" y2="210.1" stroke-width="1.5"/><rect class="cb" x="354.9" y="161.2" width="7.5" height="31.7" rx="1"/><line class="cb" x1="369.8" y1="112.4" x2="369.8" y2="178.4" stroke-width="1.5"/><rect class="cb" x="366.0" y="129.5" width="7.5" height="31.7" rx="1"/><line class="cr" x1="380.9" y1="114.7" x2="380.9" y2="174.3" stroke-width="1.5"/><rect class="cr" x="377.1" y="129.5" width="7.5" height="29.8" rx="1"/><line class="cr" x1="392.0" y1="143.8" x2="392.0" y2="204.1" stroke-width="1.5"/><rect class="cr" x="388.2" y="159.4" width="7.5" height="29.8" rx="1"/><line class="cb" x1="403.1" y1="139.0" x2="403.1" y2="205.9" stroke-width="1.5"/><rect class="cb" x="399.3" y="156.3" width="7.5" height="32.9" rx="1"/><line class="cb" x1="414.1" y1="107.2" x2="414.1" y2="173.0" stroke-width="1.5"/><rect class="cb" x="410.4" y="123.5" width="7.5" height="32.9" rx="1"/><rect class="zone-s" x="34.0" y="185.6" width="380.1" height="17.1"/><rect class="zone-r" x="34.0" y="114.9" width="380.1" height="17.1"/><line class="hline-r" x1="34.0" y1="123.5" x2="650.0" y2="123.5"/><text class="note red" text-anchor="end" x="281.0" y="116.5">SELL zone</text><line class="hline-s" x1="34.0" y1="194.1" x2="650.0" y2="194.1"/><text class="note mint" text-anchor="end" x="281.0" y="187.1">BUY zone</text><line x1="316.5" y1="189.2" x2="305.4" y2="140.5" marker-end="url(#mM)" stroke-width="2" class="arrow-mM"/><line x1="374.2" y1="133.2" x2="385.3" y2="181.9" marker-end="url(#mR)" stroke-width="2" class="arrow-mR"/><text class="note gold" text-anchor="end" x="12.0" y="99.5">Fade the edges &#8212; exit near the middle</text></svg></div><figcaption>Figure 10 &#8212; Strategy 3 &#183; Range fading at the boundaries.</figcaption></figure>
+    <ul>
+        <li><strong>Best on:</strong> EUR/GBP, AUD/NZD crosses, Asian-session ranges</li>
+        <li><strong>Killer filter:</strong> require at least two clean touches of both boundaries before fading anything</li>
+    </ul>
+
+    <h3>Strategy 4 · Scalping</h3>
+    <p><strong>The idea:</strong> harvest many small moves on M1/M5 with tight targets and tight stops. This is the purest test of execution discipline — dozens of decisions per session, zero room for emotion. It demands a low-spread broker, fast execution and unshakeable rule-following. Done manually it is the hardest style to master; done by machine it is trivially consistent — which is why the <strong>IMPERA Scalping Bot</strong> automates this exact playbook: EMA cross trigger + RSI filter + trailing exit.</p>
+    <ul>
+        <li><strong>Needs:</strong> raw-spread account (&lt;1 pip majors), VPS if automated, absolute focus</li>
+        <li><strong>Reality check:</strong> spread+commission eats a large % of each target — costs decide profitability</li>
+    </ul>
+
+    <h3>Strategy 5 · Swing Trading</h3>
+    <p><strong>The idea:</strong> zoom out to H4/D1, catch multi-day swings, hold positions overnight. Fewer trades (1–3/week), bigger targets (100–300 pips), dramatically less screen time — ideal alongside a full-time job. Entries combine weekly/daily structure with H4 triggers; stops sit beyond the swing that defines the setup. This is the style taught step-by-step in the mentorship because it builds patience and perspective faster than any other.</p>
+    <ul>
+        <li><strong>Needs:</strong> tolerance for open P&amp;L fluctuation, wider stops (smaller lots!), news awareness overnight</li>
+        <li><strong>Killer filter:</strong> check the calendar — no swing positions held blind through CPI/FOMC</li>
+    </ul>
+
+    <h3>Strategy 6 · News-Event Trading</h3>
+    <p><strong>The idea:</strong> scheduled releases (NFP, CPI, rate decisions) create violent, liquid moves. Two honest approaches exist: the <strong>straddle</strong> (pending orders both sides seconds before release) and the <strong>post-news continuation</strong> (let the initial spike settle 5–15 minutes, then trade the retest in the direction of the surprise). Manual scalping <em>through</em> the spike itself is not a strategy — it's donating to liquidity providers.</p>
+    <ul>
+        <li><strong>Warning:</strong> spreads widen 5–20× during releases; stops slip. Size down accordingly</li>
+        <li><strong>IMPERA stance:</strong> bots sit out red-folder events by design; manual traders should too until experienced</li>
+    </ul>
+
+    <h3>Choosing your weapon</h3>
+    <div class="tbl-wrap">
+        <table>
+            <thead><tr><th>Strategy</th><th>Timeframe</th><th>Hold</th><th>Trades/wk</th><th>Screen time</th><th>Difficulty</th><th>IMPERA System</th></tr></thead>
+            <tbody>
+                <tr><td>Trend-Pullback</td><td>M15–H1</td><td>Hours</td><td>3–8</td><td class="mid">Low-Med</td><td class="good">Moderate</td><td>Gold Bot</td></tr>
+                <tr><td>Breakout-Retest</td><td>M15–H1</td><td>Hours–days</td><td>2–5</td><td class="mid">Medium</td><td class="good">Moderate</td><td>Global Bot</td></tr>
+                <tr><td>Range Fade</td><td>M15–H1</td><td>Hours</td><td>3–6</td><td class="mid">Medium</td><td class="good">Easier</td><td>Global Bot</td></tr>
+                <tr><td>Scalping</td><td>M1–M5</td><td>Minutes</td><td>20+</td><td class="warn">Very High</td><td class="warn">Hardest</td><td>Scalping Bot</td></tr>
+                <tr><td>Swing</td><td>H4–D1</td><td>Days</td><td>1–3</td><td class="good">Minimal</td><td class="good">Easiest start</td><td>Mentorship track</td></tr>
+                <tr><td>News Events</td><td>Any</td><td>Minutes</td><td>Event-based</td><td class="warn">Spiky</td><td class="warn">Expert</td><td>Avoided by design</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout mint">
+        <div class="callout-title">The one-strategy rule</div>
+        <p>Trade ONE strategy for 30 consecutive sessions before adding a second. Depth beats breadth every single time. Jumping styles mid-week is the most common self-inflicted wound we see in trade reviews.</p>
+    </div>
+</section>
+
+<section class="chapter" id="ch5">
+    <div class="ch-head"><span class="ch-num">05</span><span class="ch-label">Core System</span></div>
+    <h2 class="ch-title">The IMPERA Entry Model</h2>
+    <p class="ch-lede">No secrets held back. These are the precise entry, exit and management rules our own systems execute — the confluence engine behind the bots.</p>
+
+    <h3>The philosophy: precision over prediction</h3>
+    <p>Amateurs try to be right. Professionals try to be consistent. You cannot control where price goes next — you completely control whether you follow your rules. An edge simply means that over many trades, your average win outweighs your average loss after costs:</p>
+
+    <div class="formula">
+        Expectancy = (Win% × AvgWin) − (Loss% × AvgLoss)<br>
+        <span class="cm">// e.g. 55% × £150 − 45% × £100 = +£37.50 per trade</span><br>
+        <span class="cm">// A positive number, repeated hundreds of times, is the whole business model.</span>
+    </div>
 
     <h3>The setup (long example)</h3>
     <ol>
-        <li><strong>Trend context:</strong> price trading above the rising 21 EMA on M15/H1. Only longs considered.</li>
-        <li><strong>Trigger:</strong> the 8 EMA crosses <em>above</em> the 21 EMA on the M5 chart (fresh cross — bar 1 vs bar 2).</li>
-        <li><strong>Confirmation:</strong> RSI(14) below 35 (pullback exhaustion) or turning up through 50 with momentum.</li>
-        <li><strong>Session gate:</strong> signal occurs between 08:00–20:00 server time (London + New York), Mon–Fri only.</li>
-        <li><strong>Spread check:</strong> spread below the maximum threshold — if the market costs too much to cross, skip it.</li>
+        <li><strong>Trend context:</strong> price above rising 21 EMA on M15/H1 — longs only.</li>
+        <li><strong>Trigger:</strong> 8 EMA crosses above 21 EMA on M5 (fresh cross, closed candles).</li>
+        <li><strong>Confirmation:</strong> RSI(14) below 35 turning up (pullback exhausted) or driving through 50 with momentum.</li>
+        <li><strong>Session gate:</strong> 08:00–20:00 server time, London + New York only.</li>
+        <li><strong>Spread check:</strong> below maximum threshold — if crossing the spread costs too much, skip.</li>
     </ol>
 
     <div class="callout mint">
         <div class="callout-title">Mirror image for shorts</div>
-        <p>Price below falling 21 EMA + 8 EMA crosses <em>below</em> 21 EMA + RSI above 65 rolling over + valid session + clean spread. Same discipline, opposite direction.</p>
+        <p>Price below falling 21 EMA + 8 EMA crosses below + RSI above 65 rolling over + valid session + clean spread. Same discipline, opposite direction.</p>
     </div>
 
     <h3>Exits — where trades are won</h3>
     <ul>
         <li><strong>Initial stop:</strong> fixed-pips version for majors (default 20), or ATR-based (Gold Bot: SL ≈ 1.5×ATR, TP ≈ 2.5×ATR) so distance adapts to live volatility.</li>
-        <li><strong>Take profit:</strong> set at structural/ATR targets — never widened mid-trade on hope.</li>
-        <li><strong>Trailing stop:</strong> once profit exceeds ~10 pips, trail by 5-pip steps. Winners get room early, then get locked in — the mechanism that produces lopsided win/loss ratios.</li>
-        <li><strong>Exposure cap:</strong> maximum 3 concurrent positions (Scalping Bot), 2 (Gold Bot), 5 (Global Bot). Concentration limits are part of the system, not an afterthought.</li>
+        <li><strong>Take profit:</strong> structural or ATR-projected targets — never widened mid-trade on hope.</li>
+        <li><strong>Trailing stop:</strong> once profit exceeds ~10 pips, trail by 5-pip steps. Winners get room early, then get locked in.</li>
+        <li><strong>Exposure cap:</strong> max 3 concurrent positions (Scalping Bot), 2 (Gold Bot), 5 (Global Bot).</li>
     </ul>
 
-    <h3>Worked example</h3>
+    <h3>Risk-reward: the arithmetic of being wrong</h3>
+    <p>Here's the mental shift that changes careers: with disciplined 1:2 risk-reward, you can lose <strong>more trades than you win and compound aggressively</strong>. Risk £100 to make £200 and a 40% win rate still prints money. Chasing 90% win rates with 1:5 risk is how accounts die quietly.</p>
+
+    <figure class="figure"><div class="chart-frame"><svg viewBox="0 0 720 340" role="img"><defs><marker id="mG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFD700"/></marker><marker id="mM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00FFB2"/></marker><marker id="mR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF6B6B"/></marker></defs><line class="grid" x1="60" y1="250.2" x2="650" y2="250.2"/><text class="axis-txt" x="658" y="254.2">100</text><line class="grid" x1="60" y1="200.4" x2="650" y2="200.4"/><text class="axis-txt" x="658" y="204.4">102</text><line class="grid" x1="60" y1="150.5" x2="650" y2="150.5"/><text class="axis-txt" x="658" y="154.5">104</text><line class="grid" x1="60" y1="100.7" x2="650" y2="100.7"/><text class="axis-txt" x="658" y="104.7">106</text><line class="grid" x1="60" y1="50.9" x2="650" y2="50.9"/><text class="axis-txt" x="658" y="54.9">108</text><line class="cb" x1="250.0" y1="211.9" x2="250.0" y2="251.1" stroke-width="1.5"/><rect class="cb" x="242.0" y="222.8" width="16" height="17.4" rx="1"/><line class="cr" x1="280.0" y1="207.5" x2="280.0" y2="259.0" stroke-width="1.5"/><rect class="cr" x="272.0" y="222.8" width="16" height="22.4" rx="1"/><line class="cb" x1="310.0" y1="198.1" x2="310.0" y2="263.1" stroke-width="1.5"/><rect class="cb" x="302.0" y="215.3" width="16" height="29.9" rx="1"/><line class="cb" x1="340.0" y1="158.8" x2="340.0" y2="236.2" stroke-width="1.5"/><rect class="cb" x="332.0" y="180.4" width="16" height="34.9" rx="1"/><line class="cb" x1="370.0" y1="125.4" x2="370.0" y2="202.1" stroke-width="1.5"/><rect class="cb" x="362.0" y="145.6" width="16" height="34.9" rx="1"/><line class="cb" x1="400.0" y1="92.0" x2="400.0" y2="164.2" stroke-width="1.5"/><rect class="cb" x="392.0" y="110.7" width="16" height="34.9" rx="1"/><line class="cb" x1="430.0" y1="58.5" x2="430.0" y2="129.0" stroke-width="1.5"/><rect class="cb" x="422.0" y="78.3" width="16" height="32.4" rx="1"/><line class="cb" x1="460.0" y1="49.3" x2="460.0" y2="90.6" stroke-width="1.5"/><rect class="cb" x="452.0" y="60.9" width="16" height="17.4" rx="1"/><rect class="zone-m" x="256.0" y="125.6" width="204.0" height="84.7"/><rect class="zone-r" x="256.0" y="210.3" width="204.0" height="42.3"/><line class="hline-w" x1="60.0" y1="210.3" x2="650.0" y2="210.3"/><text class="note" text-anchor="end" x="64.0" y="195.3">ENTRY 1.08500</text><line class="hline-r" x1="60.0" y1="252.7" x2="650.0" y2="252.7"/><text class="note red" text-anchor="end" x="64.0" y="267.7">STOP  &#8722;1R</text><line class="hline-m" x1="60.0" y1="125.6" x2="650.0" y2="125.6"/><text class="note mint" text-anchor="end" x="64.0" y="108.6">TARGET  +2R</text><text class="note red" text-anchor="middle" x="4.0" y="239.0">Risk &#163;100</text><text class="note mint" text-anchor="middle" x="4.0" y="166.7">Reward &#163;200 &#8212; same trade, 1:2</text></svg></div><figcaption>Figure 12 &#8212; Risk-reward visualised: be wrong often and still compound.</figcaption></figure>
+
+    <h3>Worked example — five checks, every time</h3>
     <div class="tbl-wrap">
         <table>
             <thead><tr><th>Step</th><th>Condition</th><th>Status</th></tr></thead>
@@ -601,16 +740,19 @@
                 <tr><td>Confirmation</td><td>RSI pulled back to 32 and turned up</td><td class="mono">PASS</td></tr>
                 <tr><td>Session</td><td>09:15 server time — inside window</td><td class="mono">PASS</td></tr>
                 <tr><td>Spread</td><td>EUR/USD spread 0.8 pips &lt; 1.5 max</td><td class="mono">PASS</td></tr>
-                <tr><td>Action</td><td>Buy at 1.08540 · SL 1.08340 (20p) · TP 1.08690 (15p) · trail after +10p</td><td class="mono">EXECUTE</td></tr>
+                <tr><td>Action</td><td>Buy 1.08540 · SL 1.08340 (20p) · TP 1.08690 (15p) · trail after +10p</td><td class="mono">EXECUTE</td></tr>
             </tbody>
         </table>
     </div>
 
-    <p>Five checks, every single time. If any line fails, the trade fails — no negotiation. That mechanical stubbornness is exactly what our bots automate and what the mentorship drills into your habits.</p>
+    <div class="callout">
+        <div class="callout-title">IMPERA Rule</div>
+        <p>Stop asking "will this trade win?" Start asking "does this trade match my system?" One question destroys accounts; the other builds them.</p>
+    </div>
 
     <div class="cta-band">
         <h3>Want This Taught To You Live?</h3>
-        <p>Mentorship members learn the full IMPERA strategy 1:1 — entries, exits, session timing, journal audits and psychology coaching, plus the private trading group with daily setups.</p>
+        <p>Mentorship members learn the full IMPERA model 1:1 — entries, exits, session timing, journal audits and psychology coaching, plus the private group with daily setups.</p>
         <div class="btn-row">
             <a class="btn-gold" href="index.html#mentorship">Explore Mentorship</a>
             <a class="btn-line" href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener">Free Telegram Signals</a>
@@ -618,14 +760,26 @@
     </div>
 </section>
 
-<!-- ======== CHAPTER 5 ======== -->
-<section class="chapter" id="ch5">
-    <div class="ch-head"><span class="ch-num">05</span><span class="ch-label">Capital</span></div>
+<section class="chapter" id="ch6">
+    <div class="ch-head"><span class="ch-num">06</span><span class="ch-label">Capital</span></div>
     <h2 class="ch-title">Risk Management — Your Real Edge</h2>
-    <p class="ch-lede">Strategy decides how you win. Risk management decides whether you survive long enough to win at all. This chapter is the most important one in the book.</p>
+    <p class="ch-lede">Strategy decides how you win. Risk management decides whether you survive long enough to win at all. This is the most important chapter in the book.</p>
 
     <h3>The 1% commandment</h3>
-    <p>Never risk more than <strong>1%</strong> of your account on a single trade (2% absolute ceiling). At 1%, a catastrophic 10-loss streak costs ~9.6% — painful but fully recoverable. At 10% risk, the same streak erases 65% of the account, demanding a +186% climb just to break even. Survival math is brutal and non-negotiable.</p>
+    <p>Never risk more than <strong>1%</strong> of your account on a single trade (2% absolute ceiling). At 1%, even a catastrophic 10-loss streak costs ~9.6% — painful but fully recoverable. At 10%, the same streak erases 65% of the account and demands a +186% climb just to break even. Survival math is brutal and non-negotiable:</p>
+
+    <div class="tbl-wrap">
+        <table>
+            <thead><tr><th>Drawdown</th><th>Gain needed to recover</th><th>Verdict</th></tr></thead>
+            <tbody>
+                <tr><td class="mono">−5%</td><td class="mono">+5.3%</td><td class="good">Routine</td></tr>
+                <tr><td class="mono">−10%</td><td class="mono">+11%</td><td class="good">Recoverable</td></tr>
+                <tr><td class="mono">−25%</td><td class="mono">+33%</td><td class="mid">Serious damage</td></tr>
+                <tr><td class="mono">−50%</td><td class="mono">+100%</td><td class="warn">Career-ending</td></tr>
+                <tr><td class="mono">−75%</td><td class="mono">+300%</td><td class="warn">Game over</td></tr>
+            </tbody>
+        </table>
+    </div>
 
     <h3>Position sizing — the only formula you need</h3>
     <div class="formula">
@@ -634,17 +788,17 @@
         Lot Size = (£2,000 × 0.01) ÷ (20 × £10) = <b>0.01 lots</b>
     </div>
 
-    <p>Notice what this means: <strong>the stop distance determines the lot size — never the other way round.</strong> Choose your invalidation point first (structure/ATR), then let the maths dictate size. This is also how the bots' dynamic lot sizing works: risk stays constant while size scales with balance.</p>
+    <p>Notice what this means: <strong>the stop distance determines the lot size — never the other way round.</strong> Choose invalidation first (structure/ATR), then let maths dictate size. This is exactly how the bots' dynamic lot sizing behaves: constant risk, balance-scaling exposure.</p>
 
     <h3>Diversification &amp; correlation</h3>
     <ul>
-        <li>EUR/USD and GBP/USD are ~85% correlated — long both simultaneously and you've doubled your real risk, not diversified it.</li>
+        <li>EUR/USD and GBP/USD are ~85% correlated — long both and you've doubled real risk, not diversified it.</li>
         <li>Cap total open risk across all positions (bots enforce this with concurrent-trade limits).</li>
-        <li>One instrument traded excellently beats five traded anxiously. Master EUR/USD or XAU/USD first.</li>
+        <li>One instrument traded excellently beats five traded anxiously. Master XAU/USD or EUR/USD first.</li>
     </ul>
 
     <h3>Circuit breakers</h3>
-    <p>The Global Bot ships with a <strong>max-drawdown circuit breaker</strong> that halts trading when losses hit a predefined threshold. Copy this manually: stop for the week at <strong>−4%</strong>; stop for the month at <strong>−8%</strong>. Then review the journal before resuming. Circuit breakers convert disasters into lessons.</p>
+    <p>The Global Bot ships with a <strong>max-drawdown circuit breaker</strong> halting trading at a predefined loss threshold. Copy it manually: stop for the week at <strong>−4%</strong>, stop for the month at <strong>−8%</strong>. Review the journal before resuming. Circuit breakers convert disasters into lessons.</p>
 
     <div class="callout red">
         <div class="callout-title">The unforgivable sins</div>
@@ -658,16 +812,15 @@
     </div>
 </section>
 
-<!-- ======== CHAPTER 6 ======== -->
-<section class="chapter" id="ch6">
-    <div class="ch-head"><span class="ch-num">06</span><span class="ch-label">Discipline</span></div>
-    <h2 class="ch-title">Trading Psychology — Master Yourself First</h2>
-    <p class="ch-lede">The market is a device for transferring money from the impatient to the patient. Your biology is wired against you — here's how to fight back.</p>
+<section class="chapter" id="ch7">
+    <div class="ch-head"><span class="ch-num">07</span><span class="ch-label">Discipline</span></div>
+    <h2 class="ch-title">Trading Psychology</h2>
+    <p class="ch-lede">The market is a device for transferring money from the impatient to the patient. Your biology is wired against you — here's the counter-system.</p>
 
     <h3>Your brain is the enemy (and the fix)</h3>
-    <p>Every open position triggers real neurological responses: losses sting roughly twice as much as equivalent gains feel good (loss aversion), and uncertainty craves resolution (which is why traders close winners early but nurse losers — the disposition effect). You cannot delete these instincts. You can only build systems that make acting on them impossible.</p>
+    <p>Every open position triggers real neurological responses: losses sting roughly twice as much as equivalent gains feel good (loss aversion), and uncertainty craves resolution — which is why traders close winners instantly but nurse losers for weeks (the disposition effect). You cannot delete these instincts. You can build systems that make acting on them impossible.</p>
 
-    <h3>The four emotional states to recognise in real time</h3>
+    <h3>The four emotional states</h3>
     <div class="grid2">
         <div class="mini-card">
             <h4>Fear</h4>
@@ -675,7 +828,7 @@
         </div>
         <div class="mini-card">
             <h4>Greed</h4>
-            <p>Symptom: oversizing, removing TPs "to let it run", adding to losers. Fix: fixed risk %, hard exposure caps, automation of exits.</p>
+            <p>Symptom: oversizing, removing TPs "to let it run", adding to losers. Fix: fixed risk %, hard exposure caps, automated exits.</p>
         </div>
         <div class="mini-card">
             <h4>Revenge</h4>
@@ -687,12 +840,12 @@
         </div>
     </div>
 
-    <h3>The habits that separate professionals</h3>
+    <h3>The habits of professionals</h3>
     <ul>
         <li><strong>Journal everything:</strong> screenshot, thesis, emotion rating, result. Your journal — not the market — is your best teacher. Mentorship members get theirs audited personally.</li>
-        <li><strong>Fixed routine:</strong> same prep, same hours, same review. Rituals reduce decision fatigue and impulsive improvisation.</li>
-        <li><strong>Detach from single outcomes:</strong> judge yourself on rule-adherence each week, not P&amp;L. Rules followed + negative week = still a successful week.</li>
-        <li><strong>Protect the machine:</strong> sleep, exercise, breaks after intense sessions. A tired trader is just a gambler with worse odds.</li>
+        <li><strong>Fixed routine:</strong> same prep, same hours, same review. Rituals reduce decision fatigue.</li>
+        <li><strong>Judge process, not outcomes:</strong> rules followed + negative week = successful week.</li>
+        <li><strong>Protect the machine:</strong> sleep, exercise, breaks after intense sessions. A tired trader is a gambler with worse odds.</li>
     </ul>
 
     <div class="callout">
@@ -701,9 +854,8 @@
     </div>
 </section>
 
-<!-- ======== CHAPTER 7 ======== -->
-<section class="chapter" id="ch7">
-    <div class="ch-head"><span class="ch-num">07</span><span class="ch-label">Execution</span></div>
+<section class="chapter" id="ch8">
+    <div class="ch-head"><span class="ch-num">08</span><span class="ch-label">Execution</span></div>
     <h2 class="ch-title">Automating With IMPERA Bots</h2>
     <p class="ch-lede">Once the edge is proven, the final upgrade is removing human error from execution entirely. Here's how our Expert Advisors work and how to deploy one properly.</p>
 
@@ -735,7 +887,7 @@
         <h4>IMPERA Global Bot</h4>
         <div class="bot-sub">Full Multi-Strategy Engine · All Symbols · MT5</div>
         <ul>
-            <li>Three strategies in one engine: Scalp + Swing + Breakout</li>
+            <li>Three engines in one: Scalp + Swing + Breakout</li>
             <li>Eight-indicator confluence: EMA, RSI, MACD, ATR, Stochastic, Bollinger, ADX + more</li>
             <li>Bollinger Band breakout detection for volatility expansions</li>
             <li>Max-drawdown circuit breaker · risk-% sizing · max 5 trades</li>
@@ -745,18 +897,18 @@
     <h3>Deployment checklist</h3>
     <ul class="checklist">
         <li>Choose a low-spread, fast-execution <strong>MT5 broker</strong> (e.g. IC Markets, Pepperstone, XM)</li>
-        <li>Install MetaTrader 5, log in to your broker account</li>
-        <li>Copy the <code>.mq5</code> file into <em>MQL5 → Experts</em> and refresh the Navigator</li>
+        <li>Install MetaTrader 5 and log in to your broker account</li>
+        <li>Copy the <code>.mq5</code> file into <em>MQL5 → Experts</em>, refresh the Navigator</li>
         <li>Enter your licence key (<code>IMPERA-XXXX-XXXX-XXXX</code>) in the inputs tab</li>
         <li>Enable <strong>Algo Trading</strong> and drag the bot onto your chosen chart/timeframe</li>
-        <li>Run on a demo account first until behaviour is familiar</li>
+        <li>Run on demo first until behaviour is familiar</li>
         <li>Host on a VPS for uninterrupted 24/5 operation</li>
-        <li>Set lot size / risk % to match Chapter 5 rules before going live</li>
+        <li>Set lot size / risk % to match Chapter 6 rules before going live</li>
     </ul>
 
     <div class="callout mint">
         <div class="callout-title">Security note</div>
-        <p>Your funds never leave your broker account. Bots trade <em>inside</em> your terminal with your licence — IMPERA never takes custody of capital. Anyone claiming otherwise isn't us.</p>
+        <p>Your funds never leave your broker account. Bots trade <em>inside</em> your terminal under your licence — IMPERA never takes custody of capital. Anyone claiming otherwise isn't us.</p>
     </div>
 
     <div class="cta-band">
@@ -768,30 +920,30 @@
     </div>
 </section>
 
-<!-- ======== CHAPTER 8 ======== -->
-<section class="chapter" id="ch8">
-    <div class="ch-head"><span class="ch-num">08</span><span class="ch-label">Playbook</span></div>
-    <h2 class="ch-title">Your First 30 Days — The Action Plan</h2>
+<section class="chapter" id="ch9">
+    <div class="ch-head"><span class="ch-num">09</span><span class="ch-label">Playbook</span></div>
+    <h2 class="ch-title">Your First 30 Days</h2>
     <p class="ch-lede">Knowledge without a schedule evaporates. Follow this four-week ramp and finish the month with proof, not opinions.</p>
 
     <h3>Week 1 — Observe</h3>
     <ul>
-        <li>Mark up London/NY session windows on your charts daily</li>
-        <li>Add EMA 8/21 + RSI(14); identify every textbook crossover (no trades yet)</li>
-        <li>Join the <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener">free Telegram</a> and watch how setups are framed</li>
+        <li>Mark London/NY sessions on your charts daily (Figure 1)</li>
+        <li>Add EMA 8/21 + RSI(14); tag every textbook crossover — no trades yet</li>
+        <li>Pick your ONE strategy from Chapter 4 and write out its rules</li>
+        <li>Join the <a href="https://t.me/+PwykI4dxBOEzMGFk" target="_blank" rel="noopener">free Telegram</a> and study how setups are framed</li>
     </ul>
 
     <h3>Week 2 — Simulate</h3>
     <ul>
-        <li>Paper-trade the Chapter 4 checklist on demo; minimum 15 logged setups</li>
-        <li>Calculate position size for every trade using the Chapter 5 formula</li>
+        <li>Paper-trade your chosen strategy on demo; minimum 15 logged setups</li>
+        <li>Calculate position size for every trade using the Chapter 6 formula</li>
         <li>Journal each entry: checklist pass/fail, emotion score 1–5, outcome</li>
     </ul>
 
     <h3>Week 3 — Go Live Small</h3>
     <ul>
-        <li>Trade live at 0.25–0.5% risk per trade — real money changes psychology</li>
-        <li>Maximum 1–2 trades/day; honour the cooldown and circuit-breaker rules</li>
+        <li>Trade live at 0.25–0.5% risk — real money changes psychology</li>
+        <li>Maximum 1–2 trades/day; honour cooldown and circuit-breaker rules</li>
         <li>Review the journal every Sunday; tag your most common mistake</li>
     </ul>
 
@@ -807,8 +959,8 @@
         <div class="callout-title">Fill this in and pin it above your desk</div>
         <ul>
             <li><strong>Instruments:</strong> ______ (start with ONE — e.g. XAU/USD or EUR/USD)</li>
-            <li><strong>Sessions:</strong> London / NY — I do not trade outside ______ – ______</li>
-            <li><strong>Setup:</strong> my exact trigger + confirmation conditions (from Ch. 4)</li>
+            <li><strong>Strategy:</strong> my chosen library strategy + its killer filter</li>
+            <li><strong>Sessions:</strong> I do not trade outside ______ – ______ GMT</li>
             <li><strong>Risk:</strong> ____% per trade · max ____ open trades · weekly stop at −____%</li>
             <li><strong>Exits:</strong> initial SL method · TP method · trailing rule</li>
             <li><strong>Forbidden:</strong> news trading · revenge entries · moving stops · oversized lots</li>
@@ -819,7 +971,7 @@
     <h3>The pre-trade checklist</h3>
     <ul class="checklist">
         <li>Is this a valid session (London/NY)?</li>
-        <li>Does trend context agree with my direction?</li>
+        <li>Does higher-timeframe structure agree with my direction?</li>
         <li>Has my exact trigger fired on a <em>closed</em> candle?</li>
         <li>Is my confirmation indicator aligned?</li>
         <li>Is spread acceptable and no red-folder news imminent?</li>
@@ -829,7 +981,7 @@
 
     <div class="cta-band">
         <h3>Don't Do It Alone</h3>
-        <p>Thousands of traders are running IMPERA systems right now. Get the bots, the mentorship, or start with free daily signals — whichever matches your pace.</p>
+        <p>Thousands of traders run IMPERA systems right now. Get the bots, the mentorship, or start with free daily signals — whichever matches your pace.</p>
         <div class="btn-row">
             <a class="btn-gold" href="index.html#store">Get a Bot</a>
             <a class="btn-line" href="index.html#mentorship">Join Mentorship</a>
@@ -838,7 +990,6 @@
     </div>
 </section>
 
-<!-- ======== END NOTE & DISCLAIMER ======== -->
 <footer class="endnote">
     <div class="crown-mark">
         <svg width="52" height="52" viewBox="0 0 64 64" fill="none">

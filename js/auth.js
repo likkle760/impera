@@ -101,9 +101,50 @@
 
     const isMentorship = (botKey) => botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
 
+    const TIER_MAP = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+    const IMPERA_API = 'https://impera-5b6l.onrender.com';
+
     function userProducts(email) {
         const u = findUser(email);
         return (u && u.products) || [];
+    }
+
+    // Pull this buyer's real purchases from the IMPERA server so the
+    // dashboard works on any device / after clearing browser storage.
+    async function syncFromServer(email) {
+        if (!email) return 0;
+        let base = IMPERA_API;
+        try { base = localStorage.getItem('impera_api_url') || IMPERA_API; } catch (e) {}
+        let data;
+        try {
+            const r = await fetch(base.replace(/\/$/, '') + '/api/products/' + encodeURIComponent(email));
+            if (!r.ok) return 0;
+            data = await r.json();
+        } catch (e) { return 0; }
+        if (!data || !Array.isArray(data.products)) return 0;
+        let added = 0;
+        data.products.forEach(p => {
+            const rec = {
+                sessionId: p.sessionId, bot: p.bot, botName: p.botName,
+                licenceKey: p.licenceKey || null, plan: null, date: p.date
+            };
+            const purchases = getPurchases();
+            if (!purchases.find(x => x.sessionId === rec.sessionId)) {
+                purchases.push(Object.assign({ email: String(email).toLowerCase() }, rec));
+                write(K.purchases, purchases);
+                added++;
+            }
+            const users = getUsers();
+            const u = users.find(x => x.email === String(email).toLowerCase());
+            if (u) {
+                u.products = u.products || [];
+                if (!u.products.find(x => x.sessionId === rec.sessionId)) {
+                    u.products.push(rec);
+                    saveUsers(users);
+                }
+            }
+        });
+        return added;
     }
 
     function hasMentorship(email) {
@@ -130,10 +171,14 @@
         if (!sess || !sess.email) return sess;
         const prods = userProducts(sess.email);
         sess.purchasedBots = prods.filter(p => !isMentorship(p.bot)).map(p => p.bot);
-        const lastBot = prods.filter(p => !isMentorship(p.bot)).pop();
+        const lastBot = prods.filter(p => !isMentorship(p.bot) && p.licenceKey).pop();
         if (lastBot) {
             sess.licence = sess.licence || lastBot.licenceKey;
-            sess.tier = sess.tier || (lastBot.bot === 'scalping' ? 'Scalping' : lastBot.bot === 'gold' ? 'Gold' : 'Global');
+            if (!sess.unlockedBots || !sess.unlockedBots.length) {
+                const k = TIER_MAP[lastBot.bot] ? lastBot.bot : null;
+                sess.unlockedBots = k ? [k] : [];
+            }
+            sess.tier = sess.tier || TIER_MAP[lastBot.bot] || null;
         }
         sess.isMember = hasMentorship(sess.email);
         return sess;
@@ -252,7 +297,7 @@
         K, OWNER, SLOTS,
         getUsers, findUser, createUser, genPassword,
         getPurchases, addPurchase, userProducts, hasMentorship, mentorshipPlan, isMentorship,
-        hydrateSession,
+        hydrateSession, syncFromServer,
         login, register, autoProvision, provisionWithPassword, resetOwner,
         session, setSession, clearSession,
         getBookings, addBooking, updateBooking, deleteBooking, bookedSlots

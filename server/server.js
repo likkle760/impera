@@ -111,6 +111,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const smtpConfigured = () => !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+const apiMailConfigured = () => !!(process.env.RESEND_API_KEY || process.env.BREVO_API_KEY);
 
 // HTTP email APIs (work on Render free tier, which blocks SMTP ports)
 async function sendViaApi({ to, subject, html }) {
@@ -146,9 +147,9 @@ async function sendViaApi({ to, subject, html }) {
 }
 
 async function sendHtml(to, subject, html) {
-    if (process.env.RESEND_API_KEY) return sendViaApi({ to, subject, html });
+    if (apiMailConfigured()) return sendViaApi({ to, subject, html });
     if (!smtpConfigured()) {
-        console.log('[mail] SKIPPED "' + subject + '" -> ' + to + ' (no RESEND_API_KEY and SMTP_USER/SMTP_PASS not set)');
+        console.log('[mail] SKIPPED "' + subject + '" -> ' + to + ' (no email API key and SMTP_USER/SMTP_PASS not set)');
         throw new Error('Email not configured');
     }
     await transporter.sendMail({
@@ -161,12 +162,12 @@ async function sendHtml(to, subject, html) {
 // Internal alert -> owner inbox (ADMIN_NOTIFY_EMAIL). Never blocks the main flow.
 async function notifyAdmin(subject, lines) {
     const to = process.env.ADMIN_NOTIFY_EMAIL;
-    if (!to || (!process.env.RESEND_API_KEY && !smtpConfigured())) {
+    if (!to || (!apiMailConfigured() && !smtpConfigured())) {
         console.log('[mail] admin alert SKIPPED "' + subject + '" (no ADMIN_NOTIFY_EMAIL / RESEND_API_KEY / SMTP)');
         return;
     }
     try {
-        if (process.env.RESEND_API_KEY) {
+        if (apiMailConfigured()) {
             await sendViaApi({ to, subject, html: `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;background:#f4f6fb;padding:24px;">
                 <table role="presentation" width="100%" bgcolor="#050505" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 16px;">
                 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#0b0d10;border:1px solid rgba(201,169,98,.35);border-radius:14px;">
@@ -215,9 +216,10 @@ function loadTemplate(name, vars) {
 // ---------- Provisioning ----------
 function provision({ sessionId, type, productName, priceId, amountFormatted }) {
     const map = priceMap()[priceId] || {};
-    const isMentorship = map.type === 'mentorship' || /mentor/i.test(type);
+    const isMentorship = map.type === 'mentorship' || /mentor|membership/i.test(type);
     const password = genPassword();
     const licenceKey = isMentorship ? null : genLicence();
+    const tier = isMentorship ? null : (TIER_BY_KEY[type] || null);
 
     const accounts = db.read('accounts.json');
     let rec = accounts.find(a => a.sessionId === sessionId);
@@ -225,7 +227,7 @@ function provision({ sessionId, type, productName, priceId, amountFormatted }) {
         rec = { sessionId, createdAt: new Date().toISOString(), emailed: false };
         accounts.push(rec);
     }
-    Object.assign(rec, { type, productName, priceId, amountFormatted, password, licenceKey });
+    Object.assign(rec, { type, productName, priceId, amountFormatted, password, licenceKey, tier });
     db.write('accounts.json', accounts);
     return rec;
 }
@@ -632,12 +634,12 @@ app.get('/api/mailcheck', async (req, res) => {
     if (req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
         return res.status(401).json({ error: 'unauthorized' });
     }
-    if (!process.env.RESEND_API_KEY && !smtpConfigured()) return res.json({ ok: false, error: 'No email method configured. Add RESEND_API_KEY (free tier) or SMTP vars (paid instance).' });
+    if (!apiMailConfigured() && !smtpConfigured()) return res.json({ ok: false, error: 'No email method configured. Add RESEND_API_KEY / BREVO_API_KEY (free tier) or SMTP vars (paid instance).' });
     if (!process.env.ADMIN_NOTIFY_EMAIL) return res.json({ ok: false, error: 'ADMIN_NOTIFY_EMAIL is not set.' });
     try {
         await sendHtml(process.env.ADMIN_NOTIFY_EMAIL, 'IMPERA — mail test',
             '<div style="font-family:Arial,sans-serif;padding:24px">If you receive this, order &amp; booking emails are working. 👑</div>');
-        res.json({ ok: true, via: process.env.RESEND_API_KEY ? 'resend-api' : 'smtp' });
+        res.json({ ok: true, via: process.env.BREVO_API_KEY ? 'brevo-api' : (process.env.RESEND_API_KEY ? 'resend-api' : 'smtp') });
     } catch (err) {
         res.json({ ok: false, error: err.message });
     }
@@ -658,6 +660,37 @@ app.get('/api/account/:sessionId', async (req, res) => {
         name: rec.customerName || '',
         nextSession: rec.nextSession || null
     });
+});
+
+// ---------- Products by buyer email (drives dashboard across devices) ----------
+const TIER_BY_KEY = { scalping: 'Scalping', 'impera-bot': 'Scalping', gold: 'Gold', global: 'Global' };
+
+app.get('/api/products/:email', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    const users = db.read('users.json');
+    const u = users.find(x => (x.email || '').toLowerCase() === String(req.params.email || '').toLowerCase());
+    if (!u) return res.status(404).json({ error: 'not found' });
+    res.json({
+        name: u.name || '',
+        products: (u.products || []).map(p => ({
+            sessionId: p.sessionId, bot: p.bot, botName: p.botName,
+            licenceKey: p.licenceKey || null, date: p.date
+        }))
+    });
+});
+
+// ---------- Licence activation (validates against real orders only) ----------
+app.post('/api/licence/activate', express.json(), (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    const key = String((req.body || {}).key || '').trim().toUpperCase();
+    if (!/^IMPERA-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(key)) {
+        return res.status(400).json({ ok: false, error: 'Invalid key format.' });
+    }
+    const rec = db.read('accounts.json').find(a => a.licenceKey === key);
+    if (!rec) return res.status(404).json({ ok: false, error: 'This licence key was not recognised. Keys are issued by email after purchase.' });
+    const botKey = TIER_BY_KEY[rec.type] ? rec.type : null;
+    if (!botKey) return res.status(400).json({ ok: false, error: 'This key belongs to a mentorship plan and unlocks sessions, not a bot download.' });
+    res.json({ ok: true, tier: TIER_BY_KEY[botKey], botKey, productName: rec.productName || 'IMPERA Bot', orderEmail: rec.customerEmail || null });
 });
 
 // ---------- Meeting reminder (admin-triggered) ----------

@@ -56,7 +56,8 @@ const SUMUP_CATALOG = {
     gold:           { name: 'IMPERA Gold Bot',            type: 'bot', amount: 125 },
     global:         { name: 'IMPERA Global Bot',          type: 'bot', amount: 245 },
     'impera-bot':   { name: 'IMPERA Bot',                 type: 'bot', amount: 0 },
-    'mentor-lifetime': { name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 }
+    'mentor-lifetime': { name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 },
+    test:           { name: 'IMPERA Bot — Test',          type: 'bot', amount: 1 }
 };
 
 function priceMap() {

@@ -1,162 +1,58 @@
 <!DOCTYPE html>
-<!--
-  IMPERA — Order Declined email template (Stripe payment failed)
-  ==============================================================
-  HOW TO USE
-  ----------
-  Send this from your backend when Stripe fires the webhook:
-      checkout.session.expired, payment_intent.payment_failed,
-      or charge.failed
-
-  Replace the {{placeholders}} below with real values:
-    {{customer_name}}   -> customer name (or "there" if unknown)
-    {{bot_name}}        -> product they tried to buy e.g. IMPERA Gold Bot
-    {{amount}}          -> formatted total          e.g. £249.00
-    {{order_number}}    -> session / order id       e.g. #IMP-100234
-    {{date}}            -> attempt date             e.g. 22 Aug 2026, 14:32
-    {{decline_reason}}  -> decline reason from Stripe (e.g. "Your card was declined",
-                           "Insufficient funds", "Card expired"). Use the
-                           charge.failure_message / last_payment_error.message.
-    {{retry_url}}       -> link back to your checkout page so they can retry
-                           (e.g. https://yoursite.com/checkout.html?bot=gold)
-    {{telegram_url}}    -> your Telegram invite     e.g. https://t.me/+PwykI4dxBOEzMGFk
-    {{support_email}}   -> your support inbox       e.g. support@impera.io
--->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-apple-disable-message-reformatting">
-<title>Your IMPERA payment could not be completed</title>
+<title>Action needed regarding your IMPERA order</title>
 </head>
-<body style="margin:0; padding:0; background:#f4f6fb; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#171717;">
-
-<!-- Preheader -->
-<div style="display:none; max-height:0; overflow:hidden;">
-  Your payment for {{bot_name}} didn't go through — no money was taken. Try again in one click.
+<body style="margin:0;padding:0;background:#f4f6fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#171717;">
+<div style="display:none;max-height:0;overflow:hidden;">Your payment could not be completed - you have not been charged.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb;">
+<tr><td align="center" style="padding:32px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+<tr><td align="center" style="padding:8px 0 24px 0;">
+  <div style="font-size:22px;font-weight:800;letter-spacing:6px;color:#0b1220;">IMPERA<span style="color:#d64545;">.</span></div>
+  <div style="font-size:11px;color:#8a93a5;letter-spacing:2px;margin-top:2px;">AI-POWERED TRADING</div>
+</td></tr>
+<tr><td>
+<div style="background:#ffffff;border-radius:16px;overflow:hidden;">
+<div style="background:#0b1220;padding:36px 40px;text-align:center;">
+  <div style="width:64px;height:64px;line-height:64px;text-align:center;background:#d64545;border-radius:50%;font-size:30px;color:#ffffff;margin:0 auto 16px auto;">&#10007;</div>
+  <h1 style="margin:0;font-size:24px;font-weight:800;color:#ffffff;">Payment Declined</h1>
+  <p style="margin:8px 0 0 0;font-size:14px;color:#9fb0c9;">You have not been charged &mdash; no money left your account.</p>
 </div>
-
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb; padding:32px 12px;">
-<tr>
-<td align="center">
-
-  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
-
-    <!-- Logo -->
-    <tr>
-      <td align="center" style="padding:8px 0 24px 0;">
-        <div style="font-size:22px; font-weight:800; letter-spacing:6px; color:#0b1220;">IMPERA<span style="color:#e5484d;">.</span></div>
-        <div style="font-size:11px; color:#8a93a5; letter-spacing:2px; margin-top:2px;">AI-POWERED TRADING</div>
-      </td>
-    </tr>
-
-    <!-- Card -->
-    <tr>
-      <td style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(11,18,32,0.08);">
-
-        <!-- Header -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0b1220;">
-          <tr>
-            <td align="center" style="padding:36px 40px 32px 40px;">
-              <div style="width:64px; height:64px; line-height:64px; text-align:center; background:#e5484d; border-radius:50%; font-size:30px; color:#ffffff; margin:0 auto 16px auto;">&#10005;</div>
-              <h1 style="margin:0; font-size:24px; font-weight:800; color:#ffffff;">Payment Declined</h1>
-              <p style="margin:8px 0 0 0; font-size:14px; color:#9fb0c9;">Your order could not be completed — no money was taken.</p>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Greeting -->
-        <tr><td style="padding:32px 40px 0 40px;">
-          <p style="margin:0 0 16px 0; font-size:15px; line-height:1.7; color:#3c4657;">
-            Hi <strong style="color:#0b1220;">{{customer_name}}</strong>,
-          </p>
-          <p style="margin:0 0 24px 0; font-size:15px; line-height:1.7; color:#3c4657;">
-            We tried to process your payment of <strong style="color:#0b1220;">{{amount}}</strong> for the
-            <strong style="color:#0b1220;">{{bot_name}}</strong>, but it was declined by Stripe or your bank.
-            <strong style="color:#0b1220;">You have not been charged.</strong>
-          </p>
-        </td></tr>
-
-        <!-- Reason -->
-        <tr><td style="padding:0 40px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf3f3; border:1px solid #f5d5d6; border-radius:12px;">
-            <tr>
-              <td style="padding:18px 20px;">
-                <p style="margin:0 0 6px 0; font-size:12px; font-weight:700; letter-spacing:1.2px; color:#c92f34; text-transform:uppercase;">Reason</p>
-                <p style="margin:0; font-size:14px; line-height:1.7; color:#3c4657;">{{decline_reason}}</p>
-              </td>
-            </tr>
-          </table>
-        </td></tr>
-
-        <!-- Order summary -->
-        <tr><td style="padding:20px 40px 0 40px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f9fc; border:1px solid #e6ebf3; border-radius:12px;">
-            <tr>
-              <td style="padding:16px 20px; font-size:13px; color:#8a93a5;">Order</td>
-              <td align="right" style="padding:16px 20px; font-size:13px; font-weight:600; color:#0b1220;">{{order_number}}</td>
-            </tr>
-            <tr>
-              <td style="padding:0 20px 16px 20px; font-size:13px; color:#8a93a5;">Product</td>
-              <td align="right" style="padding:0 20px 16px 20px; font-size:13px; font-weight:600; color:#0b1220;">{{bot_name}}</td>
-            </tr>
-            <tr>
-              <td style="padding:14px 20px; border-top:1px solid #e6ebf3; font-size:14px; font-weight:700; color:#0b1220;">Attempted amount</td>
-              <td align="right" style="padding:14px 20px; border-top:1px solid #e6ebf3; font-size:16px; font-weight:800; color:#e5484d;">{{amount}}</td>
-            </tr>
-          </table>
-        </td></tr>
-
-        <!-- Retry button -->
-        <tr><td align="center" style="padding:28px 40px 8px 40px;">
-          <a href="{{retry_url}}" style="display:inline-block; background:#0b66f2; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:15px 44px; border-radius:10px;">Try Again</a>
-        </td></tr>
-
-        <!-- Secondary -->
-        <tr><td align="center" style="padding:12px 40px 0 40px;">
-          <p style="margin:0; font-size:13px; line-height:1.8; color:#8a93a5;">
-            <a href="{{telegram_url}}" style="color:#0b66f2; text-decoration:none;">Join our Telegram (free signals)</a>
-          </p>
-        </td></tr>
-
-        <!-- Common fixes -->
-        <tr><td style="padding:28px 40px 0 40px;">
-          <p style="margin:0 0 10px 0; font-size:12px; font-weight:700; letter-spacing:1.5px; color:#8a93a5; text-transform:uppercase;">Common fixes</p>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#3c4657; line-height:1.7;">
-            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">&bull;</strong>&nbsp; Double-check your card number, expiry date and CVC.</td></tr>
-            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">&bull;</strong>&nbsp; Make sure your card has sufficient funds available.</td></tr>
-            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">&bull;</strong>&nbsp; Your bank may block international/online payments — try another card.</td></tr>
-            <tr><td style="padding:6px 0;"><strong style="color:#0b1220;">&bull;</strong>&nbsp; If your bank asked for 3D Secure approval, complete it during checkout.</td></tr>
-          </table>
-        </td></tr>
-
-        <!-- Support -->
-        <tr><td style="padding:28px 40px 36px 40px;">
-          <div style="border-top:1px solid #eef1f6; padding-top:20px; font-size:13px; line-height:1.7; color:#8a93a5;">
-            Still having trouble? Reply to this email or contact us at
-            <a href="mailto:{{support_email}}" style="color:#0b66f2; text-decoration:none;">{{support_email}}</a> — we'll get you set up.
-          </div>
-        </td></tr>
-      </td>
-    </tr>
-
-    <!-- Footer -->
-    <tr><td style="padding:0 8px;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; border-radius:0 0 16px 16px; box-shadow:0 4px 24px rgba(11,18,32,0.05);">
-        <tr><td align="center" style="padding:22px; border-top:1px solid #eef1f6;">
-          <p style="margin:0; font-size:11px; color:#aab2c2; line-height:1.7;">
-            &copy; 2026 IMPERA. All rights reserved.<br>
-            This is a transactional message regarding your order.
-          </p>
-        </td></tr>
-      </table>
-    </td></tr>
-
-  </table>
-
-</td>
-</tr>
+<div style="padding:32px 40px 0 40px;">
+  <p style="margin:0 0 8px 0;font-size:15px;line-height:1.7;color:#3c4657;">Hi <strong style="color:#0b1220;">{{customer_name}}</strong>,</p>
+  <p style="margin:0;font-size:15px;line-height:1.7;color:#3c4657;">We tried to process your payment for <strong style="color:#0b1220;">{{amount}}</strong> but it was declined by your bank.</p>
+</div>
+<div style="padding:24px 40px 0 40px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf3f3;border:1px solid #f2cfcf;border-radius:12px;">
+<tr><td style="padding:16px 20px;font-size:14px;line-height:1.7;color:#8a2f2f;"><strong>Reason:</strong> {{decline_reason}}</td></tr>
+</table></div>
+<div style="padding:24px 40px 0 40px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f9fc;border:1px solid #e6ebf3;border-radius:12px;">
+<tr><td style="padding:18px 20px;font-size:13px;color:#8a93a5;">Order</td><td align="right" style="padding:18px 20px;font-size:13px;font-weight:600;color:#0b1220;">{{order_number}}</td></tr>
+<tr><td style="padding:0 20px 18px 20px;font-size:13px;color:#8a93a5;">Date</td><td align="right" style="padding:0 20px 18px 20px;font-size:13px;font-weight:600;color:#0b1220;">{{date}}</td></tr>
+</table></div>
+<div style="padding:28px 40px 8px 40px;text-align:center;">
+  <a href="{{retry_url}}" style="display:inline-block;background:#00b37e;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:15px 44px;border-radius:10px;">Try Again</a>
+</div>
+<div style="padding:20px 40px 28px 40px;text-align:center;">
+  <p style="margin:0;font-size:13px;line-height:1.8;color:#8a93a5;">
+    Common fixes: try a different card &middot; check funds &middot; ask your bank to authorise the payment.<br>
+    Need help? <a href="mailto:{{support_email}}" style="color:#0b66f2;text-decoration:none;">{{support_email}}</a>
+    &nbsp;&middot;&nbsp;
+    <a href="{{telegram_url}}" style="color:#0b66f2;text-decoration:none;">Telegram support</a>
+  </p>
+</div>
+</div>
+</td></tr>
+<tr><td align="center" style="padding:16px 8px 8px 8px;">
+  <p style="margin:0;font-size:11px;color:#aab2c2;line-height:1.7;">&copy; 2026 IMPERA. All rights reserved.<br>Trading involves risk. Past performance is not indicative of future results.</p>
+</td></tr>
 </table>
-
+</td></tr>
+</table>
 </body>
 </html>

@@ -244,8 +244,9 @@ function loadTemplate(name, vars) {
 function provision({ sessionId, type, productName, priceId, amountFormatted }) {
     const map = priceMap()[priceId] || {};
     const isMentorship = map.type === 'mentorship' || /mentor|membership/i.test(type);
+    const isEbook = map.type === 'ebook' || /ebook/i.test(type);
     const password = genPassword();
-    const licenceKey = isMentorship ? null : genLicence();
+    const licenceKey = (isMentorship || isEbook) ? null : genLicence();
     const tier = isMentorship ? null : (TIER_BY_KEY[type] || null);
 
     const accounts = db.read('accounts.json');
@@ -430,6 +431,7 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
         accs[ai].customerEmail = email;
         accs[ai].amountValue = amountValue != null ? amountValue : null;
         accs[ai].amountFormatted = amountFormatted;
+        accs[ai].licenceKey = rec.licenceKey;
         accs[ai].emailed = rec.emailed;
     }
     db.write('accounts.json', accs);

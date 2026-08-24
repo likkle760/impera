@@ -806,7 +806,7 @@ app.post('/api/dev/order', express.json(), async (req, res) => {
             priceId: 'dev:' + key,
             amountFormatted: '£' + Number(info.amount).toFixed(2),
             amountValue: info.amount,
-            customerName: '',
+            customerName: String(req.body.name || '').trim(),
             email
         });
         res.json(acctPayload(rec.sessionId));

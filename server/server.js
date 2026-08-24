@@ -1101,6 +1101,7 @@ app.get('/api/mailcheck', async (req, res) => {
         res.json({
             ok: true,
             via: process.env.BREVO_API_KEY ? 'brevo-api' : (process.env.RESEND_API_KEY ? 'resend-api' : 'smtp'),
+            from: process.env.MAIL_FROM || '(unset — falling back to onboarding@resend.dev)',
             emailMode: {
                 order: process.env.RESEND_TPL_ORDER ? 'RESEND DASHBOARD TEMPLATE ' + process.env.RESEND_TPL_ORDER : 'built-in per-product html',
                 mentorship: process.env.RESEND_TPL_MENTORSHIP ? 'RESEND DASHBOARD TEMPLATE ' + process.env.RESEND_TPL_MENTORSHIP : 'built-in per-product html',

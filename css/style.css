@@ -2870,3 +2870,51 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     outline: 2px solid rgba(0,194,255,0.6);
     outline-offset: 2px;
 }
+
+/* ========================================
+   MOBILE POLISH — fix jumbled layouts
+   ======================================== */
+@media (max-width: 768px) {
+    /* Store & mentorship grids: single clean column */
+    .store-grid,
+    .mentor-grid {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+        gap: 22px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .bot-card, .mentor-card { padding: 26px 20px; }
+    .bot-card h2 { font-size: 1.35rem; }
+    .mentor-name { font-size: 1.3rem; }
+    .price { font-size: 2rem; }
+    .price-old { font-size: 0.95rem; }
+
+    .features li {
+        font-size: 0.88rem;
+        padding: 7px 0;
+        line-height: 1.5;
+    }
+
+    .section-title { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+    .section-subtitle { font-size: 0.95rem; }
+    .section-tag { font-size: 0.65rem; }
+
+    /* Hero tightening */
+    .hero-badge { font-size: 0.7rem; padding: 6px 14px; }
+    .hero-subtitle { font-size: 0.95rem; }
+
+    /* Store guarantee + perks stack neatly */
+    .store-guarantee { padding: 24px 18px; }
+    .mentor-perk { padding: 18px 16px; }
+
+    /* Chat bubble stays out of the way */
+    .live-chat-toggle { width: 48px; height: 48px; }
+}
+
+@media (max-width: 380px) {
+    .store-grid, .mentor-grid { max-width: 100%; }
+    .bot-card, .mentor-card { padding: 22px 16px; }
+    .btn-buy { font-size: 0.95rem; padding: 13px 10px; }
+}

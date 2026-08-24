@@ -847,3 +847,234 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,98,0.5); }
 
 ::selection { background: rgba(0,194,255,0.3); color: #fff; }
+
+/* ============================================================
+   SESSION BOOKING — professional redesign
+   ============================================================ */
+
+.book-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.book-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #E6C97A;
+    border: 1px solid rgba(201, 169, 98, 0.45);
+    background: rgba(201, 169, 98, 0.08);
+    border-radius: 99px;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+}
+
+.book-legend {
+    display: flex;
+    gap: 18px;
+    font-size: 0.78rem;
+    color: #8a93a5;
+    padding-bottom: 6px;
+}
+
+.book-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.book-legend .lg { width: 11px; height: 11px; border-radius: 4px; display: inline-block; }
+.lg-free { border: 1px solid rgba(0,194,255,0.5); background: rgba(0,194,255,0.08); }
+.lg-sel  { border: 1px solid #00C2FF; background: rgba(0,194,255,0.25); }
+.lg-book { position: relative; border: 1px solid rgba(201,169,98,0.5); background: rgba(201,169,98,0.08); }
+.lg-book::after {
+    content: ''; position: absolute; top: -2px; right: -2px;
+    width: 6px; height: 6px; border-radius: 50%; background: #C9A962;
+}
+
+.book-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Calendar card */
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+#calLabel {
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+
+.cal-head,
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.cal-head div {
+    font-size: 0.66rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #666;
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.cal-day.free {
+    cursor: pointer;
+    border: 1px solid rgba(0,194,255,0.28);
+    background: rgba(0,194,255,0.05);
+    color: #fff;
+}
+.cal-day.free:hover {
+    border-color: #00C2FF;
+    background: rgba(0,194,255,0.14);
+    transform: translateY(-1px);
+}
+
+.cal-day.past {
+    color: #3c3c3c;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: transparent;
+}
+
+.cal-day.sel {
+    border-color: #00C2FF !important;
+    background: rgba(0,194,255,0.22) !important;
+    box-shadow: 0 0 0 3px rgba(0,194,255,0.15);
+    font-weight: 700;
+}
+
+.cal-day .dot {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #C9A962;
+    box-shadow: 0 0 6px rgba(201,169,98,0.8);
+}
+
+.cal-note {
+    margin-top: 14px;
+    font-size: 0.75rem;
+    color: #5f6b7d;
+    text-align: center;
+}
+
+/* Time-slot panel */
+.book-side-h {
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8a93a5;
+    margin: 0 0 14px;
+}
+
+.slot-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+    font-size: 0.9rem;
+    border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 22px 18px;
+}
+.slot-empty span { font-size: 1.2rem; }
+
+.slot-date {
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.slot-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 16px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,194,255,0.35);
+    background: rgba(0,194,255,0.06);
+    color: #fff;
+    font-family: Inter, sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.slot-btn:hover:not([disabled]) {
+    border-color: #00C2FF;
+    background: rgba(0,194,255,0.15);
+    transform: translateX(3px);
+}
+.slot-btn em {
+    font-style: normal;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #00C2FF;
+}
+.slot-btn.taken {
+    border-color: rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.02);
+    color: #555;
+    cursor: not-allowed;
+}
+.slot-btn.taken em { color: #444; }
+
+/* "What to expect" info box */
+.book-info {
+    margin-top: 18px;
+    border: 1px solid rgba(201,169,98,0.3);
+    background: rgba(201,169,98,0.05);
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+.book-info strong {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #E6C97A;
+    margin-bottom: 8px;
+}
+.book-info ul {
+    margin: 0; padding-left: 18px;
+    color: #aab3c5; font-size: 0.85rem; line-height: 1.8;
+}
+
+.up-head {
+    margin: 30px 0 14px;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8a93a5;
+}
+
+@media (max-width: 900px) {
+    .book-grid { grid-template-columns: 1fr; }
+    .cal-day { font-size: 0.8rem; }
+}

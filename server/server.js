@@ -57,6 +57,7 @@ const SUMUP_CATALOG = {
     global:         { name: 'IMPERA Global Bot',          type: 'bot', amount: 245 },
     'impera-bot':   { name: 'IMPERA Bot',                 type: 'bot', amount: 0 },
     ebook:          { name: 'IMPERA Beginners Trading eBook', type: 'ebook', amount: 50 },
+    quant:          { name: 'IMPERA Quant Scalper',           type: 'bot',   amount: 325 },
     'mentor-lifetime': { name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 },
     test:           { name: 'IMPERA Bot — Test',          type: 'bot', amount: 1 }
 };
@@ -1122,7 +1123,7 @@ app.get('/api/account/:sessionId', async (req, res) => {
 });
 
 // ---------- Products by buyer email (drives dashboard across devices) ----------
-const TIER_BY_KEY = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
+const TIER_BY_KEY = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global', quant: 'Quant' };
 
 app.get('/api/products/:email', (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');

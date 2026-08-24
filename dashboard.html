@@ -154,25 +154,48 @@
 
     <!-- Tab: Book a Session (mentorship members only) -->
     <div class="dash-tab" id="tab-sessions">
-        <h2 class="dash-section-title">Book a 1:1 Session</h2>
-        <p class="dash-section-sub">Included with your IMPERA Mentorship. Pick a day and time that suits you — sessions run on Zoom.</p>
-        <div class="dash-card" style="display:flex;gap:32px;flex-wrap:wrap;">
-            <div style="flex:1.4;min-width:300px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                    <button type="button" class="btn btn-glass" id="calPrev" style="padding:8px 14px;">&larr;</button>
-                    <strong id="calLabel" style="font-size:1.05rem;letter-spacing:.5px;"></strong>
-                    <button type="button" class="btn btn-glass" id="calNext" style="padding:8px 14px;">&rarr;</button>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;text-align:center;" id="calHead"></div>
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:6px;" id="calGrid"></div>
+        <div class="book-hero">
+            <div>
+                <span class="book-badge">&#9878; Mentorship Exclusive</span>
+                <h2 class="dash-section-title">Book a 1:1 Session</h2>
+                <p class="dash-section-sub">Private strategy sessions with the IMPERA team — live on Zoom. Pick a day, choose a time, and you're in.</p>
             </div>
-            <div style="flex:1;min-width:240px;">
+            <div class="book-legend">
+                <span><i class="lg lg-free"></i> Available</span>
+                <span><i class="lg lg-sel"></i> Selected</span>
+                <span><i class="lg lg-book"></i> Booked by you</span>
+            </div>
+        </div>
+
+        <div class="book-grid">
+            <div class="dash-card book-cal">
+                <div class="cal-nav">
+                    <button type="button" class="btn btn-glass" id="calPrev" aria-label="Previous month">&larr;</button>
+                    <strong id="calLabel"></strong>
+                    <button type="button" class="btn btn-glass" id="calNext" aria-label="Next month">&rarr;</button>
+                </div>
+                <div class="cal-head" id="calHead"></div>
+                <div class="cal-grid" id="calGrid"></div>
+                <p class="cal-note">All times UK (GMT/BST) &middot; Sessions run Mon&ndash;Fri</p>
+            </div>
+
+            <div class="dash-card book-side">
+                <h3 class="book-side-h">Available Times</h3>
                 <div id="slotPanel">
-                    <p style="color:#777;font-size:.9rem;">Select a highlighted day to see available times.</p>
+                    <div class="slot-empty"><span>&#128197;</span>Select an available day to see open times</div>
+                </div>
+                <div class="book-info">
+                    <strong>What to expect</strong>
+                    <ul>
+                        <li>45-minute private Zoom call</li>
+                        <li>Chart reviews &amp; trade feedback</li>
+                        <li>Action plan sent after every session</li>
+                    </ul>
                 </div>
             </div>
         </div>
-        <h3 style="margin:28px 0 12px;font-size:1rem;letter-spacing:1px;text-transform:uppercase;color:#999;">Upcoming Sessions</h3>
+
+        <h3 class="up-head">Upcoming Sessions</h3>
         <div id="upcomingList"></div>
     </div>
 

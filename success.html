@@ -118,7 +118,51 @@
             text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); }
-    </style>
+    
+/* ---- Session picker (mentorship) — professional styling ---- */
+#sessionPicker { border-radius: 16px; padding: 26px 26px 24px; }
+#spLabel { color:#fff; letter-spacing:1px; }
+#spPrev, #spNext {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.18);
+    color:#ddd; border-radius:8px; padding:7px 14px; cursor:pointer;
+    font-size:0.95rem; transition:all .2s ease;
+}
+#spPrev:hover, #spNext:hover { background:rgba(201,169,98,0.15); border-color:#C9A962; }
+#spHead div { text-align:center; color:#777; font-size:0.68rem; letter-spacing:1.5px; padding-bottom:4px; text-transform:uppercase; }
+#spGrid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+#sessionPicker .cal-day {
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    border-radius:9px; font-size:0.85rem; position:relative; transition:all .2s ease;
+}
+#sessionPicker .cal-day.free {
+    cursor:pointer; border:1px solid rgba(201,169,98,0.35);
+    background:rgba(201,169,98,0.06); color:#fff;
+}
+#sessionPicker .cal-day.free:hover { border-color:#C9A962; background:rgba(201,169,98,0.18); transform:translateY(-1px); }
+#sessionPicker .cal-day.past { color:#444; border:1px solid rgba(255,255,255,0.06); background:transparent; }
+#sessionPicker .cal-day.sel {
+    border-color:#E6C97A !important; background:rgba(201,169,98,0.28) !important;
+    box-shadow:0 0 0 3px rgba(201,169,98,0.15); font-weight:700;
+}
+#spSlots { margin-top:18px; }
+#spSlots > div:first-child { color:#8a93a5; font-size:0.72rem; letter-spacing:2px; margin-bottom:10px; text-transform:uppercase; }
+#spSlotGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+#sessionPicker .slot-btn {
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    width:100%; padding:10px 6px; border-radius:9px;
+    border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.04);
+    color:#ddd; font-family:Inter,sans-serif; font-size:0.82rem; cursor:pointer;
+    transition:all .2s ease;
+}
+#sessionPicker .slot-btn em { font-style:normal; font-size:0.6rem; letter-spacing:1px; color:#8a93a5; text-transform:uppercase; }
+#sessionPicker .slot-btn:hover { border-color:rgba(201,169,98,0.5); background:rgba(201,169,98,0.08); }
+#sessionPicker .slot-btn.sel {
+    border-color:#C9A962 !important; background:rgba(201,169,98,0.22) !important;
+    box-shadow:0 0 0 3px rgba(201,169,98,0.12);
+}
+#sessionPicker .slot-btn.sel em { color:#FFD700; }
+@media (max-width:520px){ #spSlotGrid{ grid-template-columns:repeat(3,1fr);} }
+</style>
 </head>
 <body>
     <nav class="navbar" id="navbar">
@@ -310,12 +354,14 @@
         const BOT_FILES = {
             scalping: { file: 'IMPERA_Scalping_Bot.mq5', size: '~8 KB' },
             gold:     { file: 'IMPERA_Gold_Bot.mq5',     size: '~10 KB' },
-            global:   { file: 'IMPERA_Global_Bot.mq5',   size: '~14 KB' }
+            global:   { file: 'IMPERA_Global_Bot.mq5',   size: '~14 KB' },
+            quant:    { file: 'IMPERA_QuantScalper.mq5', size: '~12 KB' }
         };
         const BOT_NAMES = {
             scalping: 'IMPERA Scalping Bot',
             gold: 'IMPERA Gold Bot',
             global: 'IMPERA Global Bot',
+            quant: 'IMPERA Quant Scalper',
             ebook: 'IMPERA Beginners Trading eBook'
         };
 
@@ -436,7 +482,7 @@
                 if (!isMentorshipOrder && !isEbookOrder) {
                     var session = { name: acct.name || 'Trader', email: acct.email, role: 'client', licence: null, tier: null, purchasedBots: [] };
                     session.licence = data.licenceKey;
-                    session.tier = data.bot === 'scalping' ? 'Scalping' : data.bot === 'gold' ? 'Gold' : 'Global';
+                    session.tier = data.bot === 'scalping' ? 'Scalping' : data.bot === 'gold' ? 'Gold' : data.bot === 'quant' ? 'Quant' : 'Global';
                     session.bot_type = data.bot;
                     session.purchasedBots.push(data.bot);
                     ImperaAuth.setSession(ImperaAuth.hydrateSession(session));
@@ -587,11 +633,7 @@
             for (var d = 1; d <= daysInMonth; d++) {
                 var dt = new Date(y, m, d);
                 var past = dt < today;
-                html += '<div data-spday="' + d + '" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:0.85rem;' +
-                    'cursor:' + (past ? 'default' : 'pointer') + ';' +
-                    'border:1px solid ' + (past ? 'rgba(255,255,255,0.06)' : 'rgba(201,169,98,0.3)') + ';' +
-                    'background:' + (past ? 'transparent' : 'rgba(201,169,98,0.05)') + ';' +
-                    'color:' + (past ? '#444' : '#fff') + ';">' + d + '</div>';
+                html += '<div data-spday="' + d + '" class="cal-day ' + (past ? 'past' : 'free') + '">' + d + '</div>';
             }
             var grid = document.getElementById('spGrid');
             grid.innerHTML = html;
@@ -605,12 +647,8 @@
                     cBtn.disabled = true; cBtn.style.cursor = 'not-allowed';
                     cBtn.textContent = 'Now pick a time below';
                     document.getElementById('spSlots').style.display = 'none';
-                    grid.querySelectorAll('[data-spday]').forEach(function (c) {
-                        c.style.background = 'rgba(201,169,98,0.05)';
-                        c.style.borderColor = 'rgba(201,169,98,0.3)';
-                    });
-                    cell.style.background = 'rgba(201,169,98,0.25)';
-                    cell.style.borderColor = '#C9A962';
+                    grid.querySelectorAll('[data-spday]').forEach(function (c) { c.classList.remove('sel'); });
+                    cell.classList.add('sel');
                     renderSpSlots(dt);
                 });
             });
@@ -620,20 +658,13 @@
             var wrap = document.getElementById('spSlots');
             wrap.style.display = 'block';
             document.getElementById('spSlotGrid').innerHTML = ImperaAuth.SLOTS.map(function (t) {
-                return '<button type="button" data-sptime="' + t + '" style="padding:9px 4px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);' +
-                    'background:rgba(255,255,255,0.04);color:#ddd;font-family:Inter,sans-serif;font-size:0.82rem;cursor:pointer;">' + t + '</button>';
+                return '<button type="button" data-sptime="' + t + '" class="slot-btn"><span>' + t + '</span><em>Zoom</em></button>';
             }).join('');
             wrap.querySelectorAll('[data-sptime]').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     spSel.time = btn.dataset.sptime;
-                    wrap.querySelectorAll('[data-sptime]').forEach(function (b) {
-                        b.style.background = 'rgba(255,255,255,0.04)';
-                        b.style.borderColor = 'rgba(255,255,255,0.15)';
-                        b.style.color = '#ddd';
-                    });
-                    btn.style.background = 'rgba(201,169,98,0.3)';
-                    btn.style.borderColor = '#C9A962';
-                    btn.style.color = '#FFD700';
+                    wrap.querySelectorAll('[data-sptime]').forEach(function (b) { b.classList.remove('sel'); });
+                    btn.classList.add('sel');
                     var nice = dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
                     var cBtn = document.getElementById('spConfirm');
                     cBtn.disabled = false;

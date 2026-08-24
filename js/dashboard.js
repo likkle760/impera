@@ -207,9 +207,10 @@
         const unlocked = session.unlockedBots || [];
 
         const allBots = [
-            { key: 'scalping', name: 'IMPERA Scalping Bot', tier: 'Scalping', file: 'IMPERA_Scalping_Bot.mq5', desc: 'EMA crossover + RSI · M1/M5 scalper · EUR/USD, GBP/USD, USD/JPY', purchased: has('scalping') },
-            { key: 'gold', name: 'IMPERA Gold Bot', tier: 'Gold', file: 'IMPERA_Gold_Bot.mq5', desc: 'Multi-TF EMA + MACD + Stoch · XAU/USD specialist', purchased: has('gold') },
-            { key: 'global', name: 'IMPERA Global Bot', tier: 'Global', file: 'IMPERA_Global_Bot.mq5', desc: '3 strategies: Scalp + Swing + Breakout · All symbols · VIP', purchased: has('global') }
+            { key: 'scalping', name: 'IMPERA Scalping Bot', tier: 'Scalping', file: 'assets/IMPERA_Scalping_Bot.mq5', desc: 'EMA crossover + RSI · M1/M5 scalper · EUR/USD, GBP/USD, USD/JPY', purchased: has('scalping') },
+            { key: 'gold', name: 'IMPERA Gold Bot', tier: 'Gold', file: 'assets/IMPERA_Gold_Bot.mq5', desc: 'Multi-TF EMA + MACD + Stoch · XAU/USD specialist', purchased: has('gold') },
+            { key: 'global', name: 'IMPERA Global Bot', tier: 'Global', file: 'assets/IMPERA_Global_Bot.mq5', desc: '3 strategies: Scalp + Swing + Breakout · All symbols · VIP', purchased: has('global') },
+            { key: 'quant', name: 'IMPERA Quant Scalper', tier: 'Quant', file: 'bots/IMPERA_QuantScalper.mq5', desc: 'Quantitative tick-level scalper · volume + news filters · pro edition', purchased: has('quant') }
         ].map(b => Object.assign(b, { active: b.purchased || unlocked.includes(b.key) }));
 
         grid.innerHTML = allBots.map(b => {
@@ -235,7 +236,7 @@
     }
 
     // ---- Licence key ----
-    const TIER_LABEL = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
+    const TIER_LABEL = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global', quant: 'Quant' };
     function licenceTierLabel() {
         const k = (session.unlockedBots || [])[0];
         if (k) return (TIER_LABEL[k] || 'Standard') + ' License';
@@ -243,7 +244,7 @@
         const owned = prods.find(p => !ImperaAuth.isMentorship(p.bot));
         return owned ? ((TIER_MAP_NAME[owned.bot]) || 'Standard') + ' License' : 'License';
     }
-    const TIER_MAP_NAME = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global' };
+    const TIER_MAP_NAME = { scalping: 'Scalping', 'impera-bot': 'Scalping', test: 'Scalping', gold: 'Gold', global: 'Global', quant: 'Quant' };
     function renderLicence() {
         const activeBox = $('#licenceActive');
         const inactiveBox = $('#licenceInactive');
@@ -364,6 +365,7 @@
         gold:      { name: 'IMPERA Gold Bot',      file: 'assets/IMPERA_Gold_Bot.mq5' },
         global:    { name: 'IMPERA Global Bot',    file: 'assets/IMPERA_Global_Bot.mq5' },
         platinum:  { name: 'IMPERA Platinum AI',   file: 'assets/IMPERA_Platinum.mq5' },
+        quant:     { name: 'IMPERA Quant Scalper', file: 'bots/IMPERA_QuantScalper.mq5' },
         ebook:     { name: 'IMPERA Beginners Trading eBook', file: 'ebook.html' }
     };
 
@@ -476,22 +478,12 @@
 
         for (let d = 1; d <= daysInMonth; d++) {
             const date = new Date(y, m, d);
-            const dow = date.getDay();
             const isPast = date < today;
             const available = !isPast;
             const bookedCount = ImperaAuth.getBookings().filter(b => sameDay(b.date, date) && b.userEmail === session.email && b.status !== 'cancelled').length;
             const isSelected = selectedDay && sameDay(selectedDay, date);
 
-            html += `<div data-day="${d}" style="
-                    aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                    border-radius:10px;cursor:${available ? 'pointer' : 'default'};
-                    border:1px solid ${isSelected ? '#00C2FF' : available ? 'rgba(0,194,255,0.25)' : 'rgba(255,255,255,0.05)'};
-                    background:${isSelected ? 'rgba(0,194,255,0.12)' : available ? 'rgba(0,194,255,0.04)' : 'transparent'};
-                    color:${available ? '#fff' : '#444'};
-                    font-weight:${bookedCount ? 700 : 500};position:relative;">
-                    ${d}
-                    ${bookedCount ? '<span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#C9A962"></span>' : ''}
-                </div>`;
+            html += `<div data-day="${d}" class="cal-day ${isPast ? 'past' : 'free'}${isSelected ? ' sel' : ''}${bookedCount ? ' has-book' : ''}">${d}${bookedCount ? '<i class="dot"></i>' : ''}</div>`;
         }
         grid.innerHTML = html;
 
@@ -520,15 +512,11 @@
     function renderSlots(date) {
         const panel = $('#slotPanel');
         const taken = ImperaAuth.bookedSlots(ymd(date));
-        let html = `<p style="font-weight:700;margin-bottom:14px">${date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>`;
+        let html = `<p class="slot-date">${date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>`;
         html += ImperaAuth.SLOTS.map(t => {
             const isTaken = taken.includes(t);
-            return `<button type="button" data-slot="${t}"${isTaken ? ' disabled' : ''} style="
-                    width:100%;padding:11px;margin-bottom:8px;border-radius:10px;cursor:${isTaken ? 'not-allowed' : 'pointer'};
-                    border:1px solid ${isTaken ? 'rgba(255,255,255,0.08)' : 'rgba(0,194,255,0.35)'};
-                    background:${isTaken ? 'rgba(255,255,255,0.03)' : 'rgba(0,194,255,0.06)'};
-                    color:${isTaken ? '#555' : '#fff'};font-family:Inter,sans-serif;font-size:.9rem;">
-                    ${t}${isTaken ? ' · booked' : ''} <span style="float:right;color:#666">Zoom</span>
+            return `<button type="button" data-slot="${t}"${isTaken ? ' disabled' : ''} class="slot-btn${isTaken ? ' taken' : ''}">
+                    <span>${t}</span><em>${isTaken ? 'Booked' : 'Zoom'}</em>
                 </button>`;
         }).join('');
         panel.innerHTML = html;

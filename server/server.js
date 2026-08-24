@@ -1080,7 +1080,15 @@ app.get('/api/mailcheck', async (req, res) => {
     try {
         await sendHtml(process.env.ADMIN_NOTIFY_EMAIL, 'IMPERA — mail test',
             '<div style="font-family:Arial,sans-serif;padding:24px">If you receive this, order &amp; booking emails are working. 👑</div>');
-        res.json({ ok: true, via: process.env.BREVO_API_KEY ? 'brevo-api' : (process.env.RESEND_API_KEY ? 'resend-api' : 'smtp') });
+        res.json({
+            ok: true,
+            via: process.env.BREVO_API_KEY ? 'brevo-api' : (process.env.RESEND_API_KEY ? 'resend-api' : 'smtp'),
+            emailMode: {
+                order: process.env.RESEND_TPL_ORDER ? 'RESEND DASHBOARD TEMPLATE ' + process.env.RESEND_TPL_ORDER : 'built-in per-product html',
+                mentorship: process.env.RESEND_TPL_MENTORSHIP ? 'RESEND DASHBOARD TEMPLATE ' + process.env.RESEND_TPL_MENTORSHIP : 'built-in per-product html',
+                declined: process.env.RESEND_TPL_DECLINED ? 'RESEND DASHBOARD TEMPLATE ' + process.env.RESEND_TPL_DECLINED : 'built-in html'
+            }
+        });
     } catch (err) {
         res.json({ ok: false, error: err.message });
     }

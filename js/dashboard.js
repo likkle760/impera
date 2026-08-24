@@ -363,7 +363,8 @@
         scalping:  { name: 'IMPERA Scalping Bot',  file: 'assets/IMPERA_Scalping_Bot.mq5' },
         gold:      { name: 'IMPERA Gold Bot',      file: 'assets/IMPERA_Gold_Bot.mq5' },
         global:    { name: 'IMPERA Global Bot',    file: 'assets/IMPERA_Global_Bot.mq5' },
-        platinum:  { name: 'IMPERA Platinum AI',   file: 'assets/IMPERA_Platinum.mq5' }
+        platinum:  { name: 'IMPERA Platinum AI',   file: 'assets/IMPERA_Platinum.mq5' },
+        ebook:     { name: 'IMPERA Beginners Trading eBook', file: 'ebook.html' }
     };
 
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -389,7 +390,18 @@
         let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px">';
         prods.forEach(p => {
             const isMentor = ImperaAuth.isMentorship(p.bot);
-            if (isMentor) {
+            if (p.bot === 'ebook') {
+                html += `
+                <div class="dash-card">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+                        <h3 style="font-size:1.1rem">&#128214; ${esc(p.botName || BOT_META.ebook.name)}</h3>
+                        <span style="font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:#00FFB2;border:1px solid rgba(0,255,178,.35);padding:4px 10px;border-radius:99px;">Owned</span>
+                    </div>
+                    <p style="color:#888;font-size:.85rem">Purchased ${fmtDate(p.date)}</p>
+                    <p style="color:#888;font-size:.9rem;line-height:1.8">The Precision Trading Playbook &mdash; your complete beginner-to-confident trading guide. Read online anytime, or save it as a PDF for offline study.</p>
+                    <a href="ebook.html" class="btn btn-primary" style="margin-top:16px;width:100%;display:block;text-align:center">Open eBook &rarr;</a>
+                </div>`;
+            } else if (isMentor) {
                 const m = ImperaAuth.mentorshipPlan(session.email);
                 html += `
                 <div class="dash-card" style="border:1px solid rgba(201,169,98,0.4)">

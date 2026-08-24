@@ -56,6 +56,7 @@ const SUMUP_CATALOG = {
     gold:           { name: 'IMPERA Gold Bot',            type: 'bot', amount: 125 },
     global:         { name: 'IMPERA Global Bot',          type: 'bot', amount: 245 },
     'impera-bot':   { name: 'IMPERA Bot',                 type: 'bot', amount: 0 },
+    ebook:          { name: 'IMPERA Beginners Trading eBook', type: 'ebook', amount: 50 },
     'mentor-lifetime': { name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 },
     test:           { name: 'IMPERA Bot — Test',          type: 'bot', amount: 1 }
 };
@@ -301,11 +302,14 @@ function hookLog(entry) {
 async function deliverProduct({ sessionId, type, productName, priceId, amountFormatted, amountValue, customerName, email, receiptUrl }) {
     const map = priceMap()[priceId] || {};
     const isMentorship = map.type === 'mentorship' || /mentor|membership/i.test(type);
+    const isEbook = map.type === 'ebook' || /ebook/i.test(type);
 
     const rec = provision({ sessionId, type, productName, priceId, amountFormatted });
     rec.customerName = customerName || '';
     rec.amountValue = amountValue != null ? amountValue : null;
     rec.customerEmail = email;
+    // The eBook is delivered as a download link — no bot licence involved
+    if (isEbook) rec.licenceKey = null;
     // Licence keys are locked to the buying account from the moment of purchase
     if (rec.licenceKey) {
         rec.activatedBy = String(email).toLowerCase();
@@ -341,7 +345,8 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
             TEMP_PASSWORD: rec.password || '',
             LOGIN_EMAIL: email,
             DASHBOARD_URL: DASHBOARD_URL,
-            DOWNLOAD_URL: SITE_URL.replace(/\/$/, '') + '/assets/IMPERA_' +
+            DOWNLOAD_URL: isEbook ? SITE_URL.replace(/\/$/, '') + '/ebook.html' :
+                SITE_URL.replace(/\/$/, '') + '/assets/IMPERA_' +
                 (/gold/i.test(type) ? 'Gold_Bot' : /global/i.test(type) ? 'Global_Bot' : 'Scalping_Bot') + '.mq5',
             SUPPORT_EMAIL: SUPPORT_EMAIL,
             TELEGRAM_URL: TELEGRAM_URL,
@@ -367,6 +372,17 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
             receipt_url: receiptUrl || `https://dashboard.impera.app/receipts/${sessionId}`
         });
         subject = `Welcome to IMPERA Mentorship — pick your first session`;
+    } else if (isEbook) {
+        html = loadTemplate('order-ebook.html', {
+            ...commonVars,
+            product_name: productName,
+            bot_name: productName,
+            amount: amountFormatted,
+            licence_key: '',
+            download_url: SITE_URL.replace(/\/$/, '') + '/ebook.html',
+            receipt_url: receiptUrl || `https://dashboard.impera.app/receipts/${sessionId}`
+        });
+        subject = 'IMPERA — Your eBook Is Ready';
     } else {
         const tpl = /gold/i.test(type) ? 'order-gold.html'
             : /global/i.test(type) ? 'order-global.html'
@@ -402,7 +418,7 @@ async function deliverProduct({ sessionId, type, productName, priceId, amountFor
         [
             `<strong style="color:#C9A962;">${productName}</strong> — ${amountFormatted}`,
             `Customer: <strong>${customerName || '—'}</strong> &lt;${email}&gt;`,
-            `Order: #${sessionId.slice(-8).toUpperCase()} · ${isMentorship ? 'Mentorship' : 'Bot licence'}`
+            `Order: #${sessionId.slice(-8).toUpperCase()} · ${isEbook ? 'eBook' : isMentorship ? 'Mentorship' : 'Bot licence'}`
         ]
     );
 

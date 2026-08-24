@@ -315,7 +315,8 @@
         const BOT_NAMES = {
             scalping: 'IMPERA Scalping Bot',
             gold: 'IMPERA Gold Bot',
-            global: 'IMPERA Global Bot'
+            global: 'IMPERA Global Bot',
+            ebook: 'IMPERA Beginners Trading eBook'
         };
 
         // Generate a licence key (same format as MT5 bot validator)
@@ -416,13 +417,14 @@
             if (acct && acct.email && acct.password) {
                 // ---- Server path: everything matches real billing ----
                 var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
+                var isEbookOrder = botKey === 'ebook';
                 ImperaAuth.provisionWithPassword(acct.email, acct.name, acct.password);
 
                 var data = {
                     sessionId: sid,
                     bot: acct.bot || botKey,
                     botName: acct.product || BOT_NAMES[botKey] || BOT_NAMES.scalping,
-                    licenceKey: isMentorshipOrder ? null : (acct.licenceKey || generateKey()),
+                    licenceKey: (isMentorshipOrder || isEbookOrder) ? null : (acct.licenceKey || generateKey()),
                     plan: isMentorshipOrder ? (botKey === 'mentor-lifetime' ? 'lifetime' : 'monthly') : null,
                     email: acct.email,
                     amount: acct.amount || null,
@@ -431,7 +433,7 @@
                 ImperaAuth.addPurchase(data);
                 localStorage.setItem('impera_purchase_' + sid, JSON.stringify(data));
 
-                if (!isMentorshipOrder) {
+                if (!isMentorshipOrder && !isEbookOrder) {
                     var session = { name: acct.name || 'Trader', email: acct.email, role: 'client', licence: null, tier: null, purchasedBots: [] };
                     session.licence = data.licenceKey;
                     session.tier = data.bot === 'scalping' ? 'Scalping' : data.bot === 'gold' ? 'Gold' : 'Global';
@@ -447,6 +449,7 @@
 
             // ---- Local fallback (no server configured) ----
             var isMentorshipOrder = botKey === 'mentor-monthly' || botKey === 'mentor-lifetime' || botKey === 'basic-membership';
+            var isEbookOrder = botKey === 'ebook';
             var licenceKey = generateKey();
             var name = isMentorshipOrder
                 ? 'IMPERA Mentorship — ' + (botKey === 'mentor-lifetime' ? 'Lifetime' : 'Monthly')
@@ -462,7 +465,7 @@
                 sessionId: sessionId,
                 bot: botKey,
                 botName: name,
-                licenceKey: isMentorshipOrder ? null : licenceKey,
+                licenceKey: (isMentorshipOrder || isEbookOrder) ? null : licenceKey,
                 plan: botKey === 'mentor-monthly' ? 'monthly' : botKey === 'mentor-lifetime' ? 'lifetime' : null,
                 email: creds.email,
                 date: new Date().toISOString()
@@ -515,6 +518,23 @@
                     'Your ' + (data.bot === 'mentor-lifetime' ? 'lifetime' : 'monthly') +
                     ' mentorship is active. Follow the steps below to get started.';
                 initSessionPicker(data);
+                return;
+            }
+
+            if (data.bot === 'ebook') {
+                document.getElementById('licenceCard').style.display = 'none';
+                document.getElementById('installCard').style.display = 'none';
+                document.getElementById('downloadArea').innerHTML =
+                    '<a href="ebook.html" class="download-btn">' +
+                        '<div class="download-icon">&#128214;</div>' +
+                        '<div class="download-info">' +
+                            '<div class="dl-name">The Precision Trading Playbook</div>' +
+                            '<div class="dl-size">Online eBook &middot; read now or save as PDF</div>' +
+                        '</div>' +
+                        '<div class="download-arrow">&darr;</div>' +
+                    '</a>';
+                document.querySelector('.success-state .subtitle').textContent =
+                    'Your eBook is unlocked. Open it below and start reading — you can also save it as a PDF.';
                 return;
             }
 

@@ -55,9 +55,10 @@ const SUMUP_CATALOG = {
     scalping:       { name: 'IMPERA Scalping Bot',        type: 'bot', amount: 49 },
     gold:           { name: 'IMPERA Gold Bot',            type: 'bot', amount: 125 },
     global:         { name: 'IMPERA Global Bot',          type: 'bot', amount: 245 },
-    'impera-bot':   { name: 'IMPERA Bot',                 type: 'bot', amount: 0 },
+    'impera-bot':   { name: 'IMPERA Bot',                 type: 'bot', amount: 49 },
     ebook:          { name: 'IMPERA Beginners Trading eBook', type: 'ebook', amount: 50 },
     quant:          { name: 'IMPERA Quant Scalper',           type: 'bot',   amount: 325 },
+    'mentor-monthly': { name: 'IMPERA Monthly Mentorship', type: 'mentorship', amount: 50 },
     'mentor-lifetime': { name: 'IMPERA Mentorship — Lifetime', type: 'mentorship', amount: 175 },
     test:           { name: 'IMPERA Bot — Test',          type: 'bot', amount: 1 }
 };
@@ -663,6 +664,7 @@ app.post('/api/create-paypal-order', express.json(), async (req, res) => {
         if (!info) return res.status(400).json({ error: 'Unknown product.' });
         if (!(info.amount > 0)) return res.status(400).json({ error: 'This product cannot be purchased right now.' });
         if (!email || !/.+@.+\..+/.test(email)) return res.status(400).json({ error: 'A valid email address is required.' });
+        const returnPath = String(req.body.returnPath || 'success.html').replace(/[^a-zA-Z0-9_./-]/g, '');
 
         const t = await paypalToken();
         const origin = siteOrigin(req);
@@ -681,8 +683,8 @@ app.post('/api/create-paypal-order', express.json(), async (req, res) => {
                     locale: 'en-GB',
                     user_action: 'PAY_NOW',
                     shipping_preference: 'NO_SHIPPING',
-                    return_url: origin + '/success.html?paypal_return=1&bot=' + encodeURIComponent(key) + '&email=' + encodeURIComponent(email),
-                    cancel_url: origin + '/checkout.html?bot=' + encodeURIComponent(key) + '&cancelled=1'
+                    return_url: origin + '/' + returnPath + '?paypal_return=1&bot=' + encodeURIComponent(key) + '&email=' + encodeURIComponent(email),
+                    cancel_url: origin + '/' + returnPath + '?bot=' + encodeURIComponent(key) + '&cancelled=1'
                 }
             })
         });
@@ -1235,5 +1237,159 @@ app.get('/', (_q, s) => {
 });
 
 app.get('/health', (_q, s) => s.send('ok'));
+
+/* ============================================================
+   AUTH (Next.js storefront) — scrypt hashing + bearer sessions
+   ============================================================ */
+const SESSION_TTL = 30 * 24 * 3600 * 1000;
+
+function hashPassword(pw) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.scryptSync(String(pw), salt, 64).toString('hex');
+    return salt + ':' + hash;
+}
+function verifyPassword(pw, stored) {
+    try {
+        const [salt, hash] = String(stored).split(':');
+        const test = crypto.scryptSync(String(pw), salt, 64).toString('hex');
+        return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(test, 'hex'));
+    } catch { return false; }
+}
+function issueToken(email) {
+    const token = crypto.randomBytes(32).toString('hex');
+    const sessions = db.read('sessions.json');
+    sessions[token] = { email: String(email).toLowerCase(), exp: Date.now() + SESSION_TTL };
+    db.write('sessions.json', sessions);
+    return token;
+}
+function sessionUser(req) {
+    const h = req.headers.authorization || '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+    if (!token) return null;
+    const s = db.read('sessions.json')[token];
+    if (!s || s.exp < Date.now()) return null;
+    return s.email;
+}
+function userPurchases(email) {
+    const e = String(email).toLowerCase();
+    return db.read('accounts.json')
+        .filter(a => String(a.customerEmail || '').toLowerCase() === e)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+
+app.post('/api/auth/register', express.json(), (req, res) => {
+    const { name, email, password } = req.body || {};
+    if (!name || String(name).trim().length < 2) return res.status(400).json({ error: 'Please enter your name.' });
+    if (!email || !/.+@.+\..+/.test(email)) return res.status(400).json({ error: 'A valid email address is required.' });
+    if (!password || String(password).length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    const users = db.read('users.json');
+    const e = String(email).toLowerCase();
+    if (users.find(u => String(u.email).toLowerCase() === e)) return res.status(409).json({ error: 'An account with this email already exists — try logging in.' });
+    users.push({ email: e, name: String(name).trim(), pwHash: hashPassword(password), createdAt: new Date().toISOString() });
+    db.write('users.json', users);
+    res.json({ ok: true, token: issueToken(e) });
+});
+
+app.post('/api/auth/login', express.json(), (req, res) => {
+    const { email, password } = req.body || {};
+    const e = String(email || '').toLowerCase();
+    const u = db.read('users.json').find(x => String(x.email).toLowerCase() === e);
+    if (!u) return res.status(401).json({ error: 'No account found with that email.' });
+    const okLegacy = u.password && password === u.password;
+    const okHash = u.pwHash && verifyPassword(password, u.pwHash);
+    if (!okLegacy && !okHash) return res.status(401).json({ error: 'Incorrect password. Try again or reset it below.' });
+    res.json({ ok: true, token: issueToken(e), name: u.name });
+});
+
+app.post('/api/auth/logout', express.json(), (req, res) => {
+    const h = req.headers.authorization || '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+    if (token) {
+        const sessions = db.read('sessions.json');
+        delete sessions[token];
+        db.write('sessions.json', sessions);
+    }
+    res.json({ ok: true });
+});
+
+app.get('/api/auth/me', (req, res) => {
+    const email = sessionUser(req);
+    if (!email) return res.status(401).json({ error: 'Not logged in.' });
+    const u = db.read('users.json').find(x => String(x.email).toLowerCase() === email);
+    const purchases = userPurchases(email).map(a => ({
+        sessionId: a.sessionId, bot: a.type, product: a.productName,
+        amount: a.amountFormatted, date: a.createdAt, licenceKey: a.licenceKey || null
+    }));
+    let mentorship = { active: false, plan: null };
+    for (const p of purchases) {
+        if (/mentor|membership/i.test(p.bot)) {
+            mentorship = { active: true, plan: /life/i.test(p.bot) ? 'lifetime' : 'monthly' };
+            break;
+        }
+        if (/monthly/i.test(p.bot) && p.date && Date.now() - new Date(p.date).getTime() > 31 * 864e5) {
+            mentorship = { active: false, plan: null };
+        }
+    }
+    res.json({ name: (u && u.name) || email.split('@')[0], email, purchases, mentorship });
+});
+
+app.post('/api/auth/reset', express.json(), async (req, res) => {
+    const email = String((req.body || {}).email || '').toLowerCase();
+    if (!/.+@.+\..+/.test(email)) return res.status(400).json({ error: 'Valid email required.' });
+    const users = db.read('users.json');
+    const u = users.find(x => String(x.email).toLowerCase() === email);
+    // do not reveal whether the account exists
+    if (u) {
+        const temp = genPassword();
+        u.password = temp; u.pwHash = null;
+        db.write('users.json', users);
+        try {
+            await sendHtml(email, 'IMPERA — Your login reset',
+                `<div style="font-family:Arial,sans-serif;padding:24px"><h2>Password reset</h2><p>Your temporary password is:</p><p style="font-size:22px;font-weight:bold;letter-spacing:2px">${temp}</p><p>Please log in and change it soon.</p></div>`);
+        } catch (err) { console.error('[auth] reset email failed:', err.message); }
+    }
+    res.json({ ok: true });
+});
+
+/* ---------- Protected digital downloads ---------- */
+const DL_FILES = {
+    scalping: ['IMPERA_Scalping_Bot.mq5', 'text/plain'],
+    gold:     ['IMPERA_Gold_Bot.mq5', 'text/plain'],
+    global:   ['IMPERA_Global_Bot.mq5', 'text/plain'],
+    quant:    ['IMPERA_QuantScalper.mq5', 'text/plain'],
+    ebook:    ['The-Precision-Trading-Playbook.html', 'text/html; charset=utf-8']
+};
+app.get('/api/dl/:key', (req, res) => {
+    const email = sessionUser(req);
+    if (!email) return res.status(401).json({ error: 'Please log in to download your purchase.' });
+    const key = String(req.params.key || '');
+    const owns = userPurchases(email).some(p =>
+        p.type === key || (/^impera-bot$/.test(p.type) && key === 'scalping') ||
+        (/^impera-bot$/.test(p.type) && key === 'ebook' && false));
+    if (!owns && !(key === 'ebook' && userPurchases(email).some(p => p.type === 'ebook'))) {
+        return res.status(403).json({ error: 'This download is not on your account yet.' });
+    }
+    const entry = DL_FILES[key];
+    if (!entry) return res.status(404).json({ error: 'Download unavailable.' });
+    const fp = path.join(__dirname, 'private', entry[0]);
+    if (!fs.existsSync(fp)) return res.status(404).json({ error: 'File missing — contact support.' });
+    res.set('X-Filename', entry[0]);
+    res.set('Content-Disposition', key === 'ebook' ? 'inline; filename="' + entry[0] + '"' : 'attachment; filename="' + entry[0] + '"');
+    res.type(entry[1]).send(fs.readFileSync(fp));
+});
+
+/* ---------- Contact form ---------- */
+app.post('/api/contact', express.json(), async (req, res) => {
+    const { name, email, subject, message, company } = req.body || {};
+    if (company) return res.json({ ok: true }); // honeypot: silently drop bots
+    if (!name || !email || !subject || !message) return res.status(400).json({ error: 'All fields are required.' });
+    if (!/.+@.+\..+/.test(String(email))) return res.status(400).json({ error: 'A valid email address is required.' });
+    try {
+        await sendHtml(process.env.ADMIN_NOTIFY_EMAIL || 'imperafrx@gmail.com',
+            `IMPERA contact — ${String(subject).slice(0, 80)}`,
+            `<div style="font-family:Arial,sans-serif"><p><b>${String(name).slice(0,80)}</b> &lt;${String(email)}&gt;</p><p>${String(message).slice(0, 4000).replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p></div>`);
+    } catch (err) { console.error('[contact] send failed:', err.message); }
+    res.json({ ok: true });
+});
 
 app.listen(PORT, () => console.log(`IMPERA webhook server listening on http://localhost:${PORT}`));

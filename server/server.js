@@ -1255,9 +1255,13 @@ function verifyPassword(pw, stored) {
         return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(test, 'hex'));
     } catch { return false; }
 }
+function readSessions() {
+    const raw = db.read('sessions.json');
+    return (raw && !Array.isArray(raw) && typeof raw === 'object') ? raw : {};
+}
 function issueToken(email) {
     const token = crypto.randomBytes(32).toString('hex');
-    const sessions = db.read('sessions.json');
+    const sessions = readSessions();
     sessions[token] = { email: String(email).toLowerCase(), exp: Date.now() + SESSION_TTL };
     db.write('sessions.json', sessions);
     return token;
@@ -1266,7 +1270,7 @@ function sessionUser(req) {
     const h = req.headers.authorization || '';
     const token = h.startsWith('Bearer ') ? h.slice(7) : null;
     if (!token) return null;
-    const s = db.read('sessions.json')[token];
+    const s = readSessions()[token];
     if (!s || s.exp < Date.now()) return null;
     return s.email;
 }
@@ -1305,7 +1309,7 @@ app.post('/api/auth/logout', express.json(), (req, res) => {
     const h = req.headers.authorization || '';
     const token = h.startsWith('Bearer ') ? h.slice(7) : null;
     if (token) {
-        const sessions = db.read('sessions.json');
+        const sessions = readSessions();
         delete sessions[token];
         db.write('sessions.json', sessions);
     }
